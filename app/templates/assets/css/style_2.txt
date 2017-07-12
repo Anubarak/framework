@@ -1,0 +1,150 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic);
+
+html, body
+{
+    padding: 0px;
+    margin : 0px;
+    font-family: 'Roboto', sans-serif;
+}
+
+header
+{
+    background-image: url('../img/header.jpg');
+    background-size: cover;
+    width: 100%;
+    height: 237px;
+    position: relative;
+    color: #f9f9f9;
+    padding-top: 50px;
+}
+
+#headline
+{
+    font-size: 3.1em;
+    margin-left: 230px;
+    text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
+    font-weight: 700;
+    margin-bottom: 0px;
+    font-size:1em;
+    font-weight:bold;
+    padding:10px 0 2px 15px;
+}
+
+#subheadline
+{
+    font-size: 1.5em;
+    margin-left: 540px;
+    text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
+    font-weight: 300;
+}
+
+.h5{
+    margin-top: 0px;
+    margin-bottom: 0px;
+
+}
+
+#navigation
+{
+    height: 50px;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background: rgba(240, 240, 150, .2);
+}
+
+#navigation nav
+{
+    margin-left: 230px;
+    margin-top: 12px;
+}
+
+#navigation nav a:link, #navigation nav a:active, #navigation nav a:visited, #navigation nav a:focus
+{
+    color: #1d1d1d;
+    text-decoration: none;
+    font-size: 1.3em;
+    font-weight: 300;
+    margin-right: 50px;
+    transition: color .2s;
+    -webkit-transition: color .2s;
+}
+
+#navigation nav a:hover
+{
+    color: #ffffff;
+    transition: color .2s;
+    -webkit-transition: color .2s;
+}
+
+#content
+{
+    width: 900px;
+    margin: 0 auto;
+    color: #262626;
+}
+
+.headline
+{
+    font-size: 2.5em;
+    color:blue;
+    margin:0px;
+}
+
+.headline a:link, .headline a:active, .headline a:visited, .headline a:focus
+{
+    color: #1D79B3;
+    text-decoration: none;
+}
+
+.headline a:hover
+{
+    text-decoration: underline;
+}
+
+.headline_small
+{
+    margin-top: 0px;
+    font-size: 1.0em;
+}
+
+.headline_small a:link, .headline_small a:active, .headline_small a:visited, .headline_small a:focus
+{
+    color: #1D79B3;
+    text-decoration: none;
+}
+
+.headline_small a:hover
+{
+    text-decoration: underline;
+}
+
+.user_information
+{
+    float: left;
+    //width: 70%;
+	width: 100%;
+}
+
+.user_description
+{
+    text-align: justify;
+}
+
+.user_image
+{
+    float: right;
+    width: 30%;
+}
+
+.user_image img
+{
+    margin-left: 40px;
+    max-height: 250px;
+}
+
+.clear
+{
+    clear: both;
+}

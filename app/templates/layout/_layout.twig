@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="{{ craft.locale }}">
+<head>
+    <title>{{ title }}</title>
+    <link href="{{ assetPathCSS }}style.css" rel="stylesheet" type="text/css">
+
+    <link href="{{ assetPathCSS }}login.css" rel="stylesheet" type="text/css">
+    <!--
+    <link  href="http://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-git.js"></script>
+    <script src="http://code.jquery.com/ui/jquery-ui-git.js"></script>
+    -->
+
+    <link  href="{{ assetPathCSS }}jquery-ui-git.css" rel="stylesheet">
+    <script src="{{ assetPathJS }}jquery-git.js"></script>
+    <script src="{{ assetPathJS }}jquery-ui-git.js"></script>
+
+    <link rel="stylesheet" href="{{ assetPathCSS }}font-awesome/css/font-awesome.min.css">
+
+
+
+
+
+    <link rel="stylesheet" type="text/css" href="{ASSETPATHCSS}tabs.css" />
+    <script type="text/javascript" src="{{ assetPathJS }}modernizr.custom.04022.js"></script>
+    <!--<meta http-equiv="Content-Type" content="text/html;charset=utf-8">-->
+</head>
+
+<body>
+<noscript class="msg"><div>Diese Seite wird nur mit JavaScript korrekt dargestellt. Bitte schalten Sie JavaScript in Ihrem Browser ein!</div></noscript>
+    {% block body %}
+
+
+    {% endblock %}
+
+        <script src="{{ assetPathJS }}draggableOptions.js"></script>
+        <script src="{{ assetPathJS }}table.js"></script>
+        <script src="{{ assetPathJS }}draggable.js"></script>
+        <script src="{{ assetPathJS }}movement.js"></script>
+        <script src="{{ assetPathJS }}jquery.ui.touch-punch.min.js"></script>
+        <script src="{{ assetPathJS }}test.js"></script>
+</body>
+</html>

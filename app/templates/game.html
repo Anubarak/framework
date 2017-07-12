@@ -1,0 +1,67 @@
+  <h1>{TITLE}</h1>
+	
+<div id="containerTable">
+	<table id="field" style="float:left;">
+		
+
+	</table>
+	<div id="unitSelection">
+		<!--<div class="draggableEnemy minion" id="draggableMinion"></div>
+		<div class="draggableEnemy boss" data-bossDragPart="topLeft" id="draggableBoss"></div>
+		<div class="draggablePlayerUnit" id="draggableUnit"></div>
+		<div class="draggablePlayerUnit gegoZ" id="draggableUnit"></div>-->
+		<section class="tabs">
+	            <input id="tab-1" type="radio" name="radio-set" class="tab-selector-1" checked="checked" />
+		        <label for="tab-1" class="tab-label-1">Player Units</label>
+		
+	            <input id="tab-2" type="radio" name="radio-set" class="tab-selector-2" />
+		        <label for="tab-2" class="tab-label-2">Enemies</label>
+		
+	            <input id="tab-3" type="radio" name="radio-set" class="tab-selector-3" />
+		        <label for="tab-3" class="tab-label-3">Blank Unit</label>
+			
+	            <input id="tab-4" type="radio" name="radio-set" class="tab-selector-4" />
+		        <label for="tab-4" class="tab-label-4">Arena Events</label>
+            
+			    <div class="clear-shadow"></div>
+			
+		        <div class="content">
+			        <div class="content-1 invisible unitSelector">
+						<div class="draggablePlayerUnit" id="draggableUnit"></div>
+						<div class="draggablePlayerUnit gegoZ" id="draggableUnit"></div>
+					</div>
+			        <div class="content-2 invisible unitSelector">
+						<div class="draggableEnemy boss" data-bossDragPart="topLeft" id="draggableBoss"></div>
+						<div class="draggableEnemy minion" id="draggableMinion"></div>
+					</div>
+			        <div class="content-3 invisible unitSelector">
+					
+					</div>
+				    <div class="content-4 invisible unitSelector">
+						
+					</div>
+		        </div>
+			</section>
+	</div>
+</div>
+<div style="clear:both;"></div>
+
+<div id="gameMenu">
+    <div id="buttons">
+        <a href="#" class="myButton" id="publishGame">publish your Game</a>
+        <a href="#" class="myButton" id="publishTurn">get Turn URL</a>
+        <a href="#" class="myButton" id="replayMove">replay move</a>
+        <a href="#" class="myButton" id="enableMovement">upload new move</a>
+
+        <!--<input type="button" id="publishGame" value="publish your Game" />
+        <input type="button" id="publishTurn" value="get Turn URL" />
+        <input type="button" id="replayMove" value="replay move" />
+        <input type="button" id="enableMovement" value="upload new move" />-->
+    </div>
+    <div id="publishContainer">
+        <input type="text" readonly  id="inputPublishString"><button id="copyClipBoard" class="btn-icon"><i class="fa fa-files-o fa-2x" aria-hidden="true"></i></button>
+    </div>
+</div>
+  
+ <div id="containerGameFiles">
+ </div>

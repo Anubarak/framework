@@ -1,0 +1,135 @@
+<?php
+
+    namespace app\model;
+
+    use Exception;
+    use app\core\CDatabase;
+    
+    class CGameModel
+    {
+        private $m_game_id = 0;
+        private $m_public = '';
+        private $m_created_at = '';
+        private $m_createUser = '';
+        private $m_background = 'tableBackground01';
+
+        public function __construct($_id)
+        {
+            if(!isset($_id) || !is_int($_id))
+            {
+                throw new Exception('Game-ID is not specified.');
+            }
+            else
+            {
+                $this->m_game_id = $_id;
+                
+                try
+                {
+                    $this->loadGameByID();
+                } 
+                catch(Exception $e) 
+                {
+                    throw new Exception($e->getMessage());
+                }
+            }
+        }
+         
+        private function loadGameByID()
+        {
+            $db = CDatabase::getInstance();
+            $db->prepare("select * from game WHERE game_id = ?");
+            $db->bindParams(array($this->m_game_id));
+            $db->execute();
+
+            $result = $db->fetch();
+            while ($row = $result->fetch_assoc()){
+                $this->m_public      = $row['public'];
+                $this->m_created_at    = $row['created_at'];
+                $this->m_createUser    = $row['createUser'];
+                $this->m_background    = $row['background'];
+                //$this->m_author     =
+            }//end of while
+
+        }
+        
+        public static function getAllGamesAsArray()
+        {
+            $db = CDatabase::getInstance();
+            $db->prepare("select * from game");
+            $db->execute();
+
+            $result = $db->fetch();
+            while ($row = $result->fetch_assoc()){
+                $gameArray[] = new CGameModel($row['game_id']);
+            }
+            return $gameArray;
+        }
+
+        public static function getAllPublicGamesAsArray()
+        {
+            $db = CDatabase::getInstance();
+            $db->prepare("select * from game where public = true");
+            $db->execute();
+
+            $result = $db->fetch();
+            while ($row = $result->fetch_assoc()){
+                $gameArray[] = new CGameModel($row['game_id']);
+            }
+            return $gameArray;
+        }
+        
+        public function getGameId()
+        {
+            return $this->m_game_id;
+        }
+        
+        public function getCreatedAt()
+        {
+			return $this->m_created_at;
+            return date("d.m Y H:i:s", strtotime($this->m_created_at));
+        }
+
+        public function getCreateDay(){
+            return date("d", strtotime($this->m_created_at));
+        }
+
+        public function getCreateMonth(){
+            return date("m", strtotime($this->m_created_at));
+        }
+
+        public function getCreateYear(){
+            return date("Y", strtotime($this->m_created_at));
+        }
+
+        public function getCreateUser()
+        {
+			if ($this->m_createUser == 0) return "unregistred user";
+            $userModel = new CUserModel($this->m_createUser);
+            return $userModel->getName();
+        }
+
+        public function getUserName()
+        {
+            if ($this->m_createUser == 0) return "unregistred user";
+            $userModel = new CUserModel($this->m_createUser);
+
+            return $userModel->getName();
+        }
+        
+        public function getBackground()
+        {
+            return $this->m_background;
+        }
+
+        public function getTurnCount(){
+            $db = CDatabase::getInstance();
+            $db->prepare("SELECT count(*) FROM turn where game_id = ?");
+            $db->bindParams(array($this->m_game_id));
+            $db->execute();
+            $result = $db->fetch();
+            while ($row = $result->fetch_assoc()){
+                return $row['count(*)'];
+            }
+        }
+    }
+    

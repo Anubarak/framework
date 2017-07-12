@@ -1,0 +1,477 @@
+
+
+html, body
+{
+    padding: 0px;
+    margin : 0px;
+    font-family: 'Roboto', sans-serif;
+}
+
+header
+{
+    width: 100%;
+    height: 237px;
+    position: relative;
+    color: #f9f9f9;
+}
+
+html, body, #content {     
+	height: 100%;
+    margin: 0;
+    padding: 0; 
+}
+
+body > #content {
+	height: auto; min-height: 100%;
+}
+
+header #imageContainer{
+	float:right;
+	padding-left:205px;
+	width: 600px;
+	height: 100%;
+	background-image: url('../img/header.jpg');
+    background-size: cover;
+}
+
+#headline
+{
+    font-size: 3.1em;
+    margin-left: 15%;
+    text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
+    font-weight: 700;
+    margin-bottom: 0px;
+    font-size:1em;
+    font-weight:bold;
+    padding:10px 0 2px 15px;
+	color: black;
+}
+
+#subheadline
+{
+    font-size: 1.5em;
+    margin-left: 20%;
+    text-shadow: 1px 1px 0px rgba(0, 0, 0, 1);
+    font-weight: 300;
+	color: black;
+}
+
+.h5{
+    margin-top: 0px;
+    margin-bottom: 0px;
+
+}
+
+#navigation
+{
+    height: 50px;
+    width: 100%;
+	float:right;
+    bottom: 0;
+    left: 0;
+    background: rgb(34, 34, 34);
+}
+
+#navigation nav
+{
+    text-align: center;
+    margin-top: 12px;
+}
+
+#navigation nav a:link, #navigation nav a:active, #navigation nav a:visited, #navigation nav a:focus
+{
+    color: white;
+    text-decoration: none;
+    font-size: 1.3em;
+    font-weight: 300;
+    margin-right: 50px;
+    transition: color .2s;
+    -webkit-transition: color .2s;
+	padding: 10px;
+}
+
+#navigation nav a:hover
+{
+    color: #ffffff;
+    background: rgb(51, 51, 51);
+    transition: color .2s;
+    -webkit-transition: color .2s;
+}
+
+.footer {
+	clear: both;
+    /*position: relative;*/
+    z-index: 10;
+    height: 3em;
+    margin-top: -3em;
+	background-color: rgb(34, 34, 34);
+    color: white;
+    text-align: center;
+    line-height: 3em;
+	position:absolute;
+	left:0px;
+	width: 100%;
+}
+
+#content
+{
+    width: 50%;
+    margin: 0 auto;
+    color: #262626;
+	padding-bottom: 3em;
+	min-height: 300px;
+	margin-bottom: 20px;
+    margin-top: 20px;
+    margin: 0 auto;
+}
+
+.contentContainer{
+	padding-top: 10px;
+}
+
+.headline
+{
+    font-size: 2.5em;
+    color:blue;
+    margin:0px;
+}
+
+.headline a:link, .headline a:active, .headline a:visited, .headline a:focus
+{
+    color: #1D79B3;
+    text-decoration: none;
+}
+
+.headline a:hover
+{
+    text-decoration: underline;
+}
+
+.headline_small
+{
+    margin-top: 0px;
+    font-size: 1.0em;
+}
+
+.headline_small a:link, .headline_small a:active, .headline_small a:visited, .headline_small a:focus
+{
+    color: #1D79B3;
+    text-decoration: none;
+}
+
+.headline_small a:hover
+{
+    text-decoration: underline;
+}
+
+.user_information
+{
+    float: left;
+    //width: 70%;
+	width: 100%;
+}
+
+.user_description
+{
+    text-align: justify;
+}
+
+.user_image
+{
+    float: right;
+    width: 30%;
+}
+
+.user_image img
+{
+    margin-left: 40px;
+    max-height: 250px;
+}
+
+.clear
+{
+    clear: both;
+}
+
+
+table#field{
+	color: blue;
+	border: solid black 1px;
+	border-spacing: 0;
+	background-image: url('../img/tableBackground01.png');
+	background-size: contain;
+	/*width: 50%;
+	height: 50%;*/
+}
+
+table#field tr{
+	width: 12.5%;
+	padding: 0px;
+}
+
+table#field td{
+	/*height: 12.5%;
+	width: 16.666%;*/
+	height: 50px;
+	width: 50px;
+	border: solid white 1px;
+	margin: 0;
+    padding: 0;
+}
+
+.draggableEnemy{
+	width: 50px;
+	height: 50px;
+}
+
+.boss{
+	background: blue;
+	width: 100px;
+	height: 100px;
+}
+
+.minion{
+	background: green;
+}
+
+.draggablePlayerUnit{
+	background: red;
+	width: 50px;
+	height: 50px;
+}
+
+.gegoZ{
+	background: yellow;
+}
+
+#draggableMinion{
+	background: green;
+}
+
+.dragging {
+    box-shadow: 0 0px 5px 4px rgba(57, 63, 255, 0.76);
+}
+
+#containerGameFiles{
+	width: 40%;
+	max-height: 300px;
+    padding-top: 10px;
+    margin-top: 10px;
+	border: 1px solid black;
+	border-radius: 10px;
+}
+
+#containerGameFiles ul li{
+	list-style-type: none;
+	padding-left: 10px;
+	border-radius: 10px;
+    cursor:pointer;
+	margin-top: 1px;
+	width:100%;
+}
+
+#containerGameFiles ul li a{
+	border-radius:10px;    
+	padding-left: 10px;
+}
+
+#containerGameFiles ul li a:hover {
+    color:#ffffff;
+    background-color:rgb(34, 34, 34);
+    border:1px solid #241d13;
+    -webkit-transition: background-color 1000ms linear;
+	-moz-transition: background-color 1000ms linear;
+	-o-transition: background-color 1000ms linear;
+	-ms-transition: background-color 1000ms linear;
+	transition: background-color 1000ms linear;
+	transition: color 500ms linear;
+    -webkit-transition: color 500ms linear;
+	-moz-transition: color 500ms linear;
+	-o-transition: color 500ms linear;
+	-ms-transition: color 500ms linear;
+}
+
+/*
+#containerGameFiles2 ul li:active {
+	background: white;
+	color:black;
+}*/
+
+
+#containerGameFiles ul{
+	margin-top: 0px; 
+	padding-left: 0px; 
+}
+
+/* Start by setting display:none to make this hidden.
+   Then we position it in relation to the viewport window
+   with position:fixed. Width, height, top and left speak
+   for themselves. Background we set to 80% white with
+   our animation centered, and no-repeating */
+.modal {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 )
+    url('http://i.stack.imgur.com/FhHRx.gif')
+    50% 50%
+    no-repeat;
+}
+
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+body.loading {
+    overflow: hidden;
+}
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+body.loading .modal {
+    display: block;
+}
+
+#publishContainer{
+    padding-top: 5px;
+}
+
+#inputPublishString{
+    margin: 10px;
+    padding: 5px;
+    width: 600px;
+    height: 25px;
+}
+
+#publishContainer #copyClipBoard{
+    margin: 10px 10px 10px 0px;
+    padding: 5px 5px 5px 0px;
+}
+
+#gameMenu{
+    margin-top:10px;
+    padding-top: 5px;
+}
+
+.myButton {
+    -moz-box-shadow:inset 0px 34px 0px -15px rgb(51, 51, 51);
+    -webkit-box-shadow:inset 0px 34px 0px -15px rgb(51, 51, 51);
+    box-shadow:inset 0px 34px 0px -15px rgb(51, 51, 51);
+    background-color:rgb(34, 34, 34);
+    border:1px solid #241d13;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    font-family:Arial;
+    font-size:15px;
+    font-weight:bold;
+    padding:9px 23px;
+    text-decoration:none;
+    text-shadow:0px -1px 0px #7a2a1d;
+}
+.myButton:hover {
+    background-color: rgb(51, 51, 51);
+}
+.myButton:active {
+    position:relative;
+    top:1px;
+}
+
+
+/*Login Blackscreen*/
+.div_blackscreen{
+    z-index: 50;
+    position:fixed;
+    padding:0;
+    margin:0;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    background:rgba(0,0,0,0.5);
+    display:none;
+}
+
+#unitSelection{
+	float:left;
+	width:500px;
+	padding-left:10px;
+}
+
+#showLoginPanel{
+	float:right;
+	height: 100%;
+}
+
+.gameList{
+	width: 100%;
+	height: 90px;
+	background: rgb(34, 34, 34);
+	box-shadow: 0px 0px 5px 5px grey;
+	border-radius: 3px;
+	color: white;
+	margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.gameList .gameListInner{
+    padding: 5px;
+}
+
+.gameList .gameListInner .date{
+	float:left;
+}
+
+.gameList .gameListInner .date{
+	width: 120px;
+    height: 80px;
+	background: rgb(51, 51, 51);
+	border-radius: 5px;
+    margin-right: 5px;
+}
+
+.gameList .gameListInner .user{
+    width:auto;
+    overflow:hidden;
+    height: 80px;
+	background: rgb(51, 51, 51);
+	border-radius: 5px;
+}
+
+.gameList::after{
+	clear:both;
+}
+
+.gameList .gameListInner .date span{
+	width: 100%;
+	float:left;
+	text-align: center;
+	font-weight: bold;
+}
+
+.gameList .gameListInner .date .day{
+	font-size: 40px;
+	margin-top: 12px;
+	margin-left: 22%;
+	vertical-align: middle;
+	width: 50%;
+	border: 1px solid white;
+	border-radius: 10px;
+}
+
+.gameList .gameListInner .date .month, .gameList .gameListInner .date .year{
+	margin-top: 5px;
+	font-size: 12px;
+    text-align: center;
+}
+
+.noLink{
+	color: black;
+	text-decoration: none;
+}
+
+.linkWhite{
+    color: white;
+}

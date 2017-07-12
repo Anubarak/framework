@@ -1,0 +1,145 @@
+<?php
+    
+    namespace app\control;
+    
+    require_once 'app/model/game.model.php';
+    
+    use app\core\CRenderer;
+    use app\model\CGameModel;
+    use app\core\CDatabase;
+    use Exception;
+
+    class CGameController
+    {
+        private $m_renderer = null;
+        
+        public function __construct()
+        {
+            $this->m_renderer = CRenderer::getInstance();
+        }
+        
+        public function viewAllGames()
+        {
+            try
+            {
+                $gameArray = CGameModel::getAllGamesAsArray();
+                foreach($gameArray as $game)
+                {
+                    $this->m_renderer->loadTemplate('gameList.html');
+                    $this->m_renderer->assign(array('username' => $game->getUserName(),
+                                                    'day' => $game->getCreateDay(),
+                                                    'month' => $game->getCreateMonth(),
+                                                    'year' => $game->getCreateYear(),
+                                                    'count_replies' => $game->getTurnCount(),
+                                                    'link' => "index.php?page=game&game_id=".$game->getGameId()
+                        ));
+                    $this->m_renderer->render();
+                }
+
+
+
+            } 
+            catch (Exception $e) 
+            {
+                $this->m_renderer->loadTemplate('error.html');
+                $this->m_renderer->assign(array('errorcode' => 5000, 'errormessage' => $e->getMessage()));
+                $this->m_renderer->render();
+            }
+        }
+        
+        public function viewGameById($_game_id)
+        {
+            $game_id = intval($_game_id);
+            
+            try
+            {
+                //$game = new CGameModel($_id);
+
+                $gameController = new CGameController();
+                //$game = $gameController->viewGameById($game_id);
+
+                $turnController = new CTurnController();
+
+                $this->m_renderer->loadTemplate('game.html');
+                $this->m_renderer->assign(array('title' => "game"
+                                                //'turns' => $turns,
+                                                ));
+				$this->m_renderer->render();
+            } 
+            catch(Exception $e) 
+            {
+                $this->m_renderer->loadTemplate('error.html');
+                $this->m_renderer->assign(array('errorcode' => 5000, 'errormessage' => $e->getMessage()));
+                $this->m_renderer->render();
+            }
+        }
+		
+		public function createNewGame()
+        {
+            try
+            {
+				$this->m_renderer->loadTemplate('unitSelection.html');
+				$this->m_renderer->render();
+				
+				$this->m_renderer->loadTemplate('game.html');
+                $this->m_renderer->assign(array('title' => "Create new game",
+                                                'turn' => "",
+                ));
+				$this->m_renderer->render();
+            } 
+            catch (Exception $e) 
+            {
+                $this->m_renderer->loadTemplate('error.html');
+                $this->m_renderer->assign(array('errorcode' => 5000, 'errormessage' => $e->getMessage()));
+                $this->m_renderer->render();
+            }
+        }
+
+        public function insertGame(){
+            try
+            {
+                $public = 1;
+                $createUser = (isset($_SESSION['user_id']))? $_SESSION['user_id'] : 0; //
+                $background = "tableBackground01";
+
+                $db = CDatabase::getInstance();
+                $db->prepare("INSERT INTO game (public, createUser, background) VALUES (?, ?, ?)");
+                $db->bindParams(array($public, $createUser, $background));
+
+                $db->execute();
+            }
+            catch (Exception $e)
+            {
+                $this->m_renderer->loadTemplate('error.html');
+                $this->m_renderer->assign(array('errorcode' => 52000, 'errormessage' => $e->getMessage()));
+                $this->m_renderer->render();
+            }
+        }
+
+        public function resetGame($_game_id){
+            try
+            {
+                $game_id = intval($_game_id);
+
+                $db = CDatabase::getInstance();
+                $db->prepare("DELETE from tablestate where game_id = ?");
+                $db->bindParams(array($game_id));
+                $db->execute();
+
+                $db->prepare("DELETE from movement where game_id = ?");
+                $db->bindParams(array($game_id));
+                $db->execute();
+
+                $db->prepare("DELETE from turn where game_id = ?");
+                $db->bindParams(array($game_id));
+                $db->execute();
+            }
+            catch (Exception $e)
+            {
+                $this->m_renderer->loadTemplate('error.html');
+                $this->m_renderer->assign(array('errorcode' => 4000, 'errormessage' => $e->getMessage()));
+                $this->m_renderer->render();
+            }
+        }
+    }
+    
