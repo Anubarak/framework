@@ -14,6 +14,7 @@ use function Sodium\crypto_aead_aes256gcm_is_available;
 class entryService
 {
     protected   $table = null;
+    protected   $template = null;
     protected   $primary_key = null;
     protected   $id = 0;
 
@@ -23,29 +24,40 @@ class entryService
      */
     public function saveEntry($entry){
         $this->defineDefaultValues($entry);
-        $data = $entry->getData();
         //validate Entry
         if(!$this->validate($entry)){
             return false;
         }
 
+        if(!$this->table || !$this->primary_key){
+            $className = Craft::getClassName($entry);
+            $this->table = craft()->$className->table;
+            $this->primary_key = craft()->$className->primary_key;
+        }
+
         //check if its a new entry of if we should update an existing one
         if(!$entry->id){
+            //sets a slug if there is no, does nothing if there is one
+            $this->getSlugForEntry($entry);
+            $data = $entry->getData();
+
             $values = array();
             $relationsToSave = array();
             foreach ($entry->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
-                    if(isset($value['relatedTo'], $entry->$key) && is_array($entry->$key)){
-                        $relations = $entry->$key;
-                        $relation = $value['relatedTo'];
-                        foreach ($relations as $rel){
-                            $relationsToSave[] = array(
-                                'field_1' => $key,
-                                'field_2' => $relation['field'],
-                                'id_2' => $rel->id,
-                                'model_1' => Craft::getClassName($this),
-                                'model_2'=> $relation['model']
-                            );
+                    if(isset($value['relatedTo'])){
+                        if(isset($entry->$key) && is_array($entry->$key)){
+                            $relations = $entry->$key;
+                            $relation = $value['relatedTo'];
+                            foreach ($relations as $rel){
+                                $relationsToSave[] = array(
+                                    'field_1' => $key,
+                                    'field_2' => $relation['field'],
+                                    'id_2' => $rel->id,
+                                    'model_1' => Craft::getClassName($this),
+                                    'model_2'=> $relation['model']
+                                );
+                            }
                         }
                     }else{
                         $values[$key] = ($data[$key])? $data[$key] : 0;
@@ -67,10 +79,10 @@ class entryService
             }
             return $id;
         }else{
+            $data = $entry->getData();
             $values = array();
             foreach ($entry->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
-                    $values[$key] = ($data[$key])? $data[$key] : 0;
                     if(isset($value['relatedTo'], $entry->$key) && is_array($entry->$key)){
                         $relation = $value['relatedTo'];
 
@@ -93,11 +105,12 @@ class entryService
                                 'model_2'=> $relation['model']
                             ));
                         }
+                    }else{
+                        $values[$key] = ($data[$key])? $data[$key] : 0;
                     }
                 }else{
                     $values["#".$key] = $data[$key];
                 }
-
             }
 
             craft()->database->update($this->table, $values, array(
@@ -125,7 +138,7 @@ class entryService
      * @throws Exception
      */
     public function getEntryById($entryId){
-        if(!isset($entryId) || !is_int($entryId))
+        if(!isset($entryId) || !is_numeric($entryId))
         {
             throw new Exception('ID is not specified.');
         }
@@ -220,6 +233,11 @@ class entryService
                 $entry->addError($k, 'Value not set');
             }
 
+            //set slug to title by default if there is no slug further validation comes later...
+            if($k === 'slug' && !$data[$k]){
+                $data[$k] = $data['title'];
+            }
+
             //required value => set but 0
             if(isset($v['required'])){
                 if(array_key_exists($k, $data) && !$data[$k]){
@@ -227,6 +245,7 @@ class entryService
                 }
             }
         }
+        $entry->setData($data['title'] , 'slug');
 
         if($entry->getErrors() == null){
             return true;
@@ -378,8 +397,70 @@ class entryService
         return $this->primary_key;
     }
 
+    /**
+     * @return elementCriteriaModel
+     */
     public function getCriteria()
     {
         return new elementCriteriaModel($this);
+    }
+
+
+    /**
+     * @param $attributes
+     */
+    public function find($attributes = null){
+        $criteria = new elementCriteriaModel($this);
+        $elements = $criteria->find($attributes);
+        return $elements;
+    }
+
+    public function renderEntryBySlug($slug){
+        if($entry = $this->getEntryBySlug($slug)){
+            craft()->template->render($this->template, array(
+                'entry' => $entry
+            ));
+        }else{
+            throw new Exception('could not find entry with slug ' . $slug);
+        }
+    }
+
+    /**
+     * @param $slug
+     * @return null
+     */
+    public function getEntryBySlug($slug){
+        $id = craft()->database->select($this->table, $this->primary_key, array(
+            'slug' => $slug
+        ));
+        if($id){
+            return $this->getEntryById($id[0]);
+        }
+        return null;
+    }
+
+    /**
+     * @param $entry entryModel
+     */
+    public function getSlugForEntry($entry){
+        $slug = $entry->getAttribute('slug');
+        $slugInUse = craft()->database->has($this->table, array('slug' => $slug));
+        if(!$slugInUse){
+            return true;
+        }
+
+        $counter = 0;
+        $originalSlug = $slug;
+        while ($slugInUse){
+            $counter++;
+            $slug = $originalSlug . "-" . $counter;
+            $slugInUse = craft()->database->has($this->table, array('slug' => $slug));
+
+        }
+        $slug = $originalSlug . "-" . $counter;
+
+        $entry->setData($slug, 'slug');
+        return $slug;
+
     }
 }

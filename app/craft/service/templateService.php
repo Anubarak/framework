@@ -20,70 +20,216 @@ class templateService
 
     /** @var null|\Twig_Environment */
     private $twig = null;
-    private $test = "hallo";
+    private $test;
     private $defaultValues;
 
+    private $js_files   = array();
+    private $js_code    =  array();
     public function __construct()
     {
-        $this->loader = new \Twig_Loader_Filesystem(Craft::getTemplatePath());
+
+    }
+
+    public function init(){
+        $path = craft()->config->get('paths');
+        $templatePath = $path['customTemplateDirectory'];
+
+        $this->loader = new \Twig_Loader_Filesystem($templatePath);
         $this->twig = new \Twig_Environment($this->loader, array(
             //'cache' => Craft::getTemplatePath() . '/cache',
             'debug' => true
         ));
 
-        $this->twig->addTokenParser(new Project_Set_TokenParser());
+        $this->twig->addTokenParser(new IncludeResource_TokenParser('includeJsFile'));
     }
 
+    public function includeJsFile($fileName){
+        $this->js_files[] = $fileName;
+    }
+
+    public function getJsFile(){
+        return $this->js_files;
+    }
+
+    public function addJsCode($code){
+        $this->js_code[] = $code;
+    }
+
+    private function _combineJs($js)
+    {
+        return implode("\n\n", $js);
+    }
+
+    public function getJsCode(){
+        $js = $this->_combineJs($this->js_code);
+        return "<script type=\"text/javascript\">\n/*<![CDATA[*/\n$(document).ready(function(){" .$js."});\n/*]]>*/\n</script>";
+    }
 
     public function render($template, $data = array()){
         $template = $this->twig->load($template);
+
         echo $template->render(array_merge($data, array(
             'assetPathCSS'   =>  BASE_URL . 'app/templates/assets/css/',
             'assetPathJS'   => BASE_URL . 'app/templates/assets/js/',
             'craft'         => craft(),
-            'test'          => $this->test
         )));
     }
 }
 
-class Project_Set_TokenParser extends \Twig_TokenParser
+
+class IncludeResource_Node extends \Twig_Node
 {
-    public function parse(\Twig_Token $token)
-    {
-        $parser = $this->parser;
-        $stream = $parser->getStream();
-        $value = $parser->getExpressionParser()->parseExpression();
-        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
-        Project_Set_Node::$values[] = $value;
-        return new Project_Set_Node("jsRessources", $value, $token->getLine(), $this->getTag());
-    }
+    // Public Methods
+    // =========================================================================
 
-    public function getTag()
-    {
-        return 'includeJsRessource';
-    }
-}
-
-class Project_Set_Node extends \Twig_Node
-{
-    public static $values = array();
-
-    public function __construct($name, \Twig_Node_Expression $value, $line, $tag = null)
-    {
-        parent::__construct(array('value' => $value), array('name' => $name), $line, $tag);
-        self::$values[] = $this->getNode('value');
-    }
-
+    /**
+     * Compiles an IncludeResource_Node into PHP.
+     *
+     * @param \Twig_Compiler $compiler
+     *
+     * @return null
+     */
     public function compile(\Twig_Compiler $compiler)
     {
-        foreach (self::$values as $value){
+        $function = $this->getAttribute('function');
+        $value = $this->getNode('value');
+
+        $compiler
+            ->addDebugInfo($this);
+
+        if ($this->getAttribute('capture'))
+        {
             $compiler
-                ->addDebugInfo($this)
-                ->write('$context[\''.$this->getAttribute('name').'\'] = ')
+                ->write("ob_start();\n")
+                ->subcompile($value)
+                ->write("\$_js = ob_get_clean();\n")
+            ;
+        }
+        else
+        {
+            $compiler
+                ->write("\$_js = ")
                 ->subcompile($value)
                 ->raw(";\n")
             ;
         }
 
+        $compiler
+            ->write("\\Craft\\craft()->template->{$function}(\$_js")
+        ;
+
+        if ($this->getAttribute('first'))
+        {
+            $compiler->raw(', true');
+        }
+
+        $compiler->raw(");\n");
+    }
+}
+
+
+
+class IncludeResource_TokenParser extends \Twig_TokenParser
+{
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var string
+     */
+    private $_tag;
+
+    /**
+     * @var boolean
+     */
+    private $_allowTagPair;
+
+    // Public Methods
+    // =========================================================================
+
+    /**
+     * Constructor
+     *
+     * @param string $tag
+     *
+     * @return IncludeResource_TokenParser
+     */
+    public function __construct($tag, $allowTagPair = false)
+    {
+        $this->_tag = $tag;
+        $this->_allowTagPair = $allowTagPair;
+    }
+
+    /**
+     * Parses resource include tags.
+     *
+     * @param \Twig_Token $token
+     *
+     * @return IncludeResource_Node
+     */
+    public function parse(\Twig_Token $token)
+    {
+        $lineno = $token->getLine();
+        $stream = $this->parser->getStream();
+
+        if ($this->_allowTagPair && ($stream->test(\Twig_Token::NAME_TYPE, 'first') || $stream->test(\Twig_Token::BLOCK_END_TYPE)))
+        {
+            $capture = true;
+
+            $first = $this->_getFirstToken($stream);
+            $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+            $value = $this->parser->subparse(array($this, 'decideBlockEnd'), true);
+            $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+        }
+        else
+        {
+            $capture = false;
+
+            $value = $this->parser->getExpressionParser()->parseExpression();
+            $first = $this->_getFirstToken($stream);
+            $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+        }
+
+        $nodes = array(
+            'value' => $value,
+        );
+
+        $attributes = array(
+            'function' => $this->_tag,
+            'capture'  => $capture,
+            'first'    => $first,
+        );
+
+        return new IncludeResource_Node($nodes, $attributes, $lineno, $this->getTag());
+    }
+
+    public function decideBlockEnd(\Twig_Token $token)
+    {
+        return $token->test('end'.strtolower($this->_tag));
+    }
+
+    /**
+     * Defines the tag name.
+     *
+     * @return string
+     */
+    public function getTag()
+    {
+        return $this->_tag;
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    private function _getFirstToken($stream)
+    {
+        $first = $stream->test(\Twig_Token::NAME_TYPE, 'first');
+
+        if ($first)
+        {
+            $stream->next();
+        }
+
+        return $first;
     }
 }

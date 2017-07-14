@@ -24,9 +24,9 @@ class answerRecord extends baseRecord
     }
 
     public function defineIndex(){
-        return array(
+        return array_merge(array(
             'answer_id'   => array('primary_key')
-        );
+        ), parent::defineIndex());
     }
 
     /**

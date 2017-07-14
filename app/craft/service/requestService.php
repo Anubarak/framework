@@ -50,6 +50,8 @@ class requestService
     public function process(){
         $page = $this->getValue('p');
         $stat = $this->getValue('s');
+        $entry = $this->getValue('e');
+        $slug = $this->getValue('slug');
 
         //check for actions...
         if($action = $this->getValue('action')){
@@ -63,9 +65,20 @@ class requestService
         }
 
 
-        if(!$page && !$stat){
+        if(!$page && !$stat && (!$entry || !$slug)){
             $baseController = new baseController();
             $baseController->getContent();
+        }
+
+        if($entry && $slug){
+            if(isset(craft()->$entry) && is_object(craft()->$entry)){
+                if(!craft()->record->getRecordByName($entry)){
+                    throw new \Exception($entry . ' is not installed');
+                }
+                craft()->$entry->renderEntryBySlug($slug);
+            }else{
+                throw new \Exception('could not found Service with Name = ' . $entry );
+            }
         }
 
         if($page){

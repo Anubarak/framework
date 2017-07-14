@@ -13,18 +13,17 @@ class Craft
 {
     public static $_app = null;
     public static $entryService;
-
-    public function __construct()
-    {
-        craft::$_app = new app();
-    }
+    private static $paths = '';
 
     /**
      * @return app
      */
     public static function app(){
         if(!craft::$_app){
+            include BASE . 'config.php';
+            Craft::$paths = $config['paths'];
             craft::$_app = new app();
+            craft::$_app->init();
         }
         return craft::$_app;
     }
@@ -33,33 +32,37 @@ class Craft
      * @return string
      */
     public static function getNameSpace(){
-        return 'craft\\';
+        return Craft::$paths['namespace'];
     }
 
     /**
      * @return string
      */
     public static function getCoreServiceDirectory(){
-        return BASE . 'app\craft\service';
+        return Craft::$paths['coreServiceDirectory'];
     }
 
     /**
      * @return string
      */
     public static function getRecordPluginDirectory(){
-        return BASE . 'app\plugins\record';
+        return Craft::$paths['pluginRecordDirectory'];
+    }
+
+    /**
+     * @return string
+     */
+    public static function getCoreRecordDirectory(){
+        return Craft::$paths['coreRecordDirectory'];
     }
 
     /**
      * @return string
      */
     public static function getPluginServiceDirectory(){
-        return BASE . 'app\plugins\service';
+        return Craft::$paths['pluginServiceDirectory'];
     }
 
-    public static function getTemplatePath(){
-        return BASE . 'app\templates';
-    }
 
     /**
      * @param $class
@@ -103,6 +106,9 @@ class Craft
  * @property answerService                          $answer
  * @property templateService                        $template
  * @property requestService                         $request
+ * @property configService                          $config
+ * @property recordService                          $record
+ * @property database                               $database
  *
  * @package Craft
  */
@@ -115,15 +121,6 @@ class app{
         $whoops = new \Whoops\Run;
         $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
         $whoops->register();
-
-
-        $this->database = new database([
-            'database_type' => 'mysql',
-            'database_name' => 'anubarak16',
-            'server' => 'localhost',
-            'username' => 'root',
-            'password' => ''
-        ]);
 
         $dirs = array(
             Craft::getCoreServiceDirectory(), Craft::getPluginServiceDirectory()
@@ -144,8 +141,9 @@ class app{
         }
     }
 
-    public function test(){
-        return "testregreregergre";
+    public function init(){
+        $this->template->init();
+        $this->database = new database(craft()->config->get('database'));
     }
 }
 

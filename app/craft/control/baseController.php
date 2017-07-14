@@ -11,25 +11,26 @@ namespace Craft;
 
 class baseController
 {
-    public function __construct()
-    {
-
-    }
-
     /**
      *
      */
     public function getContent(){
+        /*
         $answer = craft()->answer->getEntryById(1);
-
         $questionService = craft()->question;
         $question = $questionService->getEntryById(1);
         $question->test_id = array($answer);
         $data = $question->getData();
-        $data['text'] = "bitte2";
-        $question->setData($data);
-
+        $data['text'] = "bitte2";*/
+        //$question->setData($data);
+        //craft()->template->addJsCode('alert("test");');
         //craft()->question->saveEntry($question);
+
+        $record = craft()->record->getRecordByName('answer');
+
+        craft()->record->installRecord("answer");
+        craft()->record->installRecord("question");
+
         craft()->template->render('pages/home.twig', array(
             'title'       => "test Title",
             'headline'    => "headline",

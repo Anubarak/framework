@@ -4,18 +4,30 @@
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
         <input type="hidden" name="action" value="home/save">
         <input type="submit" value="submit">
-        <input type="text" name="data[text]" value="regerger">
-        <input type="hidden" name="data[test_id][]" value="1">
-        <input type="hidden" name="data[test_id][]" value="2">
+        <input type="text" name="data[text]" value="Wie heißt du">
+        <input type="text" name="data[title]" value="Frage">
         <input type="text" name="data[pointsPlus]" value="3">
         <input type="text" name="data[pointsMinus]" value="3">
         <input type="text" name="data[correctAnswer]" value="2">
     </form>
 
+    <br>
+    <br>
 
-    {% set criteria = craft.question.getCriteria() %}
-    {% set entries = criteria.find({'text[~]': 'reg'}) %}
-    {% for entry in entries %}
-        {{ entry.text }}<br>
-    {% endfor %}
+    <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
+        <input type="hidden" name="action" value="home/saveQuestion">
+        <input type="submit" value="submit">
+        <input type="text" name="data[text]" value="regerger">
+    </form>
+    {% set elements = craft.entry.find() %}
+    {% if elements %}
+        {% for entry in elements %}
+            {{ entry.id }} .. <a href="{{ entry.getUrl() }}">{{ entry.title }}</a><br>
+        {% endfor %}
+    {% endif %}
+
+
+    {% includeJsFile 't'%}
+    {% includeJsFile 't2'%}
+    {% includeJsFile 't23'%}
 {% endblock %}

@@ -21,7 +21,7 @@
 
 
 
-    <link rel="stylesheet" type="text/css" href="{ASSETPATHCSS}tabs.css" />
+    <link rel="stylesheet" type="text/css" href="{{ assetPathCSS }}tabs.css" />
     <script type="text/javascript" src="{{ assetPathJS }}modernizr.custom.04022.js"></script>
     <!--<meta http-equiv="Content-Type" content="text/html;charset=utf-8">-->
 </head>
@@ -39,5 +39,17 @@
         <script src="{{ assetPathJS }}movement.js"></script>
         <script src="{{ assetPathJS }}jquery.ui.touch-punch.min.js"></script>
         <script src="{{ assetPathJS }}test.js"></script>
+
+
+
+    {% block Files %}
+        {% set jsFiles = craft.template.getJsFile() %}
+        {% for file in jsFiles %}
+            <script src="{{ file }}" type="text/javascript"></script>
+        {% endfor %}
+
+        {% set jsCode = craft.template.getJsCode() %}
+        {{ jsCode|raw }}
+    {% endblock %}
 </body>
 </html>

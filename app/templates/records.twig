@@ -7,8 +7,7 @@
             {{ record.getTableName() }}
         {% endfor %}
     {% endif %}
-    {% includeJsRessource 'ein File'%}
-    {% includeJsRessource 'ein File2efefe'%}
-    {% includeJsRessource 'ein File2e'%}
-    {{ jsRessources }}
+    {% includeJsFile 'ein File'%}
+    {% includeJsFile 'ein File2efefe'%}
+    {{ includeJsFile }}
 {% endblock %}

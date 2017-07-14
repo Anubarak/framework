@@ -12,13 +12,13 @@ namespace Craft;
 class recordController extends baseController
 {
     public function getContent(){
-        $records = baseRecord::getAllRecords();
+        $records = craft()->record->loadAllRecords();
 
 
         /*foreach ($records as $record){
             $record->installRecord();
         }*/
-        craft()->template->render('records.twig', array(
+        craft()->template->render('test.twig', array(
             'records' => $records
         ));
     }

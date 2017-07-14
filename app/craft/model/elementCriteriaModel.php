@@ -44,21 +44,27 @@ class elementCriteriaModel
         }else{
             $this->attributes = getPublicObjectVars($this);
         }
+        $tables = $this->service->getTable();
+        if(!$tables){
+            $tables = craft()->record->getAllRecords();
+        }elseif(!is_array($tables)){
+            $tables = array($tables);
+        }
 
-        $table = $this->service->getTable();
-        $primaryKey = $this->service->getPrimaryKey();
         $where = array();
         foreach ($this->attributes as $k => $v){
             $where[$k] = $v;
         }
-
-        $rows = craft()->database->select($table, $primaryKey, $where);
-        craft()->database->debugError();
-
         $entries = array();
-        if($rows){
-            foreach ($rows as $row){
-                $entries[] = $this->service->getEntryById((int)$row);
+        foreach ($tables as $record){
+            $className = $record['name'];
+            $rows = craft()->database->select($record['table_name'], craft()->$className->getPrimaryKey(), $where);
+            craft()->database->debugError();
+
+            if($rows){
+                foreach ($rows as $row){
+                    $entries[] = craft()->$className->getEntryById((int)$row);
+                }
             }
         }
 

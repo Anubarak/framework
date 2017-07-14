@@ -30,7 +30,6 @@
         
         public function run()
         {
-			new craft();
 			craft()->request->process();
         }
         

@@ -88,6 +88,14 @@ class entryModel
         return array(
             'createDate'    => array(AttributeType::DateTime, 'default' => 'creationTimestamp'),
             'updateDate'   => array(AttributeType::DateTime, 'default' => 'currentTimestamp'),
+            'title'          => array(AttributeType::Mixed, 'required' => true),
+            'slug'          => array(AttributeType::Mixed, 'required' => true)
         );
+    }
+
+    public function getUrl(){
+        $className = Craft::getClassName($this);
+        $url = BASE_URL . "index.php?e=" . $className . "&slug=" . $this->getAttribute('slug');
+        return $url;
     }
 }
