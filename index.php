@@ -13,7 +13,7 @@
      * 
      */
 
-    namespace Craft;
+    namespace Anu;
     DEFINE("BASE", __DIR__ . "\\");
 
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
@@ -22,7 +22,7 @@
     DEFINE("BASE_URL", $server . "framework/");
 
     $dirs = array(
-        'app\craft\service', 'app\craft\model', 'app\craft\control', 'app\craft\core', 'app\craft\record',
+        'app\anu\service', 'app\anu\model', 'app\anu\control', 'app\anu\core', 'app\anu\record', 'app\anu\twig',
         'app\plugins\model', 'app\plugins\service', 'app\plugins\control', 'app\plugins\record',
     );
     foreach ($dirs as $dir){

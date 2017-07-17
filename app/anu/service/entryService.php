@@ -6,7 +6,7 @@
  * Date: 23.06.2017
  * Time: 10:18
  */
-namespace Craft;
+namespace Anu;
 
 use Exception;
 use function Sodium\crypto_aead_aes256gcm_is_available;
@@ -24,15 +24,15 @@ class entryService
      */
     public function saveEntry($entry){
         $this->defineDefaultValues($entry);
-        //validate Entry
+
         if(!$this->validate($entry)){
             return false;
         }
 
         if(!$this->table || !$this->primary_key){
-            $className = Craft::getClassName($entry);
-            $this->table = craft()->$className->table;
-            $this->primary_key = craft()->$className->primary_key;
+            $className = Anu::getClassName($entry);
+            $this->table = anu()->$className->table;
+            $this->primary_key = anu()->$className->primary_key;
         }
 
         //check if its a new entry of if we should update an existing one
@@ -54,7 +54,7 @@ class entryService
                                     'field_1' => $key,
                                     'field_2' => $relation['field'],
                                     'id_2' => $rel->id,
-                                    'model_1' => Craft::getClassName($this),
+                                    'model_1' => Anu::getClassName($this),
                                     'model_2'=> $relation['model']
                                 );
                             }
@@ -66,15 +66,13 @@ class entryService
                     $values["#".$key] = $data[$key];
                 }
             }
-
-            craft()->database->insert($this->table, $values);
-            $id = craft()->database->id();
+            anu()->database->insert($this->table, $values);
+            $id = anu()->database->id();
             $entry->id = $id;
-
             if($relationsToSave && $id){
                 foreach ($relationsToSave as $relation){
                     $relation['id_1'] = $id;
-                    craft()->database->insert('relation', $relation);
+                    anu()->database->insert('relation', $relation);
                 }
             }
             return $id;
@@ -83,27 +81,34 @@ class entryService
             $values = array();
             foreach ($entry->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
-                    if(isset($value['relatedTo'], $entry->$key) && is_array($entry->$key)){
+                    if(isset($value['relatedTo'], $entry->$key)){
                         $relation = $value['relatedTo'];
+                        //save only if its not a criteriaModel...
+                        if(!$entry->$key instanceof elementCriteriaModel){
+                            if(!is_array($entry->$key) && $entry->$key instanceof entryModel){
+                                //no array but at least a entryModel...
+                                $entry->$key = array($entry->$key);
+                            }
 
-                        //delete prevoius relations if there are any
-                        if($data[$key]){
-                            $parts = explode(',', $data[$key]);
-                            craft()->database->delete('relation', array(
-                                'id' => $parts
-                            ));
-                        }
+                            //delete prevoius relations if there are any
+                            if($data[$key]){
+                                $parts = explode(',', $data[$key]);
+                                anu()->database->delete('relation', array(
+                                    'id' => $parts
+                                ));
+                            }
 
-                        $relations = $entry->$key;
-                        foreach ($relations as $rel){
-                            craft()->database->insert('relation', array(
-                                'field_1' => $key,
-                                'field_2' => $relation['field'],
-                                'id_1' => $entry->id,
-                                'id_2' => $rel->id,
-                                'model_1' => Craft::getClassName($this),
-                                'model_2'=> $relation['model']
-                            ));
+                            $relations = $entry->$key;
+                            foreach ($relations as $rel){
+                                anu()->database->insert('relation', array(
+                                    'field_1' => $key,
+                                    'field_2' => $relation['field'],
+                                    'id_1' => $entry->id,
+                                    'id_2' => $rel->id,
+                                    'model_1' => Anu::getClassName($this),
+                                    'model_2'=> $relation['model']
+                                ));
+                            }
                         }
                     }else{
                         $values[$key] = ($data[$key])? $data[$key] : 0;
@@ -113,11 +118,11 @@ class entryService
                 }
             }
 
-            craft()->database->update($this->table, $values, array(
+            anu()->database->update($this->table, $values, array(
                 $this->table . "." . $this->primary_key => $entry->id
             ));
 
-            return craft()->database->id();
+            return anu()->database->id();
         }
         return false;
     }
@@ -147,9 +152,9 @@ class entryService
             $this->id = $entryId;
             $match = array();
             $className = get_class($this);
-            preg_match('/Craft\\\([a-zA-Z0-9-]*)Service/',$className, $match);
+            preg_match('/Anu\\\([a-zA-Z0-9-]*)Service/',$className, $match);
             if(count($match) > 1){
-                $modelName = Craft::getNameSpace() . $match[1] . "Model";
+                $modelName = Anu::getNameSpace() . $match[1] . "Model";
                 $model = new $modelName();
                 $attributes = $model->defineAttributes();
                 $relations = array();
@@ -162,7 +167,7 @@ class entryService
 
                 $where = array($this->table . "." . $this->primary_key => $entryId);
 
-                $row = craft()->database->select($this->table, $join, $select, $where);
+                $row = anu()->database->select($this->table, $join, $select, $where);
 
                 if(!empty($row) && is_array($row)){
                     return $this->populateModel($row[0], $model);
@@ -188,17 +193,17 @@ class entryService
                 $relation = $v['relatedTo'];
                 if(is_array($relation)){
                     if(isset($relation['table'], $relation['field'])){
-                        $maxRelations = $relation['limit'];
+                        $maxRelations = (isset($relation['limit']))? $relation['limit'] : 100;
                         $selects = array(
                             'id'
                         );
-                        $rows = craft()->database->select('relation', $selects, array(
+                        $rows = anu()->database->select('relation', $selects, array(
                             'field_1'   => $k,
                             'field_2'   => $relation['field'],
                             'id_1'      => $this->id,
-                            'model_1'   => Craft::getClassName($this),
+                            'model_1'   => Anu::getClassName($this),
                             'model_2'   => $relation['model'],
-                            'LIMIT'     => 3
+                            'LIMIT'     => $maxRelations
                         ));
 
                         //found relations
@@ -234,8 +239,9 @@ class entryService
             }
 
             //set slug to title by default if there is no slug further validation comes later...
-            if($k === 'slug' && !$data[$k]){
+            if($k === 'slug' && $data[$k] == null){
                 $data[$k] = $data['title'];
+                $entry->setData($data['title'] , 'slug');
             }
 
             //required value => set but 0
@@ -245,13 +251,14 @@ class entryService
                 }
             }
         }
-        $entry->setData($data['title'] , 'slug');
+
+
 
         if($entry->getErrors() == null){
             return true;
-        }else{
-            return false;
         }
+        return false;
+
     }
 
     /**
@@ -271,18 +278,31 @@ class entryService
                     }else{
                         $parts = $data[$k];
                     }
+                    if(is_array($parts) && $parts){
+                        $model->$k = $parts;
+                    }
 
-                    $rows = craft()->database->select('relation', '*', array(
+                    $class = $relation['model'];
+                    $criteriaModel = new elementCriteriaModel(anu()->$class);
+                    $criteriaModel->relatedTo  = array(
+                        'field' => $k,
+                        'id'    => $data['id'],
+                        'model' => Anu::getClassName($this)
+                    );
+                    $model->$k = $criteriaModel;
+                    /*
+                    $rows = craft()->database->select('relation', 'id', array(
                         'id' => $parts
                     ));
 
-                    $model->$k = array();
+
                     foreach ($rows as $row){
                         $className = Craft::getClassByName($row['model_2']);
                         $class = new $className;
                         $entry = $class->getEntryById((int)$row['id_2']);
                         $model->$k[] = $entry;
                     }
+                    */
 
                 }else{
                     $model->$k = $data[$k];
@@ -328,20 +348,18 @@ class entryService
      * @param $entry    entryModel
      */
     public function setDataFromPost($entry){
-        $post = craft()->request->getValue('data');
+        $post = anu()->request->getValue('data');
         $attributes = $entry->defineAttributes();
-
         foreach ($attributes as $k => $v){
             if(array_key_exists($k, $post)){
                 if(isset($v['relatedTo']) && $relation = $v['relatedTo']){
                     $relations = $post[$k];
-                    $className = Craft::getClassByName($relation['model']);
+                    $className = Anu::getClassByName($relation['model']);
                     $class = new $className();
                     $entry->$k = array();
                     foreach ($relations as $rel){
                         $entryRelation = $class->getEntryById((int)$rel);
                         if($entryRelation){
-
                             $entry->$k[] = $entryRelation;
                         }
                     }
@@ -349,7 +367,6 @@ class entryService
                     $entry->setData($post[$k], $k);
                 }
             }
-
         }
     }
 
@@ -363,19 +380,19 @@ class entryService
             return false;
         }
 
-        craft()->database->delete($this->table, array(
+        anu()->database->delete($this->table, array(
             $this->primary_key => $entry->id
         ));
 
-        craft()->database->delete('relation', array(
+        anu()->database->delete('relation', array(
             'OR' => array(
                 'AND #field1' => array(
                     'id_1' => $entry->id,
-                    'model_1' => Craft::getClassName($this)
+                    'model_1' => Anu::getClassName($this)
                 ),
                 'AND #field2' => array(
                     'id_2' => $entry->id,
-                    'model_2' => Craft::getClassName($this)
+                    'model_2' => Anu::getClassName($this)
                 )
             )
         ));
@@ -411,13 +428,18 @@ class entryService
      */
     public function find($attributes = null){
         $criteria = new elementCriteriaModel($this);
-        $elements = $criteria->find($attributes);
-        return $elements;
+        return $criteria->find($attributes);
     }
 
+    /**
+     * Renders the detail template
+     *
+     * @param $slug
+     * @throws Exception
+     */
     public function renderEntryBySlug($slug){
         if($entry = $this->getEntryBySlug($slug)){
-            craft()->template->render($this->template, array(
+            anu()->template->render($this->template, array(
                 'entry' => $entry
             ));
         }else{
@@ -427,12 +449,13 @@ class entryService
 
     /**
      * @param $slug
-     * @return null
+     * @return null|entryModel
      */
     public function getEntryBySlug($slug){
-        $id = craft()->database->select($this->table, $this->primary_key, array(
+        $id = anu()->database->select($this->table, $this->primary_key, array(
             'slug' => $slug
         ));
+
         if($id){
             return $this->getEntryById($id[0]);
         }
@@ -444,7 +467,7 @@ class entryService
      */
     public function getSlugForEntry($entry){
         $slug = $entry->getAttribute('slug');
-        $slugInUse = craft()->database->has($this->table, array('slug' => $slug));
+        $slugInUse = anu()->database->has($this->table, array('slug' => $slug));
         if(!$slugInUse){
             return true;
         }
@@ -454,7 +477,7 @@ class entryService
         while ($slugInUse){
             $counter++;
             $slug = $originalSlug . "-" . $counter;
-            $slugInUse = craft()->database->has($this->table, array('slug' => $slug));
+            $slugInUse = anu()->database->has($this->table, array('slug' => $slug));
 
         }
         $slug = $originalSlug . "-" . $counter;

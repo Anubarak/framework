@@ -8,7 +8,7 @@
  * Released under the MIT license
  */
 
-namespace Craft;
+namespace Anu;
 
 use PDO;
 use Exception;
@@ -338,7 +338,7 @@ class database
                 $query = str_replace($key, $value[ 0 ], $query);
             }
         }
-
+        $query = str_replace('"', "", $query);
         return $query;
     }
 
@@ -1059,7 +1059,7 @@ class database
 
         $index = 0;
 
-        $column = $where === null ? $join : $columns;
+        $column = ($where === null && $join !== null)? $join : $columns;
 
         $is_single_column = (is_string($column) && $column !== '*');
 

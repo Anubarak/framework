@@ -1,6 +1,6 @@
 <?php
 
-namespace Craft;
+namespace Anu;
 
 /**
  * The BaseEnum class is an abstract class that all enums in Craft inherit. It provides some functionality that mimics

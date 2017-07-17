@@ -1,6 +1,6 @@
 <?php
 
-    namespace Craft;
+    namespace Anu;
 
     /*
      * This should be a wrapper for our main program flow.
@@ -30,7 +30,7 @@
         
         public function run()
         {
-			craft()->request->process();
+			anu()->request->process();
         }
         
 		private function getLoginButton(){

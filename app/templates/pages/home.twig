@@ -3,6 +3,8 @@
 {% block content %}
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
         <input type="hidden" name="action" value="home/save">
+        <input type="hidden" name="data[test_id][]" value="1">
+        <input type="hidden" name="data[test_id][]" value="2">
         <input type="submit" value="submit">
         <input type="text" name="data[text]" value="Wie heißt du">
         <input type="text" name="data[title]" value="Frage">
@@ -18,8 +20,22 @@
         <input type="hidden" name="action" value="home/saveQuestion">
         <input type="submit" value="submit">
         <input type="text" name="data[text]" value="regerger">
+        <input type="text" name="data[title]" value="Antwort">
     </form>
-    {% set elements = craft.entry.find() %}
+
+
+    <br>
+    <br>
+
+    <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
+        <input type="hidden" name="action" value="home/savePage">
+        <input type="submit" value="submit">
+        <input type="text" name="data[linkName]" value="Page 1">
+        <input type="text" name="data[title]" value="Page 1">
+    </form>
+
+
+    {% set elements = anu.entry.find() %}
     {% if elements %}
         {% for entry in elements %}
             {{ entry.id }} .. <a href="{{ entry.getUrl() }}">{{ entry.title }}</a><br>
@@ -30,4 +46,6 @@
     {% includeJsFile 't'%}
     {% includeJsFile 't2'%}
     {% includeJsFile 't23'%}
+    {% includeCssFile 't23'%}
+    {% includeCssFile 't23'%}
 {% endblock %}

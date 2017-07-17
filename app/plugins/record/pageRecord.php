@@ -9,7 +9,7 @@
 namespace Anu;
 
 
-class questionRecord extends baseRecord
+class pageRecord extends baseRecord
 {
 
     /**
@@ -17,17 +17,14 @@ class questionRecord extends baseRecord
      */
     public function defineAttributes(){
         return array_merge(array(
-            'question_id'   => array(AttributeType::Number, ),
-            'text'          => array(AttributeType::Mixed),
-            'correctAnswer' => array(AttributeType::Number),
-            'pointsPlus'    => array(AttributeType::Number),
-            'pointsMinus'   => array(AttributeType::Number),
+            'page_id'   => array(AttributeType::Number ),
+            'linkName'  => array(AttributeType::Mixed),
         ), parent::defineAttributes());
     }
 
     public function defineIndex(){
         return array_merge(array(
-            'question_id'   => array('primary_key')
+            'page_id'   => array('primary_key')
         ), parent::defineIndex());
     }
 
@@ -35,7 +32,7 @@ class questionRecord extends baseRecord
      * @return string
      */
     public function getTableName(){
-        return 'question';
+        return 'page';
     }
 
 }

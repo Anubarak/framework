@@ -6,13 +6,13 @@
  * Time: 16:04
  */
 
-namespace Craft;
+namespace Anu;
 
 require_once BASE . '/vendor/autoload.php';
 
 /**
  * Class templateService
- * @package Craft
+ * @package Anu
  */
 class templateService
 {
@@ -24,6 +24,7 @@ class templateService
     private $defaultValues;
 
     private $js_files   = array();
+    private $css_files   = array();
     private $js_code    =  array();
     public function __construct()
     {
@@ -31,47 +32,75 @@ class templateService
     }
 
     public function init(){
-        $path = craft()->config->get('paths');
+        $path = anu()->config->get('paths');
         $templatePath = $path['customTemplateDirectory'];
 
         $this->loader = new \Twig_Loader_Filesystem($templatePath);
         $this->twig = new \Twig_Environment($this->loader, array(
-            //'cache' => Craft::getTemplatePath() . '/cache',
-            'debug' => true
+            'debug' => true,
+            'dev', true
         ));
-
+        $this->twig->addExtension(new \Twig_Extension_Debug());
         $this->twig->addTokenParser(new IncludeResource_TokenParser('includeJsFile'));
+        $this->twig->addTokenParser(new IncludeResource_TokenParser('includeCssFile'));
+        $this->twig->addGlobal('anu', anu());
     }
 
+    /**
+     * @param $fileName
+     */
     public function includeJsFile($fileName){
         $this->js_files[] = $fileName;
     }
 
-    public function getJsFile(){
-        return $this->js_files;
+    /**
+     * @param $fileName
+     */
+    public function includeCssFile($fileName){
+        $this->css_files[] = $fileName;
     }
 
+    /**
+     * @return array
+     */
+    public function getCssFile(){
+        return $this->css_files;
+    }
+
+    /**
+     * @param $code
+     */
     public function addJsCode($code){
         $this->js_code[] = $code;
     }
 
+    /**
+     * @param $js
+     * @return string
+     */
     private function _combineJs($js)
     {
         return implode("\n\n", $js);
     }
 
+    /**
+     * @return string
+     */
     public function getJsCode(){
         $js = $this->_combineJs($this->js_code);
         return "<script type=\"text/javascript\">\n/*<![CDATA[*/\n$(document).ready(function(){" .$js."});\n/*]]>*/\n</script>";
     }
 
+    /**
+     * @param $template
+     * @param array $data
+     */
     public function render($template, $data = array()){
         $template = $this->twig->load($template);
 
         echo $template->render(array_merge($data, array(
             'assetPathCSS'   =>  BASE_URL . 'app/templates/assets/css/',
             'assetPathJS'   => BASE_URL . 'app/templates/assets/js/',
-            'craft'         => craft(),
         )));
     }
 }
@@ -115,7 +144,7 @@ class IncludeResource_Node extends \Twig_Node
         }
 
         $compiler
-            ->write("\\Craft\\craft()->template->{$function}(\$_js")
+            ->write("\\Anu\\anu()->template->{$function}(\$_js")
         ;
 
         if ($this->getAttribute('first'))

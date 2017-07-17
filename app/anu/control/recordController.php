@@ -6,28 +6,30 @@
  * Time: 15:50
  */
 
-namespace Craft;
+namespace Anu;
 
 
 class recordController extends baseController
 {
     public function getContent(){
-        $records = craft()->record->loadAllRecords();
-
+        $records = anu()->record->loadAllRecords();
+        //$record = craft()->record->getRecordByName('page');
+        anu()->record->installRecord('page');
 
         /*foreach ($records as $record){
             $record->installRecord();
         }*/
-        craft()->template->render('test.twig', array(
+        anu()->template->render('home.twig', array(
             'records' => $records
         ));
     }
+
 
     /**
      * @param $recordId
      */
     public function installRecord(){
-        $recordId = craft()->request->getValue('recordId');
+        $recordId = anu()->request->getValue('recordId');
         $this->requireAjaxRequest();
         if($recordId){
 

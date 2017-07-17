@@ -6,7 +6,7 @@
  * Time: 11:31
  */
 
-namespace Craft;
+namespace Anu;
 
 
 class sessionService

@@ -1,6 +1,6 @@
 <?php
 
-namespace Craft;
+namespace Anu;
 
 class questionModel extends entryModel
 {

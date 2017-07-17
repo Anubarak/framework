@@ -6,7 +6,7 @@
  * Time: 15:50
  */
 
-namespace Craft;
+namespace Anu;
 
 
 class recordService
@@ -19,15 +19,15 @@ class recordService
      * @return array|bool
      */
     public function getAllRecords(){
-        return craft()->database->select('records', '*');
+        return anu()->database->select('records', '*');
     }
 
     public function getRecordById($id){
-        return craft()->database->select('records', '*', array('id' => $id));
+        return anu()->database->select('records', '*', array('id' => $id));
     }
 
     public function getRecordByName($name){
-        return craft()->database->select('records', '*', array(
+        return anu()->database->select('records', '*', array(
             'OR' => array(
                 'table_name' => $name,
                 'name'      => $name
@@ -40,7 +40,7 @@ class recordService
      */
     public function loadAllRecords(){
         $dirs = array(
-            Craft::getRecordPluginDirectory()
+            Anu::getRecordPluginDirectory()
         );
 
         foreach ($dirs as $dir){
@@ -64,7 +64,7 @@ class recordService
      */
     public function installRecord($record){
         if(is_string($record)){
-            $className = Craft::getNameSpace() . $record . "Record";
+            $className = Anu::getNameSpace() . $record . "Record";
             if(class_exists($className)){
                 $record = new $className();
             }else{
@@ -97,11 +97,11 @@ class recordService
         $items = substr($items, 0, -1);
         $this->items = $items;
         if($items){
-            $success = craft()->database->action(function($database){
-                craft()->database->query("
+            $success = anu()->database->action(function($database){
+                anu()->database->query("
                     CREATE TABLE `" . $this->record->getTableName() . "` ( " . $this->items . ") ENGINE=InnoDB DEFAULT CHARSET=latin1;"
                 );
-                $errors = craft()->database->error();
+                $errors = anu()->database->error();
                 if($errors){
                     return false;
                 }
@@ -114,34 +114,34 @@ class recordService
                         }
                         foreach ($rows as $v){
                             if($v === 'primary_key'){
-                                craft()->database->query('
+                                anu()->database->query('
                                     ALTER TABLE `' . $this->record->getTableName() . '`
                                         ADD PRIMARY KEY (`' . $k . '`);
                                 ');
 
-                                $errors = craft()->database->error();
+                                $errors = anu()->database->error();
                                 if($errors){
                                     return false;
                                 }
 
 
-                                craft()->database->query('
+                                anu()->database->query('
                                     ALTER TABLE `' . $this->record->getTableName() . '`
                                         MODIFY `' . $k . '` int(11) NOT NULL AUTO_INCREMENT
                                 ');
 
-                                $errors = craft()->database->error();
+                                $errors = anu()->database->error();
                                 if($errors){
                                     return false;
                                 }
                             }
                             if($v === 'unique'){
-                                craft()->database->query('
+                                anu()->database->query('
                                     ALTER TABLE `' . $this->record->getTableName() . '`
                                         ADD UNIQUE (`' . $k . '`);
                                 ');
 
-                                $errors = craft()->database->error();
+                                $errors = anu()->database->error();
                                 if($errors){
                                     return false;
                                 }
@@ -152,7 +152,7 @@ class recordService
                 }
             });
             if($success){
-                craft()->database->insert('records', array(
+                anu()->database->insert('records', array(
                     'name' => $this->record->getTableName(),
                     'table_name' => $this->record->getTableName()
                 ));
@@ -177,10 +177,10 @@ class recordService
 
         if(isset($record['id']) && $record['id']){
             $id = $record['id'];
-            craft()->database->query('DROP TABLE . ' . $record['table_name']);
-            craft()->database->debugError();
-            craft()->database->delete('records', array('id' => $id));
-            craft()->database->debugError();
+            anu()->database->query('DROP TABLE . ' . $record['table_name']);
+            anu()->database->debugError();
+            anu()->database->delete('records', array('id' => $id));
+            anu()->database->debugError();
             return true;
         }else{
             return false;

@@ -6,7 +6,7 @@
  * Time: 15:57
  */
 
-namespace Craft;
+namespace Anu;
 
 
 class baseRecord

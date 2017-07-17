@@ -6,18 +6,18 @@
  * Date: 10.07.2017
  * Time: 17:04
  */
-namespace Craft;
+namespace Anu;
 
 class homeController extends baseController
 {
     public function getContent()
     {
 
-        $criteria = craft()->question->getCriteria();
+        $criteria = anu()->question->getCriteria();
         $criteria->LIMIT =  1;
         //$entries = $criteria->find();
 
-        craft()->template->render('pages/home.twig', array(
+        anu()->template->render('pages/home.twig', array(
             'title'       => "test Title",
             'headline'    => "headline",
             'subheadline' => "subline",
@@ -27,22 +27,34 @@ class homeController extends baseController
 
     public function save(){
         $question = new questionModel();
-        craft()->question->setDataFromPost($question);
-        craft()->question->saveEntry($question);
-        craft()->database->debugError();
+        anu()->question->setDataFromPost($question);
+        anu()->question->saveEntry($question);
+        anu()->database->debugError();
         //craft()->question->deleteEntry($question);
     }
 
     public function saveQuestion(){
-        $answer = new questionModel();
-        craft()->entry->setDataFromPost($answer);
+        $answer = new answerModel();
+        anu()->answer->setDataFromPost($answer);
 
-        craft()->entry->saveEntry($answer);
-        craft()->database->debugError();
-        echo "<pre>";
-        var_dump(craft()->database->error());
-        echo "</pre>";
-        die();
+        anu()->answer->saveEntry($answer);
+        anu()->database->debugError();
+
         //craft()->question->deleteEntry($question);
+    }
+
+    public function savePage(){
+        $page = new pageModel();
+        anu()->page->setDataFromPost($page);
+        anu()->page->saveEntry($page);
+
+        anu()->database->debugError();
+
+        if($page->getErrors()){
+            echo "<pre>";
+            var_dump($page->getErrors());
+            echo "</pre>";
+            die();
+        }
     }
 }

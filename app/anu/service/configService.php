@@ -6,7 +6,7 @@
  * Time: 10:58
  */
 
-namespace Craft;
+namespace Anu;
 
 
 class configService

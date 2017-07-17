@@ -7,9 +7,9 @@
  *
  */
 
-namespace Craft;
+namespace Anu;
 
-class Craft
+class Anu
 {
     public static $_app = null;
     public static $entryService;
@@ -19,48 +19,48 @@ class Craft
      * @return app
      */
     public static function app(){
-        if(!craft::$_app){
+        if(!anu::$_app){
             include BASE . 'config.php';
-            Craft::$paths = $config['paths'];
-            craft::$_app = new app();
-            craft::$_app->init();
+            Anu::$paths = $config['paths'];
+            Anu::$_app = new app();
+            Anu::$_app->init();
         }
-        return craft::$_app;
+        return anu::$_app;
     }
 
     /**
      * @return string
      */
     public static function getNameSpace(){
-        return Craft::$paths['namespace'];
+        return Anu::$paths['namespace'];
     }
 
     /**
      * @return string
      */
     public static function getCoreServiceDirectory(){
-        return Craft::$paths['coreServiceDirectory'];
+        return Anu::$paths['coreServiceDirectory'];
     }
 
     /**
      * @return string
      */
     public static function getRecordPluginDirectory(){
-        return Craft::$paths['pluginRecordDirectory'];
+        return Anu::$paths['pluginRecordDirectory'];
     }
 
     /**
      * @return string
      */
     public static function getCoreRecordDirectory(){
-        return Craft::$paths['coreRecordDirectory'];
+        return Anu::$paths['coreRecordDirectory'];
     }
 
     /**
      * @return string
      */
     public static function getPluginServiceDirectory(){
-        return Craft::$paths['pluginServiceDirectory'];
+        return Anu::$paths['pluginServiceDirectory'];
     }
 
 
@@ -70,14 +70,14 @@ class Craft
     public static function getClassByName($class, $extention = null){
         if(is_string($class)){
             $type = ($extention)? $extention : "Service";
-            return Craft::getNameSpace() . $class . $type;
+            return Anu::getNameSpace() . $class . $type;
         }else{
             $className = get_class($class);
             $match = array();
-            preg_match('/Craft\\\([a-zA-Z0-9-]*)(Service|Model)/',$className, $match);
+            preg_match('/Anu\\\([a-zA-Z0-9-]*)(Service|Model)/',$className, $match);
             if(count($match) > 1){
                 $type = ($extention)? $extention : $match[2];
-                return Craft::getNameSpace() . $match[1] . $type;
+                return Anu::getNameSpace() . $match[1] . $type;
             }
         }
 
@@ -91,7 +91,7 @@ class Craft
     public static function getClassName($class){
         $className = get_class($class);
         $match = array();
-        preg_match('/Craft\\\([a-zA-Z0-9-]*)(Service|Model)/',$className, $match);
+        preg_match('/Anu\\\([a-zA-Z0-9-]*)(Service|Model)/',$className, $match);
         if(count($match) > 1){
             return $match[1];
         }
@@ -108,9 +108,10 @@ class Craft
  * @property requestService                         $request
  * @property configService                          $config
  * @property recordService                          $record
+ * @property pageService                            $page
  * @property database                               $database
  *
- * @package Craft
+ * @package Anu
  */
 class app{
 
@@ -123,7 +124,7 @@ class app{
         $whoops->register();
 
         $dirs = array(
-            Craft::getCoreServiceDirectory(), Craft::getPluginServiceDirectory()
+            Anu::getCoreServiceDirectory(), Anu::getPluginServiceDirectory()
         );
 
         foreach ($dirs as $dir){
@@ -134,7 +135,7 @@ class app{
                     require_once $dir . '\\' . $files[$i];
                     $withoutExt = preg_replace('/\\.[^.\\s]{3,4}$/', '', $files[$i]);
                     $magicOperator = preg_replace('/\\Service.[^.\\s]{3,4}$/', '', $files[$i]);
-                    $withNameSpace = 'craft\\' . $withoutExt;
+                    $withNameSpace = 'anu\\' . $withoutExt;
                     $this->$magicOperator = new $withNameSpace();
                 }
             }
@@ -143,14 +144,14 @@ class app{
 
     public function init(){
         $this->template->init();
-        $this->database = new database(craft()->config->get('database'));
+        $this->database = new database(anu()->config->get('database'));
     }
 }
 
 /**
  * @return app
  */
-function craft()
+function anu()
 {
-    return Craft::app();
+    return Anu::app();
 }

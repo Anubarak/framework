@@ -6,11 +6,11 @@
  * Time: 16:51
  */
 
-namespace Craft;
+namespace Anu;
 
 /**
  * Class requestService
- * @package Craft
+ * @package Anu
  */
 class requestService
 {
@@ -57,7 +57,7 @@ class requestService
         if($action = $this->getValue('action')){
             $arrRoute = explode('/', $action);
             if(count($arrRoute)){
-                $className = Craft::getClassByName($arrRoute[0], "Controller");
+                $className = Anu::getClassByName($arrRoute[0], "Controller");
                 $class = new $className();
                 $function = $arrRoute[1];
                 $class->$function();
@@ -71,18 +71,18 @@ class requestService
         }
 
         if($entry && $slug){
-            if(isset(craft()->$entry) && is_object(craft()->$entry)){
-                if(!craft()->record->getRecordByName($entry)){
+            if(isset(anu()->$entry) && is_object(anu()->$entry)){
+                if(!anu()->record->getRecordByName($entry)){
                     throw new \Exception($entry . ' is not installed');
                 }
-                craft()->$entry->renderEntryBySlug($slug);
+                anu()->$entry->renderEntryBySlug($slug);
             }else{
                 throw new \Exception('could not found Service with Name = ' . $entry );
             }
         }
 
         if($page){
-            $controllerName = Craft::getNameSpace() . $page . "Controller";
+            $controllerName = Anu::getNameSpace() . $page . "Controller";
             if(class_exists($controllerName)){
                 $class = new $controllerName();
                 if($stat && method_exists($class, $stat)){

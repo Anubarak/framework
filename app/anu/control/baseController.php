@@ -6,7 +6,7 @@
  * Time: 17:08
  */
 
-namespace Craft;
+namespace Anu;
 
 
 class baseController
@@ -26,12 +26,12 @@ class baseController
         //craft()->template->addJsCode('alert("test");');
         //craft()->question->saveEntry($question);
 
-        $record = craft()->record->getRecordByName('answer');
+        $record = anu()->record->getRecordByName('answer');
 
-        craft()->record->installRecord("answer");
-        craft()->record->installRecord("question");
+        anu()->record->installRecord("answer");
+        anu()->record->installRecord("question");
 
-        craft()->template->render('pages/home.twig', array(
+        anu()->template->render('pages/home.twig', array(
             'title'       => "test Title",
             'headline'    => "headline",
             'subheadline' => "subline",

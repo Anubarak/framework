@@ -6,7 +6,7 @@
  * Time: 15:54
  */
 
-namespace Craft;
+namespace Anu;
 
 
 class answerRecord extends baseRecord

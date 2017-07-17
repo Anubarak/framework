@@ -14,7 +14,6 @@
     <link  href="{{ assetPathCSS }}jquery-ui-git.css" rel="stylesheet">
     <script src="{{ assetPathJS }}jquery-git.js"></script>
     <script src="{{ assetPathJS }}jquery-ui-git.js"></script>
-
     <link rel="stylesheet" href="{{ assetPathCSS }}font-awesome/css/font-awesome.min.css">
 
 
@@ -28,7 +27,8 @@
 
 <body>
 <noscript class="msg"><div>Diese Seite wird nur mit JavaScript korrekt dargestellt. Bitte schalten Sie JavaScript in Ihrem Browser ein!</div></noscript>
-    {% block body %}
+
+{% block body %}
 
 
     {% endblock %}
@@ -43,12 +43,17 @@
 
 
     {% block Files %}
-        {% set jsFiles = craft.template.getJsFile() %}
+        {% set cssFiles = anu.template.getCssFile() %}
+        {% for file in cssFiles %}
+            <link  href="{{ file }}" rel="stylesheet">
+        {% endfor %}
+
+        {% set jsFiles = anu.template.getJsFile() %}
         {% for file in jsFiles %}
             <script src="{{ file }}" type="text/javascript"></script>
         {% endfor %}
 
-        {% set jsCode = craft.template.getJsCode() %}
+        {% set jsCode = anu.template.getJsCode() %}
         {{ jsCode|raw }}
     {% endblock %}
 </body>

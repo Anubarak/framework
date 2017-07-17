@@ -6,7 +6,7 @@
  * Time: 10:21
  */
 
-namespace Craft;
+namespace Anu;
 
 use Exception;
 
@@ -94,7 +94,7 @@ class entryModel
     }
 
     public function getUrl(){
-        $className = Craft::getClassName($this);
+        $className = Anu::getClassName($this);
         $url = BASE_URL . "index.php?e=" . $className . "&slug=" . $this->getAttribute('slug');
         return $url;
     }

@@ -6,7 +6,7 @@
  * Date: 23.06.2017
  * Time: 10:18
  */
-namespace Craft;
+namespace Anu;
 
 class answerService extends entryService
 {

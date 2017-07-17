@@ -15,11 +15,11 @@ $config = array(
         'password' => ''
     ),
     'paths' => array(
-        'coreServiceDirectory'      => 'app\craft\service',
+        'coreServiceDirectory'      => 'app\anu\service',
         'coreRecordDirectory'       => 'app\plugins\record',
         'pluginRecordDirectory'     => 'app\plugins\record',
         'pluginServiceDirectory'    => 'app\plugins\service',
         'customTemplateDirectory'   => 'app\templates',
-        'namespace'                 => 'craft\\'
+        'namespace'                 => 'anu\\'
     ),
 );

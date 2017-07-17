@@ -1,6 +1,24 @@
 {% extends 'layout/site.twig' %}
 
 {% block content %}
-    some question details
-    {{ entry.id }}
+    {#
+    some question detailsrrrr
+    {% set answers = craft.answer.find({
+        relatedTo: entry
+    }) %}
+
+    {{ answers|length }}<br>
+    {% for answer in answers %}
+        {{ answer.title }}<br>
+    {% endfor %}
+    #}
+    ee
+
+    {{ dump(entry.test_id.ids()) }}
+
+    <br><br><br>
+    {% for answer in entry.test_id %}
+        {{ answer.title }}<br>
+        {{ answer.id }}
+    {% endfor %}
 {% endblock %}

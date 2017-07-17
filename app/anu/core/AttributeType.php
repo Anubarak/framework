@@ -1,5 +1,5 @@
 <?php
-namespace Craft;
+namespace Anu;
 
 /**
  * The AttributeType class is an abstract class that defines all of the attribute types that are available in Craft.
@@ -14,7 +14,7 @@ namespace Craft;
  * @package   craft.app.enums
  * @since     1.0
  */
-require_once BASE . 'app\craft\core\BaseEnum.php';
+require_once BASE . 'app\anu\core\BaseEnum.php';
 abstract class AttributeType extends BaseEnum
 {
     // Constants

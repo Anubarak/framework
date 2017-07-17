@@ -1,0 +1,10 @@
+{% macro menu() %}
+    <ul>
+        {% set elements = anu.page.find() %}
+        {% if elements %}
+            {% for entry in elements %}
+                <a href="{{ entry.getUrl() }}">{{ entry.title }}</a>
+            {% endfor %}
+        {% endif %}
+    </ul>
+{% endmacro %}
