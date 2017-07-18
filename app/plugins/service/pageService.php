@@ -13,5 +13,5 @@ class pageService extends entryService
     protected  $table = 'page';
     protected  $primary_key = 'page_id';
 
-    protected $template = 'page/index.twig';
+    protected $template = 'pages/index.twig';
 }

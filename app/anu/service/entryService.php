@@ -11,7 +11,7 @@ namespace Anu;
 use Exception;
 use function Sodium\crypto_aead_aes256gcm_is_available;
 
-class entryService
+class entryService extends baseService
 {
     protected   $table = null;
     protected   $template = null;
@@ -124,14 +124,13 @@ class entryService
 
             return anu()->database->id();
         }
-        return false;
     }
 
     /**
      * Alias from getEntryById
      *
      * @param $entryId
-     * @return null
+     * @return baseModel
      */
     public function id($entryId){
         return $this->getEntryById($entryId);
@@ -139,7 +138,7 @@ class entryService
 
     /**
      * @param $entryId
-     * @return null
+     * @return baseModel|entryModel|null
      * @throws Exception
      */
     public function getEntryById($entryId){
@@ -147,227 +146,28 @@ class entryService
         {
             throw new Exception('ID is not specified.');
         }
-        else
-        {
-            $this->id = $entryId;
-            $match = array();
-            $className = get_class($this);
-            preg_match('/Anu\\\([a-zA-Z0-9-]*)Service/',$className, $match);
-            if(count($match) > 1){
-                $modelName = Anu::getNameSpace() . $match[1] . "Model";
-                $model = new $modelName();
-                $attributes = $model->defineAttributes();
-                $relations = array();
 
-                $select = $this->iterateDBSelect($attributes, $relations, $this->table);
-
-                $join = array(
-                    "[>]relation" => array($this->table . "." . $this->primary_key => 'id_1')
-                );
-
-                $where = array($this->table . "." . $this->primary_key => $entryId);
-
-                $row = anu()->database->select($this->table, $join, $select, $where);
-
-                if(!empty($row) && is_array($row)){
-                    return $this->populateModel($row[0], $model);
-                }
-            }
-            return null;
-        }
-    }
-
-    /**
-     * @param $attributes
-     * @param $join
-     * @param null $parentTable
-     * @return array
-     */
-    private function iterateDBSelect($attributes, &$relations, $parentTable){
-        $select = array();
-        $primaryKey = $this->primary_key;
-
-        $select[] = $parentTable . "." . $primaryKey . "(id)";
-        foreach ($attributes as $k => $v){
-            if(isset($v['relatedTo'])){
-                $relation = $v['relatedTo'];
-                if(is_array($relation)){
-                    if(isset($relation['table'], $relation['field'])){
-                        $maxRelations = (isset($relation['limit']))? $relation['limit'] : 100;
-                        $selects = array(
-                            'id'
-                        );
-                        $rows = anu()->database->select('relation', $selects, array(
-                            'field_1'   => $k,
-                            'field_2'   => $relation['field'],
-                            'id_1'      => $this->id,
-                            'model_1'   => Anu::getClassName($this),
-                            'model_2'   => $relation['model'],
-                            'LIMIT'     => $maxRelations
-                        ));
-
-                        //found relations
-                        if($rows){
-                            foreach ($rows as $row){
-                                $relations[] = (int)$row['id'];
-                            }
-                        }
-                        $select[] = '#GROUP_CONCAT(relation.id SEPARATOR \',\') as ' . $k;
-                    }
-                }
-            }else{
-                $select[] = $parentTable . "." . $k;
-            }
-        }
-
-        return $select;
-    }
-
-    /**
-     * @param $entry    entryModel
-     * @return bool
-     */
-    protected function validate($entry){
-        $attributes = $entry->defineAttributes();
-
-        $data = $entry->getData();
-
-        foreach ($attributes as $k => $v){
-            //check if isset
-            if(!array_key_exists($k, $data)){
-                $entry->addError($k, 'Value not set');
-            }
-
-            //set slug to title by default if there is no slug further validation comes later...
-            if($k === 'slug' && $data[$k] == null){
-                $data[$k] = $data['title'];
-                $entry->setData($data['title'] , 'slug');
-            }
-
-            //required value => set but 0
-            if(isset($v['required'])){
-                if(array_key_exists($k, $data) && !$data[$k]){
-                    $entry->addError($k, 'Value must be set, required value');
-                }
-            }
-        }
-
-
-
-        if($entry->getErrors() == null){
-            return true;
-        }
-        return false;
-
-    }
-
-    /**
-     * @param $data
-     * @param $model    entryModel
-     * @return null
-     * @throws Exception
-     */
-    protected function populateModel($data, $model){
-        if($model->setData($data)){
+        $this->id = $entryId;
+        if($model = Anu::getClassByName($this, 'Model', true)){
             $attributes = $model->defineAttributes();
-            foreach ($attributes as $k => $v){
-                if(isset($v['relatedTo']) && $relation = $v['relatedTo']){
-                    //TODO check this
-                    if(strpos($data[$k], ',') !== false){
-                        $parts = explode(',', $data[$k]);
-                    }else{
-                        $parts = $data[$k];
-                    }
-                    if(is_array($parts) && $parts){
-                        $model->$k = $parts;
-                    }
 
-                    $class = $relation['model'];
-                    $criteriaModel = new elementCriteriaModel(anu()->$class);
-                    $criteriaModel->relatedTo  = array(
-                        'field' => $k,
-                        'id'    => $data['id'],
-                        'model' => Anu::getClassName($this)
-                    );
-                    $model->$k = $criteriaModel;
-                    /*
-                    $rows = craft()->database->select('relation', 'id', array(
-                        'id' => $parts
-                    ));
+            $select = $this->iterateDBSelect($attributes, $this->table);
 
+            $join = array(
+                "[>]relation" => array($this->table . "." . $this->primary_key => 'id_1')
+            );
 
-                    foreach ($rows as $row){
-                        $className = Craft::getClassByName($row['model_2']);
-                        $class = new $className;
-                        $entry = $class->getEntryById((int)$row['id_2']);
-                        $model->$k[] = $entry;
-                    }
-                    */
+            $where = array($this->table . "." . $this->primary_key => $entryId);
 
-                }else{
-                    $model->$k = $data[$k];
-                }
+            $row = anu()->database->select($this->table, $join, $select, $where);
+
+            if(!empty($row) && is_array($row)){
+                return $this->populateModel($row[0], $model);
             }
-            $model->id = $data['id'];
-            return $model;
         }else{
-            throw new Exception('Could not populate Model');
+            throw new Exception('could not find ' . Anu::getClassName($this));
         }
         return null;
-    }
-
-    /**
-     * @param $entry    entryModel
-     */
-    protected function defineDefaultValues(&$entry){
-        $data = $entry->getData();
-        $defaults = $entry->defineAttributes();
-        foreach ($defaults as $k => $v){
-            if(isset($v['default']) && $v['default'] && array_key_exists($k, $data)){
-                $default = $v['default'];
-                switch ($default){
-                    case 'creationTimestamp':
-                        if(!$data[$k]){
-                            $data[$k] = "now()";
-                        }
-                        break;
-                    case 'currentTimestamp':
-                        $data[$k] = "now()";
-                        break;
-                    default:
-                        $data[$k] = $default;
-                        break;
-                }
-            }
-        }
-
-        $entry->setData($data);
-    }
-
-    /**
-     * @param $entry    entryModel
-     */
-    public function setDataFromPost($entry){
-        $post = anu()->request->getValue('data');
-        $attributes = $entry->defineAttributes();
-        foreach ($attributes as $k => $v){
-            if(array_key_exists($k, $post)){
-                if(isset($v['relatedTo']) && $relation = $v['relatedTo']){
-                    $relations = $post[$k];
-                    $className = Anu::getClassByName($relation['model']);
-                    $class = new $className();
-                    $entry->$k = array();
-                    foreach ($relations as $rel){
-                        $entryRelation = $class->getEntryById((int)$rel);
-                        if($entryRelation){
-                            $entry->$k[] = $entryRelation;
-                        }
-                    }
-                }else{
-                    $entry->setData($post[$k], $k);
-                }
-            }
-        }
     }
 
 
@@ -484,6 +284,5 @@ class entryService
 
         $entry->setData($slug, 'slug');
         return $slug;
-
     }
 }

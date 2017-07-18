@@ -26,10 +26,14 @@ class baseController
         //craft()->template->addJsCode('alert("test");');
         //craft()->question->saveEntry($question);
 
-        $record = anu()->record->getRecordByName('answer');
+        //$record = anu()->record->getRecordByName('answer');
 
-        anu()->record->installRecord("answer");
-        anu()->record->installRecord("question");
+        //anu()->record->installRecord("answer");
+        //anu()->record->installRecord("question");
+
+        anu()->record->installRecord("asset", true);
+
+        $question = new answerModel();
 
         anu()->template->render('pages/home.twig', array(
             'title'       => "test Title",

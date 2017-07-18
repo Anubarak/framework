@@ -9,7 +9,7 @@
 namespace Anu;
 
 
-class pageRecord extends baseRecord
+class pageRecord extends entryRecord
 {
 
     /**
@@ -24,7 +24,7 @@ class pageRecord extends baseRecord
 
     public function defineIndex(){
         return array_merge(array(
-            'page_id'   => array('primary_key')
+            'page_id'   => array(DBIndex::Primary)
         ), parent::defineIndex());
     }
 

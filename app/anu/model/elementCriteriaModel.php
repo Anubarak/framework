@@ -85,6 +85,7 @@ class elementCriteriaModel implements \IteratorAggregate
                 if(is_object($relations)){
                     $id = $relations->id;
                     $model = Anu::getClassName($relations);
+                    $where[anu()->$className->getTable() . '.' . anu()->$className->getPrimaryKey() . '[!]'] = $id;
                 }else{
                     $field = isset($relations['field'])? $relations['field'] : null;
                     $id = isset($relations['id'])? $relations['id'] : null;
@@ -125,7 +126,6 @@ class elementCriteriaModel implements \IteratorAggregate
             }else{
                 $rows = anu()->database->select(anu()->$className->getTable(), $select , $where);
             }
-
             anu()->database->debugError();
 
             if($rows){

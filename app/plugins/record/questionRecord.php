@@ -9,7 +9,7 @@
 namespace Anu;
 
 
-class questionRecord extends baseRecord
+class questionRecord extends entryRecord
 {
 
     /**
@@ -27,7 +27,7 @@ class questionRecord extends baseRecord
 
     public function defineIndex(){
         return array_merge(array(
-            'question_id'   => array('primary_key')
+            'question_id'   => array(DBIndex::Primary)
         ), parent::defineIndex());
     }
 

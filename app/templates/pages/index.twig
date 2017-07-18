@@ -1,6 +1,19 @@
 {% extends 'layout/site.twig' %}
 
 {% block content %}
+
+    this is page {{ entry.id }}
+
+    {% set unterseiten = anu.page.find({
+        relatedTo: entry
+    }) %}
+    <br>
+    {% for page in unterseiten %}
+        {{ page.title }} ... {{ page.id }} <br>
+    {% endfor %}
+
+    {{ unterseiten|length }}
+
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
         <input type="hidden" name="action" value="action/home/save">
         <input type="hidden" name="data[test_id][]" value="1">
@@ -29,21 +42,9 @@
 
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
         <input type="hidden" name="action" value="action/home/savePage">
-        <input type="hidden" name="data[parent_pid]" value="1">
         <input type="submit" value="submit">
         <input type="text" name="data[linkName]" value="Page 1">
         <input type="text" name="data[title]" value="Page 1">
-    </form>
-
-    <br>
-    <br>
-    save Asset
-    <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
-        <input type="hidden" name="action" value="action/home/saveAsset">
-        <input type="file"  name="path" id="settings-credential">
-        <input type="submit" value="submit">
-        <input type="text" name="data[title]" value="Ein Asset">
-        <input type="text" name="data[name]" value="Bild mit namen ^.^">
     </form>
 
 
@@ -54,10 +55,6 @@
         {% endfor %}
     {% endif %}
 
-
-
-    {% set asset = anu.asset.getAssetById(2) %}
-    <img src="{{ asset.getUrl() }}">
 
     {% includeJsFile 't'%}
     {% includeJsFile 't2'%}

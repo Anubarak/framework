@@ -52,24 +52,31 @@ class requestService
         $stat = $this->getValue('s');
         $entry = $this->getValue('e');
         $slug = $this->getValue('slug');
+        $asset = $this->getValue('asset');
 
-        //check for actions...
+        //render only asset....
+        if($asset){
+            anu()->asset->display($asset);
+        }
+
+        //check for actions... -> ajax request
         if($action = $this->getValue('action')){
             $arrRoute = explode('/', $action);
             if(count($arrRoute)){
-                $className = Anu::getClassByName($arrRoute[0], "Controller");
+                $className = Anu::getClassByName($arrRoute[1], "Controller");
                 $class = new $className();
-                $function = $arrRoute[1];
+                $function = $arrRoute[2];
                 $class->$function();
             }
         }
 
-
+        //if nothing is defined => just run default options
         if(!$page && !$stat && (!$entry || !$slug)){
             $baseController = new baseController();
             $baseController->getContent();
         }
 
+        //go to the detail entry page if parameters set
         if($entry && $slug){
             if(isset(anu()->$entry) && is_object(anu()->$entry)){
                 if(!anu()->record->getRecordByName($entry)){
@@ -81,6 +88,7 @@ class requestService
             }
         }
 
+        //get Controller Content
         if($page){
             $controllerName = Anu::getNameSpace() . $page . "Controller";
             if(class_exists($controllerName)){

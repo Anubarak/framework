@@ -15,28 +15,11 @@ namespace Anu;
  * @since     1.0
  */
 require_once BASE . 'app\anu\core\BaseEnum.php';
-abstract class AttributeType extends BaseEnum
+abstract class DBIndex extends BaseEnum
 {
     // Constants
     // =========================================================================
 
-    const Mixed      = 'mixed';
-    const Bool       = 'bool';
-    const ClassName  = 'classname';
-    const DateTime   = 'datetime';
-    const Email      = 'email';
-    const Enum       = 'enum';
-    const Handle     = 'handle';
-    const Locale     = 'locale';
-    const Name       = 'name';
-    const Number     = 'number';
-    const Slug       = 'slug';
-    const SortOrder  = 'sortorder';
-    const String     = 'string';
-    const Template   = 'template';
-    const Url        = 'url';
-    const UrlFormat  = 'urlformat';
-    const Uri        = 'uri';
-    const PrimaryKey = 'primarykey';
-    const File       = 'file';
+    const Primary      = 'primary_key';
+    const Unique       = 'unique';
 }

@@ -9,7 +9,7 @@
 namespace Anu;
 
 
-class baseRecord
+class entryRecord extends baseRecord
 {
     /**
      * @return string
@@ -22,12 +22,10 @@ class baseRecord
      * @return array
      */
     public function defineAttributes(){
-        return array(
-            'createDate'    => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP'),
-            'updateDate'    => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP'),
-            'enabled'       => array(AttributeType::Number, 'default' => '1'),
-            'title'         => array(AttributeType::Mixed),
-        );
+        return array_merge(array(
+            'slug'          => array(AttributeType::Mixed),
+        ), parent::defineAttributes());
+
     }
 
     /**
@@ -35,7 +33,7 @@ class baseRecord
      */
     public function defineIndex(){
         return array(
-
+            'slug' => array(DBIndex::Unique)
         );
     }
 }

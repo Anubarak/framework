@@ -8,24 +8,23 @@
 
 namespace Anu;
 
-
-class answerRecord extends entryRecord
+require_once __DIR__ . '\baseRecord.php';
+class assetRecord extends baseRecord
 {
-
     /**
      * Define Attributes
      */
     public function defineAttributes(){
         return array_merge(array(
-            'answer_id'   => array(AttributeType::Number, ),
-            'question_id'   => array(AttributeType::Number, ),
-            'text'          => array(AttributeType::Mixed),
+            'asset_id'                  => array(AttributeType::Number),
+            'path'                      => array(AttributeType::Mixed),
+            'name'                      => array(AttributeType::Mixed),
         ), parent::defineAttributes());
     }
 
     public function defineIndex(){
         return array_merge(array(
-            'answer_id'   => array(DBIndex::Primary)
+            'asset_id'   => array('primary_key')
         ), parent::defineIndex());
     }
 
@@ -33,7 +32,7 @@ class answerRecord extends entryRecord
      * @return string
      */
     public function getTableName(){
-        return 'answer';
+        return 'assets';
     }
 
 }

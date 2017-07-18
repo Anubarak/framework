@@ -44,6 +44,7 @@ class templateService
         $this->twig->addTokenParser(new IncludeResource_TokenParser('includeJsFile'));
         $this->twig->addTokenParser(new IncludeResource_TokenParser('includeCssFile'));
         $this->twig->addGlobal('anu', anu());
+        $this->twig->addGlobal('baseUrl', BASE_URL);
     }
 
     /**

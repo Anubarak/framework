@@ -35,9 +35,10 @@ class database
     protected $debug_mode = false;
 
     protected $guid = 0;
-
+    protected $dataBaseOptions = null;
     public function __construct($options = null)
     {
+        $this->dataBaseOptions = $options;
         try {
             if (is_array($options))
             {
@@ -1541,6 +1542,26 @@ class database
         if($error){
             throw new Exception($error[2]);
         }
+    }
+
+    /**
+     * @param $tableName
+     * @return bool
+     */
+    public function dumpTable($tableName){
+        $backupFile =  $tableName.'.sql';
+
+        $username = $this->dataBaseOptions['username'];
+        $password = $this->dataBaseOptions['password'];
+        $hostname = $this->dataBaseOptions['server'];
+        $database = $this->dataBaseOptions['database_name'];
+        $username =escapeshellcmd($username);
+        $password =escapeshellcmd($password);
+        $hostname =escapeshellcmd($hostname);
+        $database =escapeshellcmd($database);
+        $command = "c:/xampp/mysql/bin/mysqldump -u$username -h$hostname $database $tableName > $backupFile";
+        exec($command);
+        return true;
     }
 }
 ?>

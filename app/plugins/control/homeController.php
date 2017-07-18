@@ -12,11 +12,6 @@ class homeController extends baseController
 {
     public function getContent()
     {
-
-        $criteria = anu()->question->getCriteria();
-        $criteria->LIMIT =  1;
-        //$entries = $criteria->find();
-
         anu()->template->render('pages/home.twig', array(
             'title'       => "test Title",
             'headline'    => "headline",
@@ -53,6 +48,21 @@ class homeController extends baseController
         if($page->getErrors()){
             echo "<pre>";
             var_dump($page->getErrors());
+            echo "</pre>";
+            die();
+        }
+    }
+
+
+    public function saveAsset(){
+        $asset = new assetModel();
+        anu()->asset->setDataFromPost($asset);
+        anu()->asset->saveAsset($asset);
+        anu()->database->debugError();
+
+        if($asset->getErrors()){
+            echo "<pre>";
+            var_dump($asset->getErrors());
             echo "</pre>";
             die();
         }

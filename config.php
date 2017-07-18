@@ -20,6 +20,8 @@ $config = array(
         'pluginRecordDirectory'     => 'app\plugins\record',
         'pluginServiceDirectory'    => 'app\plugins\service',
         'customTemplateDirectory'   => 'app\templates',
+        'assetPath'                 => 'app\templates\assets',
+        'imgPath'                   => 'app\templates\assets\img',
         'namespace'                 => 'anu\\'
     ),
 );

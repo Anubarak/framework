@@ -62,7 +62,7 @@ class recordService
      * @param $record       baseRecord | string
      * @return bool
      */
-    public function installRecord($record){
+    public function installRecord($record, $ignoreRecordTable = false){
         if(is_string($record)){
             $className = Anu::getNameSpace() . $record . "Record";
             if(class_exists($className)){
@@ -113,7 +113,7 @@ class recordService
                             $rows = array($rows);
                         }
                         foreach ($rows as $v){
-                            if($v === 'primary_key'){
+                            if($v === DBIndex::Primary){
                                 anu()->database->query('
                                     ALTER TABLE `' . $this->record->getTableName() . '`
                                         ADD PRIMARY KEY (`' . $k . '`);
@@ -135,7 +135,7 @@ class recordService
                                     return false;
                                 }
                             }
-                            if($v === 'unique'){
+                            if($v === DBIndex::Unique){
                                 anu()->database->query('
                                     ALTER TABLE `' . $this->record->getTableName() . '`
                                         ADD UNIQUE (`' . $k . '`);
@@ -151,7 +151,7 @@ class recordService
                     }
                 }
             });
-            if($success){
+            if($success && !$ignoreRecordTable){
                 anu()->database->insert('records', array(
                     'name' => $this->record->getTableName(),
                     'table_name' => $this->record->getTableName()
@@ -185,5 +185,18 @@ class recordService
         }else{
             return false;
         }
+    }
+
+    public function dumpRecord($record){
+        if(is_string($record)){
+            $className = Anu::getNameSpace() . $record . "Record";
+            if(class_exists($className)){
+                $record = new $className();
+            }else{
+                return false;
+            }
+        }
+
+        anu()->database->dumpTable($record->getTableName());
     }
 }
