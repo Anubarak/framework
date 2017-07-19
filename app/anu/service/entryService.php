@@ -18,17 +18,24 @@ class entryService extends baseService
     protected   $primary_key = null;
     protected   $id = 0;
 
+
+    public function init(){
+        $class = Anu::getClassByName($this, "Record", true);
+        $this->table = $class->getTableName();
+        $this->primary_key = $class->getPrimaryKey();
+    }
+
     /**
      * @param $entry            entryModel
      * @return bool|int|string
      */
     public function saveEntry($entry){
-        $this->defineDefaultValues($entry);
 
+        $this->checkSavePermission($entry);
+        $this->defineDefaultValues($entry);
         if(!$this->validate($entry)){
             return false;
         }
-
         if(!$this->table || !$this->primary_key){
             $className = Anu::getClassName($entry);
             $this->table = anu()->$className->table;
@@ -81,33 +88,35 @@ class entryService extends baseService
             $values = array();
             foreach ($entry->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
-                    if(isset($value['relatedTo'], $entry->$key)){
-                        $relation = $value['relatedTo'];
-                        //save only if its not a criteriaModel...
-                        if(!$entry->$key instanceof elementCriteriaModel){
-                            if(!is_array($entry->$key) && $entry->$key instanceof entryModel){
-                                //no array but at least a entryModel...
-                                $entry->$key = array($entry->$key);
-                            }
+                    if(isset($value['relatedTo'])){
+                        if(isset($entry->$key)){
+                            $relation = $value['relatedTo'];
+                            //save only if its not a criteriaModel...
+                            if(!$entry->$key instanceof elementCriteriaModel){
+                                if(!is_array($entry->$key) && $entry->$key instanceof entryModel){
+                                    //no array but at least a entryModel...
+                                    $entry->$key = array($entry->$key);
+                                }
 
-                            //delete prevoius relations if there are any
-                            if($data[$key]){
-                                $parts = explode(',', $data[$key]);
-                                anu()->database->delete('relation', array(
-                                    'id' => $parts
-                                ));
-                            }
+                                //delete prevoius relations if there are any
+                                if($data[$key]){
+                                    $parts = explode(',', $data[$key]);
+                                    anu()->database->delete('relation', array(
+                                        'id' => $parts
+                                    ));
+                                }
 
-                            $relations = $entry->$key;
-                            foreach ($relations as $rel){
-                                anu()->database->insert('relation', array(
-                                    'field_1' => $key,
-                                    'field_2' => $relation['field'],
-                                    'id_1' => $entry->id,
-                                    'id_2' => $rel->id,
-                                    'model_1' => Anu::getClassName($this),
-                                    'model_2'=> $relation['model']
-                                ));
+                                $relations = $entry->$key;
+                                foreach ($relations as $rel){
+                                    anu()->database->insert('relation', array(
+                                        'field_1' => $key,
+                                        'field_2' => $relation['field'],
+                                        'id_1' => $entry->id,
+                                        'id_2' => $rel->id,
+                                        'model_1' => Anu::getClassName($this),
+                                        'model_2'=> $relation['model']
+                                    ));
+                                }
                             }
                         }
                     }else{
@@ -117,7 +126,6 @@ class entryService extends baseService
                     $values["#".$key] = $data[$key];
                 }
             }
-
             anu()->database->update($this->table, $values, array(
                 $this->table . "." . $this->primary_key => $entry->id
             ));

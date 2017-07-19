@@ -19,53 +19,7 @@ class assetService extends baseService
      * @return bool|int|string
      */
     public function saveAsset($asset){
-        $this->defineDefaultValues($asset);
-
-        if(!$this->validate($asset)){
-            return false;
-        }
-
-        if(!$this->table || !$this->primary_key){
-            $className = Anu::getClassName($asset);
-            $this->table = anu()->$className->table;
-            $this->primary_key = anu()->$className->primary_key;
-        }
-
-        //check if its a new entry of if we should update an existing one
-        if(!$asset->id){
-            $data = $asset->getData();
-
-            $values = array();
-            $relationsToSave = array();
-            foreach ($asset->defineAttributes() as $key => $value){
-                if($data[$key] !== 'now()'){
-                    $values[$key] = ($data[$key])? $data[$key] : 0;
-                }else{
-                    $values["#".$key] = $data[$key];
-                }
-            }
-
-            anu()->database->insert($this->table, $values);
-            $id = anu()->database->id();
-            $asset->id = $id;
-            return $id;
-        }else{
-            $data = $asset->getData();
-            $values = array();
-            foreach ($asset->defineAttributes() as $key => $value){
-                if($data[$key] !== 'now()'){
-                    $values[$key] = ($data[$key])? $data[$key] : 0;
-                }else{
-                    $values["#".$key] = $data[$key];
-                }
-            }
-
-            anu()->database->update($this->table, $values, array(
-                $this->table . "." . $this->primary_key => $asset->id
-            ));
-
-            return anu()->database->id();
-        }
+        $this->saveElement($asset);
     }
 
     /**
@@ -74,30 +28,20 @@ class assetService extends baseService
      * @throws \Exception
      */
     public function getAssetById($assetId){
-        if(!isset($assetId) || !is_numeric($assetId))
-        {
-            throw new \Exception('ID is not specified.');
-        }
-
-        $this->id = $assetId;
-        if($model = Anu::getClassByName($this, 'Model', true)){
-            $where = array($this->table . "." . $this->primary_key => $assetId);
-            $select = $this->iterateDBSelect($model->defineAttributes(), null, $this->table);
-            $row = anu()->database->select($this->table, $select, $where);
-            anu()->database->debugError();
-            if(!empty($row) && is_array($row)){
-                return $this->populateModel($row[0], $model);
-            }
-        }else{
-            throw new \Exception('could not find ' . Anu::getClassName($this));
-        }
-        return null;
+        return $this->getElementById($assetId);
     }
 
     /**
-     * @param $asset baseModel|assetModel
+     * @return baseModel|baseService|entryModel|entryService|bool|null|string
+     * @throws \Exception
      */
-    public function setDataFromPost($asset){
+    public function generateEntryFromPost(){
+        if(isset($post[$this->primary_key])){
+            $asset = $this->getElementById($post[$this->primary_key]);
+        }else{
+            $asset = Anu::getClassByName($this, "Model", true);
+        }
+
         $post = anu()->request->getValue('data');
         $attributes = $asset->defineAttributes();
         foreach ($attributes as $k => $v){
@@ -123,6 +67,7 @@ class assetService extends baseService
                 $asset->setData($post[$k], $k);
             }
         }
+        return $asset;
     }
 
     public function display($assetId){

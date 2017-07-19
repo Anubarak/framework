@@ -9,24 +9,24 @@
 namespace Anu;
 
 
-class entryRecord extends baseRecord
+class userPermissionRecord extends baseRecord
 {
     /**
      * @return string
      */
     public function getTableName(){
-        return "";
+        return "userPermission";
     }
 
     /**
      * @return array
      */
     public function defineAttributes(){
-        return array_merge(array(
-            'slug'          => array(AttributeType::Mixed),
-            'author_id'     => array(AttributeType::Number),
-            'enabled'       => array(AttributeType::Number),
-        ), parent::defineAttributes());
+        return array(
+            'permission_id'           => array(AttributeType::Number),
+            'user_id'                 => array(AttributeType::Number),
+            'permission'              => array(AttributeType::Mixed),
+        );
 
     }
 
@@ -35,7 +35,7 @@ class entryRecord extends baseRecord
      */
     public function defineIndex(){
         return array(
-            'slug' => array(DBIndex::Unique)
+            'permission_id'   => array(DBIndex::Primary)
         );
     }
 }

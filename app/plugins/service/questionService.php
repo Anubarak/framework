@@ -10,8 +10,5 @@ namespace Anu;
 
 class questionService extends entryService
 {
-    protected  $table = 'question';
-    protected  $primary_key = 'question_id';
-
     protected $template = 'question/index.twig';
 }

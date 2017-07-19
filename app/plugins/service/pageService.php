@@ -10,8 +10,5 @@ namespace Anu;
 
 class pageService extends entryService
 {
-    protected  $table = 'page';
-    protected  $primary_key = 'page_id';
-
     protected $template = 'pages/index.twig';
 }

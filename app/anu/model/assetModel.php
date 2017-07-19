@@ -17,14 +17,19 @@ class assetModel extends baseModel
             'asset_id'                  => array(AttributeType::Number),
             'path'                      => array(AttributeType::File, 'folder' => '/upload'),
             'name'                      => array(AttributeType::Mixed),
-            'createDate'    => array(AttributeType::DateTime, 'default' => 'creationTimestamp'),
-            'updateDate'    => array(AttributeType::DateTime, 'default' => 'currentTimestamp'),
-            /*'enabled'       => array(AttributeType::Number, 'default' => '1'),*/
+            'createDate'    => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp),
+            'updateDate'    => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp),
+            'enabled'       => array(AttributeType::Number, 'default' => '1'),
             'title'         => array(AttributeType::Mixed, 'required' => true)
         );
     }
 
+    /**
+     * //TODO transform rules and such....
+     *
+     * @return string
+     */
     public function getUrl(){
-        return BASE_URL . '?asset=2';
+        return BASE_URL . '?asset=' . $this->id;
     }
 }

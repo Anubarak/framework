@@ -15,11 +15,12 @@ class entryModel extends baseModel
     public function defineAttributes()
     {
         return array(
-            'createDate'    => array(AttributeType::DateTime, 'default' => 'creationTimestamp'),
-            'updateDate'    => array(AttributeType::DateTime, 'default' => 'currentTimestamp'),
-            /*'enabled'       => array(AttributeType::Number, 'default' => '1'),*/
+            'createDate'    => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp),
+            'updateDate'    => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp),
+            'enabled'       => array(AttributeType::Number, 'default' => '1'),
             'title'         => array(AttributeType::Mixed, 'required' => true),
-            'slug'          => array(AttributeType::Mixed, 'required' => true)
+            'slug'          => array(AttributeType::Mixed, 'required' => true),
+            'author_id'     => array(AttributeType::Number, 'default' => Defaults::currentUserId)
         );
     }
 

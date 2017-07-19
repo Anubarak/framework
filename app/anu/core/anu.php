@@ -5,6 +5,7 @@ namespace Anu;
 /**
  * Class app
  * @property entryService                           $entry
+ * @property userService                            $user
  * @property assetService                           $asset
  * @property questionService                        $question
  * @property answerService                          $answer
@@ -13,6 +14,7 @@ namespace Anu;
  * @property configService                          $config
  * @property recordService                          $record
  * @property pageService                            $page
+ * @property sessionService                         $session
  * @property database                               $database
  *
  * @package Anu
@@ -20,7 +22,7 @@ namespace Anu;
 class app{
 
     public $database = null;
-
+    private $initServices = array();
     public function __construct(){
 
         $whoops = new \Whoops\Run;
@@ -41,14 +43,21 @@ class app{
                     $magicOperator = preg_replace('/\\Service.[^.\\s]{3,4}$/', '', $files[$i]);
                     $withNameSpace = 'anu\\' . $withoutExt;
                     $this->$magicOperator = new $withNameSpace();
+                    if(method_exists($this->$magicOperator, "init")){
+                        $this->initServices[] = $magicOperator;
+                    }
                 }
             }
         }
     }
 
     public function init(){
-        $this->template->init();
         $this->database = new database(anu()->config->get('database'));
+
+        foreach ($this->initServices as $service){
+            $this->$service->init();
+        }
+
     }
 }
 
@@ -121,7 +130,7 @@ class Anu
         }else{
             $className = get_class($class);
             $match = array();
-            preg_match('/Anu\\\([a-zA-Z0-9-]*)(Service|Model)/',$className, $match);
+            preg_match('/Anu\\\([a-zA-Z0-9-]*)(Service|Model|Record)/',$className, $match);
             if(count($match) > 1){
                 $type = ($extention)? $extention : $match[2];
                 $className = Anu::getNameSpace() . $match[1] . $type;
@@ -150,6 +159,39 @@ class Anu
             return $match[1];
         }
         return false;
+    }
+
+    public static function parse(
+        /* string */ $subject,
+                     array        $variables,
+        /* string */ $escapeChar = '@',
+        /* string */ $errPlaceholder = null
+    ) {
+        $esc = preg_quote($escapeChar);
+        $expr = "/
+        $esc$esc(?=$esc*+{)
+      | $esc{
+      | {(\w+)}
+    /x";
+
+        $callback = function($match) use($variables, $escapeChar, $errPlaceholder) {
+            switch ($match[0]) {
+                case $escapeChar . $escapeChar:
+                    return $escapeChar;
+
+                case $escapeChar . '{':
+                    return '{';
+
+                default:
+                    if (isset($variables[$match[1]])) {
+                        return $variables[$match[1]];
+                    }
+
+                    return isset($errPlaceholder) ? $errPlaceholder : $match[0];
+            }
+        };
+
+        return preg_replace_callback($expr, $callback, $subject);
     }
 }
 

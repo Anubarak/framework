@@ -10,7 +10,5 @@ namespace Anu;
 
 class answerService extends entryService
 {
-    protected  $table = 'answer';
-    protected  $primary_key = 'answer_id';
 
 }

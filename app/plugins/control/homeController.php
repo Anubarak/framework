@@ -21,16 +21,24 @@ class homeController extends baseController
     }
 
     public function save(){
-        $question = new questionModel();
-        anu()->question->setDataFromPost($question);
+
+        $question = anu()->question->generateEntryFromPost();
+
+
         anu()->question->saveEntry($question);
         anu()->database->debugError();
+        if($question->getErrors()){
+            echo "<pre>";
+            var_dump($question->getErrors());
+            echo "</pre>";
+            die();
+        }
         //craft()->question->deleteEntry($question);
     }
 
     public function saveQuestion(){
         $answer = new answerModel();
-        anu()->answer->setDataFromPost($answer);
+        anu()->answer->generateEntryFromPost($answer);
 
         anu()->answer->saveEntry($answer);
         anu()->database->debugError();
@@ -39,8 +47,7 @@ class homeController extends baseController
     }
 
     public function savePage(){
-        $page = new pageModel();
-        anu()->page->setDataFromPost($page);
+        $page = anu()->page->generateEntryFromPost();
         anu()->page->saveEntry($page);
 
         anu()->database->debugError();
@@ -55,8 +62,7 @@ class homeController extends baseController
 
 
     public function saveAsset(){
-        $asset = new assetModel();
-        anu()->asset->setDataFromPost($asset);
+        $asset = anu()->asset->generateEntryFromPost();
         anu()->asset->saveAsset($asset);
         anu()->database->debugError();
 
@@ -66,5 +72,9 @@ class homeController extends baseController
             echo "</pre>";
             die();
         }
+        echo "<pre>";
+        var_dump($asset);
+        echo "</pre>";
+        die();
     }
 }

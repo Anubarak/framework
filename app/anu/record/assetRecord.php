@@ -19,6 +19,7 @@ class assetRecord extends baseRecord
             'asset_id'                  => array(AttributeType::Number),
             'path'                      => array(AttributeType::Mixed),
             'name'                      => array(AttributeType::Mixed),
+            'enabled'       => array(AttributeType::Number, 'default' => '1'),
         ), parent::defineAttributes());
     }
 

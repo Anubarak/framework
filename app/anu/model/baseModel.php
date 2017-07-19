@@ -72,13 +72,23 @@ class baseModel
         return $this->errors;
     }
 
-    public function addError($attribute, $message){
+    /**
+     * @param $attribute
+     * @param $message
+     * @param array $param
+     * @throws \Exception
+     */
+    public function addError($attribute, $message, $param = array()){
         if(!$attribute || !$message){
-            throw new Exception("addError, no message or attribute given");
+            throw new \Exception("addError, no message or attribute given");
         }
 
         if(!$this->errors) {
             $this->errors = array();
+        }
+
+        if($param){
+            $message = Anu::parse($message, $param);
         }
         $this->errors[$attribute] = $message;
     }

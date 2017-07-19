@@ -9,6 +9,8 @@
 namespace Anu;
 
 
+use function Sodium\crypto_aead_aes256gcm_is_available;
+
 class baseController
 {
     /**
@@ -31,10 +33,22 @@ class baseController
         //anu()->record->installRecord("answer");
         //anu()->record->installRecord("question");
 
-        anu()->record->installRecord("asset", true);
+        //anu()->record->installRecord("userPermission", true);
 
-        $question = new answerModel();
+        /*
+        $user = anu()->user->getUserById(1);
+        echo "<pre>";
+        var_dump($user);
+        echo "</pre>";
+        die();
+*/
 
+        //anu()->user->login("blub", "anubarak1993@gmail.com");
+        anu()->user->login("blub", "Friedl@Uwe.de");
+        //$user = anu()->user->getUserById(2);
+        //$loggedIn = anu()->user->login('Fischer@Fisch.de', 'Fischer@Fisch.de');
+        //anu()->user->addPermission(anu()->user->getCurrentUser(), 'question.update');
+        echo "whaat";
         anu()->template->render('pages/home.twig', array(
             'title'       => "test Title",
             'headline'    => "headline",

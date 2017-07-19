@@ -25,7 +25,6 @@ class baseRecord
         return array(
             'createDate'    => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP'),
             'updateDate'    => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP'),
-            'enabled'       => array(AttributeType::Number, 'default' => '1'),
             'title'         => array(AttributeType::Mixed),
         );
     }
@@ -37,5 +36,17 @@ class baseRecord
         return array(
 
         );
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getPrimaryKey(){
+        $indexes = $this->defineIndex();
+        foreach ($indexes as $k  => $v){
+            if(in_array(DBIndex::Primary, $v)){
+                return $k;
+            }
+        }
     }
 }
