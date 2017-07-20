@@ -18,6 +18,8 @@ class userModel extends baseModel
             'first_name'        => array(AttributeType::Mixed, "required" => "true"),
             'last_name'         => array(AttributeType::Mixed, "required" => "true"),
             'email'             => array(AttributeType::Email, "required" => "true"),
+            'password'          => array(AttributeType::Password, "required" => "true"),
+            'newPassword'       => array(AttributeType::NewPassword, "ignoreInDatabase" => true),
 
             'createDate'        => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp),
             'updateDate'        => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp),

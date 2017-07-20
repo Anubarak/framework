@@ -21,9 +21,9 @@ class homeController extends baseController
     }
 
     public function save(){
-
         $question = anu()->question->generateEntryFromPost();
-
+        $answer = anu()->answer->getEntryById(3);
+        $question->test_id = $answer;
 
         anu()->question->saveEntry($question);
         anu()->database->debugError();
@@ -37,12 +37,17 @@ class homeController extends baseController
     }
 
     public function saveQuestion(){
-        $answer = new answerModel();
-        anu()->answer->generateEntryFromPost($answer);
+        $answer = anu()->answer->generateEntryFromPost();
 
         anu()->answer->saveEntry($answer);
         anu()->database->debugError();
 
+        if($answer->getErrors()){
+            echo "<pre>";
+            var_dump($answer->getErrors());
+            echo "</pre>";
+            die();
+        }
         //craft()->question->deleteEntry($question);
     }
 
@@ -74,6 +79,24 @@ class homeController extends baseController
         }
         echo "<pre>";
         var_dump($asset);
+        echo "</pre>";
+        die();
+    }
+
+    public function saveUser(){
+        $user = anu()->user->generateEntryFromPost();
+
+        anu()->user->saveUser($user);
+        anu()->database->debugError();
+
+        if($user->getErrors()){
+            echo "<pre>";
+            var_dump($user->getErrors());
+            echo "</pre>";
+            die();
+        }
+        echo "<pre>22";
+        var_dump($user);
         echo "</pre>";
         die();
     }

@@ -30,25 +30,29 @@ class baseController
 
         //$record = anu()->record->getRecordByName('answer');
 
-        //anu()->record->installRecord("answer");
+        anu()->record->installRecord("page");
         //anu()->record->installRecord("question");
 
         //anu()->record->installRecord("userPermission", true);
+        //anu()->record->installRecord("user", true);
 
         /*
-        $user = anu()->user->getUserById(1);
-        echo "<pre>";
-        var_dump($user);
-        echo "</pre>";
-        die();
-*/
+                echo "<pre>";
+                var_dump(anu()->user->login(null, 'Bludb@Blaa.ded', 'Warpten5000'));
+                echo "</pre>";
+                die();
+                $user = anu()->user->getUserById(1);
+                echo "<pre>";
+                var_dump($user);
+                echo "</pre>";
+                die();
+        */
 
         //anu()->user->login("blub", "anubarak1993@gmail.com");
-        anu()->user->login("blub", "Friedl@Uwe.de");
+        //anu()->user->login("blub", "Friedl@Uwe.de");
         //$user = anu()->user->getUserById(2);
         //$loggedIn = anu()->user->login('Fischer@Fisch.de', 'Fischer@Fisch.de');
         //anu()->user->addPermission(anu()->user->getCurrentUser(), 'question.update');
-        echo "whaat";
         anu()->template->render('pages/home.twig', array(
             'title'       => "test Title",
             'headline'    => "headline",

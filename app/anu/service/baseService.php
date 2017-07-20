@@ -16,66 +16,76 @@ class baseService
     protected   $primary_key = null;
     protected   $id = 0;
 
+
+    /**
+     * Permissions
+     *
+     * @return array
+     */
+    public function definePersmissions(){
+        return array(
+            Permission::Insert  =>  array(Permission::LoggedIn),
+            Permission::Update  =>  array(Permission::Admin, Permission::Author),
+            Permission::Delete  =>  array(Permission::Admin),
+            Permission::Read    =>  array(Permission::All)
+        );
+    }
+
+
+
     /**
      * @param $entry            entryModel
      */
-    protected function defineDefaultValues(&$entry){
-        $data = $entry->getData();
+    protected function defineDefaultValues($entry){
         $defaults = $entry->defineAttributes();
         foreach ($defaults as $k => $v){
-            if(isset($v['default']) && $v['default'] && array_key_exists($k, $data)){
+            if(isset($v['default']) && $v['default'] && property_exists($entry, $k)){
                 $default = $v['default'];
                 switch ($default){
                     case Defaults::creationTimestamp:
-                        if(!$data[$k]){
-                            $data[$k] = "now()";
+                        if(!$entry->$k){
+                            $entry->$k = "now()";
                         }
                         break;
                     case Defaults::currentTimestamp:
-                        $data[$k] = "now()";
+                        $entry->$k = "now()";
                         break;
                     case Defaults::currentUserId:
-                        if(anu()->user->getCurrentUser() && anu()->user->getCurrentUser()->id && $data[$k] == null){
-                            $data[$k] = (int)anu()->user->getCurrentUser()->id;
+                        if(anu()->user->getCurrentUser() && anu()->user->getCurrentUser()->id && $entry->$k == null){
+                            $entry->$k = (int)anu()->user->getCurrentUser()->id;
                         }
                         break;
                     default:
                         if($k !== 'slug' && !$entry->id){
-                            $data[$k] = $default;
+                            $entry->$k = $default;
                         }
                         break;
                 }
             }
         }
-
-        $entry->setData($data);
     }
 
     /**
      * @param $entry    baseModel
      * @return bool
      */
-    protected function validate($entry){
+    protected function validate($entry, $clearErrors = true){
         $attributes = $entry->defineAttributes();
-
-        $data = $entry->getData();
+        if($clearErrors){
+            $entry->clearErrors();
+        }
 
         foreach ($attributes as $k => $v){
-            //check if isset
-            if(!array_key_exists($k, $data)){
-                $entry->addError($k, 'Value not set');
-            }
+            if(!is_object($entry->$k) && !is_array($entry->$k) && $entry->$k !== 'now()'){
+                $validatorList = $this->getValidatorList($v);
+                if($validatorList){
+                    $validated = validator::is_valid(array($k => $entry->$k), array(
+                        $k => $validatorList
+                    ));
 
-            //set slug to title by default if there is no slug further validation comes later...
-            if($k === 'slug' && $data[$k] == null && !$entry->id){
-                $data[$k] = str_replace(" ", "-", $data['title']);
-                $entry->setData($data[$k] , 'slug');
-            }
-
-            //required value => set but 0
-            if(isset($v['required']) && ($k !== 'slug') && !$entry->id){
-                if(array_key_exists($k, $data) && !$data[$k]){
-                    $entry->addError($k, 'Value must be set, required value');
+                    if($validated !== true){
+                        $entry->addError($k, $validated[0]);
+                    }
                 }
             }
         }
@@ -83,42 +93,73 @@ class baseService
         if($entry->getErrors() == null){
             return true;
         }
+
         return false;
     }
 
+    public function getValidatorList($rules){
+        if(!isset($rules[0])){
+            throw new \Exception('invalid model, no datatype given');
+        }
+
+        $arrValidator = array();
+        switch ($rules[0]){
+            case AttributeType::DateTime:
+                $arrValidator[] = 'date';
+                break;
+            case AttributeType::Number:
+                $arrValidator[] = 'numeric';
+                break;
+            case AttributeType::Mixed:
+                //$arrValidator[] = '';
+                break;
+        }
+
+        $arrMinMaxValidator = array('max_numeric', 'min_numeric', 'min_len', 'max_len');
+        foreach ($arrMinMaxValidator as $v){
+            if(isset($rules[$v])){
+                $arrValidator[] = $v . ',' . $rules[$v];
+            }
+        }
+        if(isset($rules['required'])){
+            $arrValidator[] = 'required';
+        }
+
+        return implode('|', $arrValidator);
+    }
+
+
     /**
-     * @param $data     array
-     * @param $model    baseModel
-     * @return null|baseModel
+     * Populate the entryModel, add relations
+     *
+     * @param $data
+     * @param $model        baseModel|entryModel
+     * @return mixed
+     * @throws \Exception
      */
     protected function populateModel($data, $model){
         if($model->setData($data)){
             $attributes = $model->defineAttributes();
             foreach ($attributes as $k => $v){
-                if(isset($v['relatedTo']) && $relation = $v['relatedTo']){
-                    //TODO check this
-                    if(strpos($data[$k], ',') !== false){
-                        $parts = explode(',', $data[$k]);
-                    }else{
-                        $parts = $data[$k];
-                    }
-                    if(is_array($parts) && $parts){
-                        $model->$k = $parts;
-                    }
+                if(isset($v['relatedTo'], $data[$k])){
+                    if($relation = $v['relatedTo']){
+                        if(!is_array($data[$k])){
+                            $data[$k] = explode(",", $data[$k]);
+                        }
 
-                    $class = $relation['model'];
-                    $criteriaModel = new elementCriteriaModel(anu()->$class);
-                    $criteriaModel->relatedTo  = array(
-                        'field' => $k,
-                        'id'    => $data['id'],
-                        'model' => Anu::getClassName($this)
-                    );
-                    $model->$k = $criteriaModel;
-                }else{
-                    $model->$k = $data[$k];
+                        $class = $relation['model'];
+                        $criteriaModel = new elementCriteriaModel(anu()->$class);
+                        $criteriaModel->storeIds($data[$k]);
+                        $id = isset($model->id) ? $model->id : 0;
+                        $criteriaModel->relatedTo  = array(
+                            'field' => $k,
+                            'id'    => $id,
+                            'model' => Anu::getClassName($this)
+                        );
+                        $model->$k = $criteriaModel;
+                    }
                 }
             }
-            $model->id = $data['id'];
             return $model;
         }
         throw new \Exception('Could not populate Model');
@@ -137,29 +178,8 @@ class baseService
         }else{
             $entry = Anu::getClassByName($this, "Model", true);
         }
+        $this->populateModel($post, $entry);
 
-        $attributes = $entry->defineAttributes();
-        foreach ($attributes as $k => $v){
-            if(array_key_exists($k, $post)){
-                if(isset($v['relatedTo']) && $relation = $v['relatedTo']){
-                    $relations = $post[$k];
-                    if(!is_array($relations)){
-                        $relations = array($relations);
-                    }
-                    $className = $relation['model'];
-                    $entry->$k = array();
-                    foreach ($relations as $rel){
-                        $entryRelation = anu()->$className->getEntryById((int)$rel);
-                        if($entryRelation){
-                            $entry->$k[] = $entryRelation;
-                        }
-                    }
-                }else{
-                    $entry->setData($post[$k], $k);
-                    $entry->$k = $post[$k];
-                }
-            }
-        }
         return $entry;
     }
 
@@ -182,26 +202,12 @@ class baseService
                         $select[] = '#GROUP_CONCAT(relation.id SEPARATOR \',\') as ' . $k;
                     }
                 }
-            }else{
+            }elseif(!isset($v['ignoreInDatabase'])){
                 $select[] = $parentTable . "." . $k;
             }
         }
 
         return $select;
-    }
-
-    /**
-     * Permissions
-     *
-     * @return array
-     */
-    public function definePersmissions(){
-        return array(
-            Permission::Insert  =>  array(Permission::LoggedIn),
-            Permission::Update  =>  array(Permission::Admin, Permission::Author),
-            Permission::Delete  =>  array(Permission::Admin),
-            Permission::Read    =>  array(Permission::All)
-        );
     }
 
 
@@ -224,10 +230,10 @@ class baseService
             );
             $where = array($this->table . "." . $this->primary_key => $elementId);
 
-            $row = anu()->database->select($this->table, $join, $select, $where);
+            $row = anu()->database->get($this->table, $join, $select, $where);
 
-            if(!empty($row) && is_array($row)){
-                return $this->populateModel($row[0], $model);
+            if($row){
+                return $this->populateModel($row, $model);
             }
         }else{
             throw new \Exception('could not find ' . Anu::getClassName($this));
@@ -240,9 +246,8 @@ class baseService
      * @return bool|int
      */
     public function saveElement($element){
-        $this->defineDefaultValues($element);
-
-        if(!$this->validate($element)){
+        $this->defineDefaultValues($entry);
+        if(!$this->validate($entry) || !$this->checkSavePermission($entry)){
             return false;
         }
 
@@ -253,12 +258,17 @@ class baseService
         }
 
         //check if its a new entry of if we should update an existing one
+        $record = Anu::getClassByName($this, "Record", true);
+        $recordAttributes = $record->defineAttributes();
         if(!$element->id){
+            // new entry -> insert
             $data = $element->getData();
             $values = array();
             foreach ($element->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
-                    $values[$key] = ($data[$key])? $data[$key] : 0;
+                    if(array_key_exists($key, $recordAttributes)){
+                        $values[$key] = $entry->$key;
+                    }
                 }else{
                     $values["#".$key] = $data[$key];
                 }
@@ -269,11 +279,14 @@ class baseService
             $element->id = $id;
             return $id;
         }else{
+            // existing entry -> update
             $data = $element->getData();
             $values = array();
             foreach ($element->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
-                    $values[$key] = ($data[$key])? $data[$key] : 0;
+                    if(array_key_exists($key, $recordAttributes)){
+                        $values[$key] = $entry->$key;
+                    }
                 }else{
                     $values["#".$key] = $data[$key];
                 }
@@ -295,15 +308,38 @@ class baseService
     public function checkSavePermission($element){
         if($element->id){
             if(!anu()->user->can(Anu::getClassName($this), Permission::Update, $element)){
-                $element->addError('permission', "Currentuser has no permissions");
+                $element->addError('permission', "Currentuser has no update permissions");
                 return false;
             }
         }else{
             if(!anu()->user->can(Anu::getClassName($this), Permission::Insert)){
-                $element->addError('permission', "user has no permissions");
+                $element->addError('permission', "user has no insert permissions");
                 return false;
             }
         }
         return true;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getTable(){
+        return $this->table;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrimaryKey(){
+        return $this->primary_key;
+    }
+
+    /**
+     * @param $attributes
+     */
+    public function find($attributes = null){
+        $criteria = new elementCriteriaModel($this);
+        return $criteria->find($attributes);
     }
 }

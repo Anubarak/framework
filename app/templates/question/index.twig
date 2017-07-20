@@ -13,12 +13,20 @@
     {% endfor %}
     #}
     ee
-
+    <pre>
     {{ dump(entry.test_id.ids()) }}
+    </pre>
 
     <br><br><br>
     {% for answer in entry.test_id %}
-        {{ answer.title }}<br>
-        {{ answer.id }}
+        {{ answer.title }}
+        {{ answer.id }}<br>
     {% endfor %}
+    <br><br>
+    {% set pages = entry.pages.find() %}
+    {% if pages %}
+        {% for page in pages %}
+            {{ page.title }}<br>
+        {% endfor %}
+    {% endif %}
 {% endblock %}

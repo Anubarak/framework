@@ -19,12 +19,14 @@ class elementCriteriaModel implements \IteratorAggregate
         'offset'    => 0,
     );
 
+    private $ids = array();
+
     private $service = null;
 
 
     /**
      * elementCriteriaModel constructor.
-     * @param $service entryService
+     * @param $service entryService|baseService
      * @throws \Exception
      */
     public function __construct($service)
@@ -50,7 +52,10 @@ class elementCriteriaModel implements \IteratorAggregate
         if(!$tables){
             $tables = anu()->record->getAllRecords();
         }elseif(!is_array($tables)){
-            $tables = array(array('name' => $tables));
+            $tables = array(array(
+                'table_name' => $tables,
+                'name'       => Anu::getClassName($this->service)
+            ));
         }
 
         $where = array();
@@ -60,6 +65,7 @@ class elementCriteriaModel implements \IteratorAggregate
         foreach ($this->attributes as $k => $v){
             $where[$k] = $v;
         }
+
         $entries = array();
         foreach ($tables as $record){
             $className = $record['name'];
@@ -126,18 +132,25 @@ class elementCriteriaModel implements \IteratorAggregate
             }else{
                 $rows = anu()->database->select(anu()->$className->getTable(), $select , $where);
             }
+            $rows = array_unique($rows,SORT_REGULAR);
+
             anu()->database->debugError();
 
             if($rows){
                 foreach ($rows as $row){
                     if(!$justIds){
-                        $entries[] = anu()->$className->getEntryById((int)$row['id']);
+                        if(method_exists(anu()->$className, "getEntryById")){
+                            $entries[] = anu()->$className->getEntryById((int)$row['id']);
+                        }elseif(method_exists(anu()->$className, "getUserById")){
+                            $entries[] = anu()->$className->getUserById((int)$row['id']);
+                        }
                     }else{
                         $entries[] = $row['id'];
                     }
                 }
             }
         }
+
         return $entries;
     }
 
@@ -193,6 +206,21 @@ class elementCriteriaModel implements \IteratorAggregate
     public function getIterator()
     {
         return new \ArrayIterator($this->find());
+    }
+
+
+    /**
+     * @param $ids
+     */
+    public function storeIds($ids){
+        $this->ids = $ids;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStoredIds(){
+        return $this->ids;
     }
 
 }

@@ -30,10 +30,9 @@ class entryService extends baseService
      * @return bool|int|string
      */
     public function saveEntry($entry){
-
-        $this->checkSavePermission($entry);
         $this->defineDefaultValues($entry);
-        if(!$this->validate($entry)){
+        $this->generateSlugForEntry($entry);
+        if(!$this->validate($entry) || !$this->checkSavePermission($entry)){
             return false;
         }
         if(!$this->table || !$this->primary_key){
@@ -43,36 +42,35 @@ class entryService extends baseService
         }
 
         //check if its a new entry of if we should update an existing one
+        $record = Anu::getClassByName($this, "Record", true);
+        $recordAttributes = $record->defineAttributes();
         if(!$entry->id){
             //sets a slug if there is no, does nothing if there is one
-            $this->getSlugForEntry($entry);
-            $data = $entry->getData();
 
+            $data = $entry->getData();
             $values = array();
             $relationsToSave = array();
+
             foreach ($entry->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
                     if(isset($value['relatedTo'])){
-                        if(isset($entry->$key) && is_array($entry->$key)){
-                            $relations = $entry->$key;
+                        if(isset($entry->$key)){
+                            $relations = $this->getRelationsFromEntryByKey($entry, $key);
                             $relation = $value['relatedTo'];
                             foreach ($relations as $rel){
-                                $relationsToSave[] = array(
-                                    'field_1' => $key,
-                                    'field_2' => $relation['field'],
-                                    'id_2' => $rel->id,
-                                    'model_1' => Anu::getClassName($this),
-                                    'model_2'=> $relation['model']
-                                );
+                                $relationsToSave[] = $this->getRelationData($relation, $key, $rel);
                             }
                         }
                     }else{
-                        $values[$key] = ($data[$key])? $data[$key] : 0;
+                        if(array_key_exists($key, $recordAttributes)){
+                            $values[$key] = $entry->$key;
+                        }
                     }
                 }else{
                     $values["#".$key] = $data[$key];
                 }
             }
+
             anu()->database->insert($this->table, $values);
             $id = anu()->database->id();
             $entry->id = $id;
@@ -88,44 +86,32 @@ class entryService extends baseService
             $values = array();
             foreach ($entry->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
+                    //relations
                     if(isset($value['relatedTo'])){
                         if(isset($entry->$key)){
                             $relation = $value['relatedTo'];
-                            //save only if its not a criteriaModel...
-                            if(!$entry->$key instanceof elementCriteriaModel){
-                                if(!is_array($entry->$key) && $entry->$key instanceof entryModel){
-                                    //no array but at least a entryModel...
-                                    $entry->$key = array($entry->$key);
-                                }
+                            $relations = $this->getRelationsFromEntryByKey($entry, $key);
+                            //delete prevoius relations if there are any
+                            $className = Anu::getClassName($this);
+                            anu()->database->delete('relation', array(
+                                'field_1'   => $key,
+                                'model_1'   => $className,
+                                'id_1'      => $entry->id
+                            ));
 
-                                //delete prevoius relations if there are any
-                                if($data[$key]){
-                                    $parts = explode(',', $data[$key]);
-                                    anu()->database->delete('relation', array(
-                                        'id' => $parts
-                                    ));
-                                }
-
-                                $relations = $entry->$key;
-                                foreach ($relations as $rel){
-                                    anu()->database->insert('relation', array(
-                                        'field_1' => $key,
-                                        'field_2' => $relation['field'],
-                                        'id_1' => $entry->id,
-                                        'id_2' => $rel->id,
-                                        'model_1' => Anu::getClassName($this),
-                                        'model_2'=> $relation['model']
-                                    ));
-                                }
+                            foreach ($relations as $rel){
+                                anu()->database->insert('relation', $this->getRelationData($relation, $key, $rel, $entry->id));
                             }
                         }
-                    }else{
-                        $values[$key] = ($data[$key])? $data[$key] : 0;
+                    }
+                    if(array_key_exists($key, $recordAttributes)){
+                        $values[$key] = $entry->$key;
                     }
                 }else{
                     $values["#".$key] = $data[$key];
                 }
             }
+
             anu()->database->update($this->table, $values, array(
                 $this->table . "." . $this->primary_key => $entry->id
             ));
@@ -154,7 +140,6 @@ class entryService extends baseService
         {
             throw new Exception('ID is not specified.');
         }
-
         $this->id = $entryId;
         if($model = Anu::getClassByName($this, 'Model', true)){
             $attributes = $model->defineAttributes();
@@ -167,10 +152,10 @@ class entryService extends baseService
 
             $where = array($this->table . "." . $this->primary_key => $entryId);
 
-            $row = anu()->database->select($this->table, $join, $select, $where);
+            $row = anu()->database->get($this->table, $join, $select, $where);
 
-            if(!empty($row) && is_array($row)){
-                return $this->populateModel($row[0], $model);
+            if($row){
+                return $this->populateModel($row, $model);
             }
         }else{
             throw new Exception('could not find ' . Anu::getClassName($this));
@@ -207,21 +192,6 @@ class entryService extends baseService
         return true;
     }
 
-
-    /**
-     * @return string
-     */
-    public function getTable(){
-        return $this->table;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPrimaryKey(){
-        return $this->primary_key;
-    }
-
     /**
      * @return elementCriteriaModel
      */
@@ -230,14 +200,6 @@ class entryService extends baseService
         return new elementCriteriaModel($this);
     }
 
-
-    /**
-     * @param $attributes
-     */
-    public function find($attributes = null){
-        $criteria = new elementCriteriaModel($this);
-        return $criteria->find($attributes);
-    }
 
     /**
      * Renders the detail template
@@ -273,24 +235,78 @@ class entryService extends baseService
     /**
      * @param $entry entryModel
      */
-    public function getSlugForEntry($entry){
-        $slug = $entry->getAttribute('slug');
-        $slugInUse = anu()->database->has($this->table, array('slug' => $slug));
-        if(!$slugInUse){
-            return true;
-        }
-
-        $counter = 0;
-        $originalSlug = $slug;
-        while ($slugInUse){
-            $counter++;
-            $slug = $originalSlug . "-" . $counter;
+    public function generateSlugForEntry($entry){
+        if(!$entry->id){
+            $slug = $entry->slug;
             $slugInUse = anu()->database->has($this->table, array('slug' => $slug));
+            if(!$slugInUse && $slug != null){
+                return true;
+            }
 
+            $counter = 0;
+            $originalSlug = $slug;
+            while ($slugInUse){
+                $counter++;
+                $slug = $originalSlug . "-" . $counter;
+                $slugInUse = anu()->database->has($this->table, array('slug' => $slug));
+
+            }
+            $slug = $originalSlug . "-" . $counter;
+
+            $entry->slug = $slug;
+            return $slug;
         }
-        $slug = $originalSlug . "-" . $counter;
+        return true;
+    }
 
-        $entry->setData($slug, 'slug');
-        return $slug;
+    /**
+     * Get all Relations from array or criteriamodel
+     *
+     * @param $entry    entryModel
+     * @param $key
+     * @return array|int
+     * @throws Exception
+     */
+    private function getRelationsFromEntryByKey($entry, $key){
+        $relations = array();
+        if(!$entry->$key instanceof elementCriteriaModel){
+            if(!is_array($entry->$key)){
+                $entry->$key = array($entry->$key);
+            }
+            foreach ($entry->$key as $item){
+                if($item instanceof entryModel) {
+                    if($item->id){
+                        $relations[] = $item->id;
+                    }else{
+                        throw new Exception("no id given for subentry with title = " . $item->title);
+                    }
+                }else{
+                    $relations[] = $item;
+                }
+            }
+        }else{
+            $relations = $entry->$key->getStoredIds();
+        }
+        return $relations;
+    }
+
+    /**
+     * Get Data for Relation Table
+     *
+     * @param $relation
+     * @param $field_1
+     * @param $id_2
+     * @param int $id_1
+     * @return array
+     */
+    private function getRelationData($relation, $field_1, $id_2, $id_1 = 0){
+        return array(
+            'field_1' => $field_1,
+            'field_2' => $relation['field'],
+            'id_1' => $id_1,
+            'id_2' => $id_2,
+            'model_1' => Anu::getClassName($this),
+            'model_2'=> $relation['model']
+        );
     }
 }

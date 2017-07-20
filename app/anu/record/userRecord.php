@@ -29,7 +29,7 @@ class userRecord extends baseRecord
             'email'             => array(AttributeType::Mixed),
             'enabled'           => array(AttributeType::Number, 'default' => '1'),
             'admin'             => array(AttributeType::Number, 'default' => '0'),
-            /*'password'          => array(AttributeType::Mixed),*/
+            'password'          => array(AttributeType::Mixed),
         ), parent::defineAttributes());
 
     }
@@ -39,7 +39,9 @@ class userRecord extends baseRecord
      */
     public function defineIndex(){
         return array_merge(array(
-            'user_id'   => array(DBIndex::Primary)
+            'user_id'   => array(DBIndex::Primary),
+            'email'     => array(DBIndex::Unique),
+            'title'     => array(DBIndex::Unique),
         ), parent::defineIndex());
     }
 }

@@ -3,8 +3,11 @@
 {% block content %}
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
         <input type="hidden" name="action" value="action/home/save">
-        <input type="hidden" name="data[question_id]" value="2">
-        <!--<input type="hidden" name="data[test_id][]" value="2">-->
+        <!--<input type="hidden" name="data[question_id]" value="1">-->
+        <!--<input type="hidden" name="data[test_id][]" value="1">
+        <input type="hidden" name="data[test_id][]" value="3">
+        <input type="hidden" name="data[pages][]" value="1">
+        <input type="hidden" name="data[pages][]" value="2">-->
         <input type="submit" value="submit">
         <input type="text" name="data[text]" value="Wie heißt du">
         <input type="text" name="data[title]" value="Frage">
@@ -15,7 +18,7 @@
 
     <br>
     <br>
-
+    save Answer
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
         <input type="hidden" name="action" value="action/home/saveQuestion">
         <input type="submit" value="submit">
@@ -26,7 +29,7 @@
 
     <br>
     <br>
-
+    save Page
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
         <input type="hidden" name="action" value="action/home/savePage">
         <input type="hidden" name="data[parent_pid]" value="1">
@@ -46,12 +49,37 @@
         <input type="text" name="data[name]" value="Bild mit namen ^.^">
     </form>
 
+
+    <br>
+    <br>
+    save User<br>
+    <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
+        <input type="hidden" name="action" value="action/home/saveUser">
+        <input type="hidden" name="data[user_id]" value="1">
+        <input type="submit" value="submit">
+        <input type="text" name="data[first_name]" value="Vorname">
+        <input type="text" name="data[last_name]" value="Nachname">
+        <input type="text" name="data[title]" value="Blub">
+        <input type="text" name="data[email]" value="Blub@Blaa.de">
+        <input type="password" name="data[newPassword]" value="Warpten5000">
+    </form>
+{#
+    {% set users = anu.user.find() %}
+    {% if users %}
+        {% for user in users %}
+            {{ user.password }}<br>
+        {% endfor %}
+    {% endif %}
+
+
+
     {% set user = anu.user.getCurrentUser() %}
     {% if user %}
          {{ user.email }}
     {% else %}
         kein nutzer
     {% endif %}
+    #}
     {% set elements = anu.entry.find() %}
     {% if elements %}
         {% for entry in elements %}

@@ -22,6 +22,8 @@ abstract class AttributeType extends BaseEnum
 
     const Mixed      = 'mixed';
     const Bool       = 'bool';
+    const Number     = 'number';
+
     const ClassName  = 'classname';
     const DateTime   = 'datetime';
     const Email      = 'email';
@@ -29,7 +31,9 @@ abstract class AttributeType extends BaseEnum
     const Handle     = 'handle';
     const Locale     = 'locale';
     const Name       = 'name';
-    const Number     = 'number';
+
+
+
     const Slug       = 'slug';
     const SortOrder  = 'sortorder';
     const String     = 'string';
@@ -37,6 +41,10 @@ abstract class AttributeType extends BaseEnum
     const Url        = 'url';
     const UrlFormat  = 'urlformat';
     const Uri        = 'uri';
+
+
     const PrimaryKey = 'primarykey';
     const File       = 'file';
+    const Password      = 'password';
+    const NewPassword   = 'newpassword';
 }

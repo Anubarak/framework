@@ -29,7 +29,10 @@
         $countFiles = count($files);
         if($countFiles > 2) {
             for ($i = 2; $i < $countFiles; $i++) {
-                require_once BASE . $dir. '\\' . $files[$i];
+                $path = BASE . $dir. '\\' . $files[$i];
+                if(!is_dir($path)){
+                    require_once $path;
+                }
             }
         }
     }

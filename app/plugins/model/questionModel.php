@@ -16,7 +16,13 @@ class questionModel extends entryModel
                 'model' => 'answer',
                 'limit' => 1
             )),
-            'text'          => array(AttributeType::Mixed),
+            'pages' => array(AttributeType::Number, 'relatedTo' => array(
+                'table' => 'page',
+                'field' => 'page_id',
+                'model' => 'page',
+                'limit' => 1
+            )),
+            'text'          => array(AttributeType::Mixed, 'min_len' => 3, 'max_len' => 10),
             'correctAnswer' => array(AttributeType::Number),
             'pointsPlus'    => array(AttributeType::Number),
             'pointsMinus'   => array(AttributeType::Number),

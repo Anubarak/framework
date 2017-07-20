@@ -13,13 +13,12 @@ class baseModel
 {
 
     private $errors = null;
-    private $data = array();
     public $id = 0;
 
     public function __construct(){
         $attributes = $this->defineAttributes();
         foreach ($attributes as $k => $v){
-            $this->data[$k] = null;
+            $this->$k = null;
         }
     }
 
@@ -29,7 +28,12 @@ class baseModel
      * @return array
      */
     public function getData(){
-        return $this->data;
+        $values = array();
+        $attributes = $this->defineAttributes();
+        foreach ($attributes as $k => $v){
+            $values[$k] = $this->$k;
+        }
+        return $values;
     }
 
     /**
@@ -37,8 +41,8 @@ class baseModel
      * @return null
      */
     public function getAttribute($value){
-        if(isset($this->data[$value])){
-            return $this->data[$value];
+        if(isset($this->$value)){
+            return $this->$value;
         }
         return null;
     }
@@ -52,16 +56,17 @@ class baseModel
      */
     public function setData($data, $key = null){
         if(!is_array($data) && $key){
-            if(array_key_exists($key, $this->data)){
-                $this->data[$key] = $data;
+            if(array_key_exists($key, $this->defineAttributes())){
+                $this->$key = $data;
                 return true;
-            }else{
-                return false;
             }
+            return false;
         }
 
         if(is_array($data)){
-            $this->data = $data;
+            foreach ($data as $k => $v){
+                $this->$k = $v;
+            }
             return true;
         }
 
@@ -70,6 +75,13 @@ class baseModel
 
     public  function getErrors(){
         return $this->errors;
+    }
+
+    /**
+     * clear Errors from Entry
+     */
+    public  function clearErrors(){
+        $this->errors = null;
     }
 
     /**

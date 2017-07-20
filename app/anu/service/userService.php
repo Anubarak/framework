@@ -34,24 +34,39 @@ class userService extends baseService
      * @param $email
      * @param $password
      */
-    public function login($title = null, $email = null, $password = null){
+    public function login($title = null, $email = null, $password){
+        $response = array();
         if(!$title && !$email){
-            return true;
+            $response['email'] = 'Email not set';
+        }
+        if(!$password){
+            $response['password'] = 'Password not set';
         }
 
         $userId = anu()->database->get($this->table, $this->primary_key, array(
              'OR' => array(
                  'title'    => $title,
                  'email'    => $email
-             )
+             ),
         ));
 
-        if($userId){
-            $this->currentUser = $this->getUserById($userId);
-            anu()->session->set('user_id', $userId);
-            return true;
+        if(!$userId){
+            $response['email'] = Anu::parse('No user Found with email = {email} or title = {title}', array(
+                'email' => $email,
+                'title' => $title
+            ));
         }
-        return false;
+
+        if($userId && ($user = $this->getUserById($userId))){
+            if (password_verify($password, $user->password)) {
+                $this->currentUser = $user;
+                anu()->session->set('user_id', $userId);
+                return true;
+            }
+            $response['password'] = 'Password is not correct';
+        }
+
+        return $response;
     }
 
     /**
@@ -67,12 +82,72 @@ class userService extends baseService
         return $this->currentUser;
     }
 
+
     /**
      * @param $user            userModel
-     * @return bool|int|string
+     * @return bool|int
      */
     public function saveUser($user){
-        return $this->saveElement($user);
+        $this->defineDefaultValues($user);
+
+        if(!$this->validate($user)){
+            return false;
+        }
+        if(!$this->table || !$this->primary_key){
+            $className = Anu::getClassName($this);
+            $this->table = anu()->$className->table;
+            $this->primary_key = anu()->$className->primary_key;
+        }
+
+        //check if its a new entry of if we should update an existing one
+        if(!$user->id){
+            $data = $user->getData();
+            $values = array();
+            foreach ($user->defineAttributes() as $key => $value){
+                if($data[$key] !== 'now()'){
+                    if(isset($data[$key])){
+                        $values[$key] = ($data[$key])? $data[$key] : 0;
+                    }
+                }else{
+                    $values["#".$key] = $data[$key];
+                }
+            }
+            //new entry -> crypt password
+            if(isset($values['password'])){
+                $values['password'] = password_hash($values['password'], PASSWORD_DEFAULT);
+            }
+
+            anu()->database->insert($this->table, $values);
+            $id = anu()->database->id();
+            $user->id = $id;
+            return $id;
+        }else{
+            $data = $user->getData();
+            $values = array();
+            foreach ($user->defineAttributes() as $key => $value){
+                if(isset($data[$key])){
+                    if($data[$key] !== 'now()'){
+                        if(isset($data[$key])){
+                            $values[$key] = ($data[$key])? $data[$key] : 0;
+                        }
+                    }else{
+                        $values["#".$key] = $data[$key];
+                    }
+                }
+            }
+
+            if(isset($values['newPassword'])){
+                $values['password'] = password_hash($values['newPassword'], PASSWORD_DEFAULT);
+                unset($values['newPassword']);
+
+            }
+
+            anu()->database->update($this->table, $values, array(
+                $this->table . "." . $this->primary_key => $user->id
+            ));
+
+            return anu()->database->id();
+        }
     }
 
     /**
@@ -82,6 +157,7 @@ class userService extends baseService
     public function getUserById($userId){
         return $this->getElementById($userId);
     }
+
 
     /**
      * @param $className
