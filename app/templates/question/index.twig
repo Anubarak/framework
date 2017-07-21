@@ -29,4 +29,8 @@
             {{ page.title }}<br>
         {% endfor %}
     {% endif %}
+
+    {% set form = anu.question.renderForm(entry) %}
+    {{ dump(form) }}
+    {{ form|raw }}
 {% endblock %}

@@ -30,7 +30,7 @@ class baseController
 
         //$record = anu()->record->getRecordByName('answer');
 
-        anu()->record->installRecord("page");
+        //anu()->record->installRecord("matrix", true);
         //anu()->record->installRecord("question");
 
         //anu()->record->installRecord("userPermission", true);
@@ -53,22 +53,23 @@ class baseController
         //$user = anu()->user->getUserById(2);
         //$loggedIn = anu()->user->login('Fischer@Fisch.de', 'Fischer@Fisch.de');
         //anu()->user->addPermission(anu()->user->getCurrentUser(), 'question.update');
+
+        //$matrix = anu()->matrix->getMatrixById(4);
+        //$matrix->position = 0;
+        //anu()->matrix->saveMatrix($matrix);
+
+        $question = anu()->question->getEntryById(1);
+
+        anu()->template->addJsCode('
+            var question = ' . json_encode($question) . ';
+        ');
+
         anu()->template->render('pages/home.twig', array(
             'title'       => "test Title",
             'headline'    => "headline",
             'subheadline' => "subline",
             'navigation'  => "test",
         ));
-    }
-
-    public function test(){
-        if($this->isAjaxRequest()){
-            $array = array(
-                'somedata' => "please word",
-                'somedata2' => 2
-            );
-            $this->returnJson($array);
-        }
     }
 
 
@@ -85,7 +86,7 @@ class baseController
      * @return bool
      */
     public function isAjaxRequest(){
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+        if( (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')  || anu()->request->isAngularRequest()) {
             return true;
         }
         return false;

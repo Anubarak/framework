@@ -9,7 +9,7 @@
 namespace Anu;
 
 
-class baseModel
+class baseModel implements \JsonSerializable
 {
 
     private $errors = null;
@@ -110,5 +110,13 @@ class baseModel
         return array(
 
         );
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize() {
+        $this->class = Anu::getClassName($this);
+        return get_object_vars($this);
     }
 }

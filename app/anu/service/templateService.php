@@ -26,10 +26,7 @@ class templateService
     private $js_files   = array();
     private $css_files   = array();
     private $js_code    =  array();
-    public function __construct()
-    {
 
-    }
 
     public function init(){
         $path = anu()->config->get('paths');
@@ -89,7 +86,7 @@ class templateService
      */
     public function getJsCode(){
         $js = $this->_combineJs($this->js_code);
-        return "<script type=\"text/javascript\">\n/*<![CDATA[*/\n$(document).ready(function(){" .$js."});\n/*]]>*/\n</script>";
+        return "<script type=\"text/javascript\">\n/*<![CDATA[*/\n" .$js."\n/*]]>*/\n</script>";
     }
 
     /**

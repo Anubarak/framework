@@ -14,19 +14,30 @@ namespace Anu;
  */
 class requestService
 {
-    private $getVar = null;
-    private $postVar = null;
+    private $getVar = array();
+    private $postVar = array();
+    private $request = array();
+    private $angularRequest = null;
 
     public function __construct()
     {
         $this->getVar = $_GET;
         $this->postVar = $_POST;
+        $this->request = array_merge($this->getVar, $this->postVar);
     }
 
+    /**
+     * @param $values
+     */
+    public function setPost($values){
+        foreach ($values as $k => $v){
+            $this->postVar[$k] = $v;
+        }
+        $this->request = array_merge($this->getVar, $this->postVar);
+    }
 
     public function getValue($var = null){
-        $request = array_merge($this->getVar, $this->postVar);
-        return $this->_getValue($request, $var);
+        return $this->_getValue($this->request, $var);
     }
 
     public function getVar($var = null){
@@ -47,7 +58,32 @@ class requestService
         return null;
     }
 
+
+
+    private function castAngular(){
+        $entryStd = $this->angularRequest->entry;
+        $entry = Anu::getClassByName($entryStd->class, "Model", true);
+        $entry->setData((array)$entryStd);
+        foreach ($entry as $k => $data){
+            if(is_object($data)){
+                $criteriaName = Anu::getClassByName($data->class, "Model");
+                /* @var elementCriteriaModel */
+                $serviceClass = $data->service->class;
+                $criteria = new $criteriaName(anu()->$serviceClass);
+                $criteria->storeIds($data->ids);
+                $criteria->relatedTo = (array)$data->relatedTo;
+                $entry->$k = $criteria;
+            }
+        }
+        $this->angularRequest->entry = $entry;
+    }
+
     public function process(){
+        $this->angularRequest = json_decode(file_get_contents("php://input"));
+        if($this->angularRequest){
+            $this->castAngular();
+            $this->setPost($this->angularRequest);
+        }
         $page = $this->getValue('p');
         $stat = $this->getValue('s');
         $entry = $this->getValue('e');
@@ -62,10 +98,12 @@ class requestService
         //check for actions... -> ajax request
         if($action = $this->getValue('action')){
             $arrRoute = explode('/', $action);
+            $i = (count($arrRoute) == 2)? 0 : 1;
+            $controller = $arrRoute[$i];
+            $function = $arrRoute[$i+1];
             if(count($arrRoute)){
-                $className = Anu::getClassByName($arrRoute[1], "Controller");
+                $className = Anu::getClassByName($controller, "Controller");
                 $class = new $className();
-                $function = $arrRoute[2];
                 $class->$function();
             }
         }
@@ -100,5 +138,12 @@ class requestService
                 }
             }
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAngularRequest(){
+        return $this->angularRequest? true : false;
     }
 }

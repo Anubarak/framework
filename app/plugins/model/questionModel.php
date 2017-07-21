@@ -10,13 +10,13 @@ class questionModel extends entryModel
     {
         return array_merge(parent::defineAttributes(), array(
             'question_id' => array(AttributeType::Number, 'index' => AttributeType::PrimaryKey),
-            'test_id' => array(AttributeType::Number, 'relatedTo' => array(
+            'test_id' => array(AttributeType::Relation, 'relatedTo' => array(
                 'table' => 'answer',
                 'field' => 'answer_id',
                 'model' => 'answer',
                 'limit' => 1
             )),
-            'pages' => array(AttributeType::Number, 'relatedTo' => array(
+            'pages' => array(AttributeType::Relation, 'relatedTo' => array(
                 'table' => 'page',
                 'field' => 'page_id',
                 'model' => 'page',

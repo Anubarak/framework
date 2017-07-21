@@ -18,20 +18,27 @@
 
 
 
-
+    <script src="{{ assetPathJS }}angular.min.js"></script>
+    <script type="text/javascript">
+        var myApp = angular.module('myApp',[]).config(function($interpolateProvider){
+            console.log("startet");
+            $interpolateProvider.startSymbol('{[{').endSymbol('}]}');
+        });
+    </script>
 
     <link rel="stylesheet" type="text/css" href="{{ assetPathCSS }}tabs.css" />
     <script type="text/javascript" src="{{ assetPathJS }}modernizr.custom.04022.js"></script>
     <!--<meta http-equiv="Content-Type" content="text/html;charset=utf-8">-->
 </head>
 
-<body>
+<body ng-app="myApp">
 <noscript class="msg"><div>Diese Seite wird nur mit JavaScript korrekt dargestellt. Bitte schalten Sie JavaScript in Ihrem Browser ein!</div></noscript>
 
 {% block body %}
 
 
     {% endblock %}
+
 
         <script src="{{ assetPathJS }}draggableOptions.js"></script>
         <script src="{{ assetPathJS }}table.js"></script>

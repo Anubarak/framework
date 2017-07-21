@@ -23,6 +23,9 @@ abstract class AttributeType extends BaseEnum
     const Mixed      = 'mixed';
     const Bool       = 'bool';
     const Number     = 'number';
+    const Position   = 'position';
+    const Text       = 'text';
+    const Relation   = 'relation';
 
     const ClassName  = 'classname';
     const DateTime   = 'datetime';

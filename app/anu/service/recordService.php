@@ -83,14 +83,17 @@ class recordService
             }
             $varType = '';
             switch ($v[0]){
-                case 'number':
+                case AttributeType::Number:
                     $varType = 'int(11)';
                     break;
-                case 'mixed':
+                case AttributeType::Mixed:
                     $varType = 'varchar(255)';
                     break;
-                case 'datetime':
+                case AttributeType::DateTime:
                     $varType = 'datetime';
+                    break;
+                case AttributeType::Text:
+                    $varType = 'text';
                     break;
             }
             $items .= "`" . $k . "` " . $varType . $default . ",";

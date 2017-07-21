@@ -1,0 +1,28 @@
+
+{% set model = attribute['relatedTo']['model'] %}
+{% set class = (attribute(anu, model)) %}
+
+{% set criteria = (attribute(entry, key)) %}
+{% set relatedEntries = criteria.find() %}
+{% set selects = [] %}
+{% if relatedEntries %}
+    {% for rel in relatedEntries %}
+        {% set selects = [{
+            id: rel.id,
+            title: rel.title
+        }]|merge(selects) %}
+    {% endfor %}
+{% endif %}
+
+
+<div>
+    {% for select in selects %}
+        <div>
+            <input type="hidden" value="{{ select.id }}" name="data[{{ key }}][]">
+            {{ select.title }}
+        </div>
+    {% endfor %}
+    <div>
+        <input type="button" value="add Relation">
+    </div>
+</div>

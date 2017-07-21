@@ -9,12 +9,20 @@
 namespace Anu;
 
 
-class baseService
+class baseService implements \JsonSerializable
 {
     protected   $table = null;
     protected   $template = null;
     protected   $primary_key = null;
     protected   $id = 0;
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize() {
+        $this->class = Anu::getClassName($this);
+        return get_object_vars($this);
+    }
 
 
     /**
@@ -146,7 +154,7 @@ class baseService
                         if(!is_array($data[$k])){
                             $data[$k] = explode(",", $data[$k]);
                         }
-
+                        $data[$k] = array_unique($data[$k]);
                         $class = $relation['model'];
                         $criteriaModel = new elementCriteriaModel(anu()->$class);
                         $criteriaModel->storeIds($data[$k]);
@@ -189,7 +197,7 @@ class baseService
      * @param null $parentTable
      * @return array
      */
-    public function iterateDBSelect($attributes, $parentTable){
+    public function iterateDBSelect($attributes, $parentTable, &$join = array(), &$where = array()){
         $select = array();
         $primaryKey = $this->primary_key;
 
@@ -199,7 +207,12 @@ class baseService
                 $relation = $v['relatedTo'];
                 if(is_array($relation)){
                     if(isset($relation['table'], $relation['field'])){
-                        $select[] = '#GROUP_CONCAT(relation.id SEPARATOR \',\') as ' . $k;
+                        $select[] = '#GROUP_CONCAT(relation' . count($join) . ' .id_2 SEPARATOR \',\') as ' . $k;
+                        $where['relation' . count($join) . '.field_1'] = $k;
+                        $where['relation' . count($join) . '.field_2'] = $relation['field'];
+                        $where['relation' . count($join) . '.model_1'] = Anu::getClassName($this);
+                        $where['relation' . count($join) . '.model_2'] = $relation['model'];
+                        $join["[>]relation(relation" . count($join) . ")"] = array($this->table . "." . $this->primary_key => 'id_1');
                     }
                 }
             }elseif(!isset($v['ignoreInDatabase'])){
@@ -246,8 +259,8 @@ class baseService
      * @return bool|int
      */
     public function saveElement($element){
-        $this->defineDefaultValues($entry);
-        if(!$this->validate($entry) || !$this->checkSavePermission($entry)){
+        $this->defineDefaultValues($element);
+        if(!$this->validate($element) || !$this->checkSavePermission($element)){
             return false;
         }
 
@@ -267,7 +280,10 @@ class baseService
             foreach ($element->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
                     if(array_key_exists($key, $recordAttributes)){
-                        $values[$key] = $entry->$key;
+                        if($value[0] == AttributeType::Position){
+                            $this->changePositions($element, $key, $value);
+                        }
+                        $values[$key] = $element->$key;
                     }
                 }else{
                     $values["#".$key] = $data[$key];
@@ -285,7 +301,10 @@ class baseService
             foreach ($element->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
                     if(array_key_exists($key, $recordAttributes)){
-                        $values[$key] = $entry->$key;
+                        if($value[0] == AttributeType::Position){
+                            $this->changePositions($element, $key, $value);
+                        }
+                        $values[$key] = $element->$key;
                     }
                 }else{
                     $values["#".$key] = $data[$key];
@@ -341,5 +360,47 @@ class baseService
     public function find($attributes = null){
         $criteria = new elementCriteriaModel($this);
         return $criteria->find($attributes);
+    }
+
+
+    /**
+     * @param $element
+     * @param $key
+     * @param $attributes
+     */
+    public function changePositions($element, $key,  $attributes){
+        $where = array();
+        if(isset($attributes['relatedField'])){
+            $field = $attributes['relatedField'];
+            $where[$field] = $element->$field;
+        }
+
+        //get Old Position of element
+        $oldPosition = anu()->database->get($this->getTable(), 'position', array($this->primary_key => $element->id));
+        //Todo: check new Entry
+        $newPosition = $element->$key;
+
+        if($oldPosition > $newPosition){
+            $where[$key . "[<=]"] = $oldPosition;
+            $where[$key . "[>=]"] = $newPosition;
+            anu()->database->update($this->getTable(), array("#".$key => "$key+1"), $where);
+        }else{
+            $where[$key . "[>=]"] = $oldPosition;
+            $where[$key . "[<=]"] = $newPosition;
+            anu()->database->update($this->getTable(), array("#".$key => "$key-1"), $where);
+        }
+    }
+
+    /**
+     * @param $entry baseModel
+     */
+    public function renderForm($entry){
+        anu()->template->addJsCode('
+            var entry = ' . json_encode($entry) . ';
+        ');
+        return anu()->template->render('forms/index.twig', array(
+            'entry' => $entry,
+            'attributes' => $entry->defineAttributes()
+        ));
     }
 }

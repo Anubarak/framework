@@ -116,7 +116,10 @@ class entryService extends baseService
                 $this->table . "." . $this->primary_key => $entry->id
             ));
 
-            return anu()->database->id();
+            if($entry->getErrors() == null){
+                return $entry->id;
+            };
+            return false;
         }
     }
 
@@ -143,16 +146,16 @@ class entryService extends baseService
         $this->id = $entryId;
         if($model = Anu::getClassByName($this, 'Model', true)){
             $attributes = $model->defineAttributes();
+            $join = array();
+            $where = array();
+            $select = $this->iterateDBSelect($attributes, $this->table, $join, $where);
 
-            $select = $this->iterateDBSelect($attributes, $this->table);
-
-            $join = array(
-                "[>]relation" => array($this->table . "." . $this->primary_key => 'id_1')
-            );
-
-            $where = array($this->table . "." . $this->primary_key => $entryId);
-
-            $row = anu()->database->get($this->table, $join, $select, $where);
+            $where[$this->table . "." . $this->primary_key] = $entryId;
+            if($join){
+                $row = anu()->database->get($this->table, $join, $select, $where);
+            }else{
+                $row = anu()->database->get($this->table, $select, $where);
+            }
 
             if($row){
                 return $this->populateModel($row, $model);

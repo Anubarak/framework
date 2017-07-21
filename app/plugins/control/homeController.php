@@ -20,6 +20,17 @@ class homeController extends baseController
         ));
     }
 
+    public function test(){
+        if($this->isAjaxRequest()){
+            $entry = anu()->request->postVar('entry');
+            if(!anu()->question->saveEntry($entry)){
+                $this->returnJson($entry->getErrors());
+            }
+
+            $this->returnJson(true);
+        }
+    }
+
     public function save(){
         $question = anu()->question->generateEntryFromPost();
         $answer = anu()->answer->getEntryById(3);
@@ -100,4 +111,5 @@ class homeController extends baseController
         echo "</pre>";
         die();
     }
+
 }

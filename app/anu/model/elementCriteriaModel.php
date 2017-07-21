@@ -11,7 +11,7 @@ namespace Anu;
 
 use Whoops\Exception\ErrorException;
 
-class elementCriteriaModel implements \IteratorAggregate
+class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
 {
     private $attributes = null;
     private $defaultAttributes = array(
@@ -22,7 +22,15 @@ class elementCriteriaModel implements \IteratorAggregate
     private $ids = array();
 
     private $service = null;
+    private $class = null;
 
+    /**
+     * @return array
+     */
+    public function jsonSerialize() {
+        $this->class = Anu::getClassName($this);
+        return get_object_vars($this);
+    }
 
     /**
      * elementCriteriaModel constructor.
@@ -41,7 +49,6 @@ class elementCriteriaModel implements \IteratorAggregate
      * @return array
      */
     public function find($attributes = null, $justIds = null){
-
         if($attributes){
             $this->attributes = $attributes;
         }else{
@@ -125,17 +132,16 @@ class elementCriteriaModel implements \IteratorAggregate
                     'AND # third' => $whereThirdTable,
                     'AND # fourth' => $whereFourthTable
                 );
-
             }
+
             if($join){
                 $rows = anu()->database->select(anu()->$className->getTable(), $join, $select , $where);
             }else{
                 $rows = anu()->database->select(anu()->$className->getTable(), $select , $where);
             }
+
             $rows = array_unique($rows,SORT_REGULAR);
-
-            anu()->database->debugError();
-
+            //anu()->database->debugError();
             if($rows){
                 foreach ($rows as $row){
                     if(!$justIds){
@@ -143,6 +149,8 @@ class elementCriteriaModel implements \IteratorAggregate
                             $entries[] = anu()->$className->getEntryById((int)$row['id']);
                         }elseif(method_exists(anu()->$className, "getUserById")){
                             $entries[] = anu()->$className->getUserById((int)$row['id']);
+                        }elseif (method_exists(anu()->$className, "getElementById")){
+                            $entries[] = anu()->$className->getElementById((int)$row['id']);
                         }
                     }else{
                         $entries[] = $row['id'];
@@ -172,6 +180,10 @@ class elementCriteriaModel implements \IteratorAggregate
         $element = $this->find();
         $this->LIMIT = $limit;
         return $element[0];
+    }
+
+    public function count(){
+        return count($this->ids());
     }
 
     /**

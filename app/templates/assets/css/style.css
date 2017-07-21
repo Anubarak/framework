@@ -30,7 +30,7 @@ header #imageContainer{
 	padding-left:205px;
 	width: 600px;
 	height: 100%;
-	background-image: url('../img/header.jpg');
+	/*background-image: url('../img/header.jpg');*/
     background-size: cover;
 }
 

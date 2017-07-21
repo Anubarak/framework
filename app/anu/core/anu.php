@@ -1,9 +1,11 @@
 <?php
 
-
 namespace Anu;
 /**
  * Class app
+ *
+ * Include your own classes here for autocompleation in the same way as I have done it
+ *
  * @property entryService                           $entry
  * @property userService                            $user
  * @property assetService                           $asset
@@ -16,6 +18,7 @@ namespace Anu;
  * @property pageService                            $page
  * @property sessionService                         $session
  * @property database                               $database
+ * @property matrixService                          $matrix
  *
  * @package Anu
  */
@@ -126,7 +129,9 @@ class Anu
     public static function getClassByName($class, $extention = null, $returnClass = false){
         if(is_string($class)){
             $type = ($extention)? $extention : "Service";
-            return Anu::getNameSpace() . $class . $type;
+            $className = Anu::getNameSpace() . $class . $type;
+            if($returnClass) return new $className;
+            return $className;
         }else{
             $className = get_class($class);
             $match = array();
@@ -161,6 +166,13 @@ class Anu
         return false;
     }
 
+    /**
+     * @param $subject
+     * @param array $variables
+     * @param string $escapeChar
+     * @param null $errPlaceholder
+     * @return mixed
+     */
     public static function parse(
         /* string */ $subject,
                      array        $variables,
@@ -196,6 +208,10 @@ class Anu
 }
 
 /**
+ * returns an app object with all services and methods combined
+ * the same object is a global in twig so everything that is accesable in
+ * php is accessable in twig as well.
+ *
  * @return app
  */
 function anu()
