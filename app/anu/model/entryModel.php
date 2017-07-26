@@ -15,18 +15,17 @@ class entryModel extends baseModel
     public function defineAttributes()
     {
         return array(
-            'createDate'    => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp),
-            'updateDate'    => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp),
-            'enabled'       => array(AttributeType::Number, 'default' => '1'),
             'title'         => array(AttributeType::Mixed, 'required' => true),
             'slug'          => array(AttributeType::Mixed, 'required' => true),
+            'createDate'    => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp),
+            'updateDate'    => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp),
+            'enabled'       => array(AttributeType::Bool, 'default' => '1'),
             'author_id'     => array(AttributeType::Number, 'default' => Defaults::currentUserId)
         );
     }
 
     public function getUrl(){
         $className = Anu::getClassName($this);
-        $url = BASE_URL . $className . "/" . $this->getAttribute('slug');
-        return $url;
+        return BASE_URL . $className . "/" . $this->getAttribute('slug');
     }
 }

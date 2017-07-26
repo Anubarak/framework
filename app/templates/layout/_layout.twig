@@ -4,50 +4,67 @@
     <title>{{ entry.title }}</title>
     <link href="{{ assetPathCSS }}style.css" rel="stylesheet" type="text/css">
 
-    <link href="{{ assetPathCSS }}login.css" rel="stylesheet" type="text/css">
     <!--
     <link  href="http://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
     <script src="http://code.jquery.com/jquery-git.js"></script>
     <script src="http://code.jquery.com/ui/jquery-ui-git.js"></script>
     -->
 
-    <link  href="{{ assetPathCSS }}jquery-ui-git.css" rel="stylesheet">
+    <script src="{{ assetPathJS }}vendor/moment.js"></script>
+    <script src="{{ assetPathJS }}vendor/moment-timezone.js"></script>
+    <script type="text/javascript">
+        moment.tz.add("Europe/London");
+        moment.tz.add('America/Los_Angeles|PST PDT|80 70|0101|1Lzm0 1zb0 Op0');
+        moment.tz.add('Europe/London|GMT BST BDST|0 -10 -20|0101010101010101010101010101010101010101010101010121212121210101210101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010|-2axa0 Rc0 1fA0 14M0 1fc0 1g00 1co0 1dc0 1co0 1oo0 1400 1dc0 19A0 1io0 1io0 WM0 1o00 14o0 1o00 17c0 1io0 17c0 1fA0 1a00 1lc0 17c0 1io0 17c0 1fA0 1a00 1io0 17c0 1io0 17c0 1fA0 1cM0 1io0 17c0 1fA0 1a00 1io0 17c0 1io0 17c0 1fA0 1a00 1io0 1qM0 Dc0 2Rz0 Dc0 1zc0 Oo0 1zc0 Rc0 1wo0 17c0 1iM0 FA0 xB0 1fA0 1a00 14o0 bb0 LA0 xB0 Rc0 1wo0 11A0 1o00 17c0 1fA0 1a00 1fA0 1cM0 1fA0 1a00 17c0 1fA0 1a00 1io0 17c0 1lc0 17c0 1fA0 1a00 1io0 17c0 1io0 17c0 1fA0 1a00 1a00 1qM0 WM0 1qM0 11A0 1o00 WM0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1tA0 IM0 90o0 U00 1tA0 U00 1tA0 U00 1tA0 U00 1tA0 WM0 1qM0 WM0 1qM0 WM0 1tA0 U00 1tA0 U00 1tA0 11z0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 14o0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|10e6');
+    </script>
+
     <script src="{{ assetPathJS }}jquery-git.js"></script>
     <script src="{{ assetPathJS }}jquery-ui-git.js"></script>
-    <link rel="stylesheet" href="{{ assetPathCSS }}font-awesome/css/font-awesome.min.css">
+    <script src="{{ assetPathJS }}bootstrap.min.js"></script>
+    <script src="{{ assetPathJS }}vendor/bs.sm.min.js"></script>
+    <script src="{{ assetPathJS }}vendor/jquery.timepicker.js"></script>
+    <script src="{{ assetPathJS }}vendor/bootstrap-datepicker.js"></script>
+    <script src="{{ assetPathJS }}test.js"></script>
+
+
+    {#<link  href="{{ assetPathCSS }}jquery-ui-git.css" rel="stylesheet">#}
+    <link  href="{{ assetPathCSS }}bootstrap.css" rel="stylesheet">
+    <link  href="{{ assetPathCSS }}vendor/bs.sm.min.css" rel="stylesheet">
+    <link  href="{{ assetPathCSS }}vendor/jquery.timepicker.css" rel="stylesheet">
+    <link  href="{{ assetPathCSS }}vendor/bootstrap-datepicker.css" rel="stylesheet">
+    <link  href="{{ assetPathCSS }}vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 
 
 
     <script src="{{ assetPathJS }}angular.min.js"></script>
+
+    <script src="{{ assetPathJS }}vendor/angular-moment.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-sortable/0.14.0/sortable.min.js"></script>
     <script type="text/javascript">
-        var myApp = angular.module('myApp',[]).config(function($interpolateProvider){
+        var myApp = angular.module('myApp',['ui.sortable']).config(function($interpolateProvider){
             console.log("startet");
             $interpolateProvider.startSymbol('{[{').endSymbol('}]}');
         });
-    </script>
+        myApp.constant("moment", moment);
 
-    <link rel="stylesheet" type="text/css" href="{{ assetPathCSS }}tabs.css" />
-    <script type="text/javascript" src="{{ assetPathJS }}modernizr.custom.04022.js"></script>
+    </script>
+    <script src="{{ assetPathJS }}java.js"></script>
     <!--<meta http-equiv="Content-Type" content="text/html;charset=utf-8">-->
 </head>
 
 <body ng-app="myApp">
 <noscript class="msg"><div>Diese Seite wird nur mit JavaScript korrekt dargestellt. Bitte schalten Sie JavaScript in Ihrem Browser ein!</div></noscript>
 
-{% block body %}
-
+    <div id="container">
+        <div id="notifications-wrapper">
+            <div id="notifications">
+                <div class="notification" style="display: none;">test</div>
+            </div>
+        </div>
+    </div>
+    {% block body %}
 
     {% endblock %}
-
-
-        <script src="{{ assetPathJS }}draggableOptions.js"></script>
-        <script src="{{ assetPathJS }}table.js"></script>
-        <script src="{{ assetPathJS }}draggable.js"></script>
-        <script src="{{ assetPathJS }}movement.js"></script>
-        <script src="{{ assetPathJS }}jquery.ui.touch-punch.min.js"></script>
-        <script src="{{ assetPathJS }}test.js"></script>
-
-
 
     {% block Files %}
         {% set cssFiles = anu.template.getCssFile() %}

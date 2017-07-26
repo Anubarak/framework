@@ -10,7 +10,7 @@ class answerModel extends entryModel
     {
         return array_merge(parent::defineAttributes(), array(
             'question_id' => array(AttributeType::Number),
-            'answer_id' => array(AttributeType::Number),
+            'answer_id' => array(AttributeType::Hidden, 'index' => AttributeType::PrimaryKey),
             'text'          => array(AttributeType::Mixed),
         ));
     }

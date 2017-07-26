@@ -3,10 +3,11 @@
 {% block content %}
 
 
+    {% set form = anu.answer.renderForm() %}
+    {{ form|raw }}
+    <br><br><br><br>
 
-
-
-    <div ng-controller="myCtrl">
+    <div>
         <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
             <input type="hidden" name="action" value="action/home/save">
             <!--<input type="hidden" name="data[question_id]" value="1">-->

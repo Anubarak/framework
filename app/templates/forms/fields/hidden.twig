@@ -1,0 +1,9 @@
+
+<input type="hidden"
+       id="{{ class }}{{ entry.id }}{{ key }}"
+       ng-model="data.{{ key }}"
+       name="data[{{ key }}]"
+       value="{{ attribute(entry, key) }}"
+       class="form-control"
+       string-to-number
+>

@@ -1,6 +1,5 @@
 
 {% set model = attribute['relatedTo']['model'] %}
-{% set class = (attribute(anu, model)) %}
 
 {% set criteria = (attribute(entry, key)) %}
 {% set relatedEntries = criteria.find() %}
@@ -14,15 +13,26 @@
     {% endfor %}
 {% endif %}
 
+<div class="form-group">
+    <div style="width: 300px">
+        <ul class="list-group" ui-sortable="sortableOptions" ng-model="relations['{{key}}']" >
+            <li class="list-group-item" ng-repeat="x in relations['{{key}}']">
+                {[{ x.title }]}
+                <a href=""  ng-click="removeRelation(x, '{{ key }}')">
+                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
 
-<div>
+
     {% for select in selects %}
         <div>
-            <input type="hidden" value="{{ select.id }}" name="data[{{ key }}][]">
-            {{ select.title }}
+            <input type="hidden" value="{{ select.id }}" data-title="{{ select.title }}" name="data[{{ key }}][]" class="{{ class }}{{ entryId }}{{ key }}">
         </div>
     {% endfor %}
     <div>
-        <input type="button" value="add Relation">
+        <a href="#{{ class }}{{ entry.id }}Modal{{ key }}" class="btn btn-default" data-toggle="modal" ng-click="getRelation('{{ key }}')">Add Relation</a>
     </div>
+    {% include "/forms/modal.twig" %}
 </div>

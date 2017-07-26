@@ -1,2 +1,30 @@
+{% set class = class(entry) %}
+<div class="form-group">
+    <label for="{{ class }}{{ entry.id }}{{ key }}">{{ key }}</label>
+    <input type="text"
+           id="{{ class }}{{ entry.id }}{{ key }}"
+           ng-model="data.{{ key }}"
+           name="{{ key }}"
+           class="form-control"
+           {% if attributes[key] and attributes[key]['required'] is defined %}
+                required
+            {% endif %}
+            {% if key == 'slug'  %}
+                unique-slug
+            {% endif %}
+            {% if key == 'title' %}
+                ng-change="titleChange()"
+            {% endif %}
+    >
 
-<input type="text" ng-model="data.{{ key }}" name="data[{{ key }}]" value="{{ entry[key] }}">
+
+
+    <ul class="errors">
+        <li ng-show="{{ class }}{{ entry.id }}Form.{{ key }}.$error.required && {{ class }}{{ entry.id }}Form.{{ key }}.$dirty">
+            the {{ key }} is required
+        </li>
+        <li ng-show="{{ class }}{{ entry.id }}Form.{{ key }}.$error.slug">
+            Dieser Slug ist bereits vergeben
+        </li>
+    </ul>
+</div>

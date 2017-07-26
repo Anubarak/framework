@@ -1,0 +1,13 @@
+
+<div class="form-check">
+    <label for="{{ class }}{{ entry.id }}{{ key }}" class="form-check-label">
+    <input type="checkbox"
+           id="{{ class }}{{ entry.id }}{{ key }}"
+           ng-model="data.{{ key }}"
+           name="data[{{ key }}]"
+           ng-checked="1"
+           class="form-check-input"
+{#{{ attribute(entry, key)? "checked" : '' }}#}>
+        {{ key }}
+    </label>
+</div>

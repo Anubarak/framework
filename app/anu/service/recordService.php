@@ -95,6 +95,9 @@ class recordService
                 case AttributeType::Text:
                     $varType = 'text';
                     break;
+                case AttributeType::Bool:
+                    $varType = 'BOOLEAN';
+                    break;
             }
             $items .= "`" . $k . "` " . $varType . $default . ",";
         }
@@ -103,7 +106,7 @@ class recordService
         if($items){
             $success = anu()->database->action(function($database){
                 anu()->database->query("
-                    CREATE TABLE `" . $this->record->getTableName() . "` ( " . $this->items . ") ENGINE=InnoDB DEFAULT CHARSET=latin1;"
+                    CREATE TABLE `" . $this->record->getTableName() . "` ( " . $this->items . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;"
                 );
 
                 $errors = anu()->database->error();

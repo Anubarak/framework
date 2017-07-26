@@ -1,0 +1,54 @@
+<div class="modal fade" id="{{ class }}{{ entry.id }}Modal{{ key }}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </a>
+                <h4 class="modal-title">Relations for {{ key }}</h4>
+            </div>
+
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-sm">
+                            <table id="{{ class }}{{ entry.id }}Table{{ key }}" class="table selectable table-striped">
+                                <thead>
+                                    <tr>
+                                        <td>Title</td>
+                                        <td>Eintragsdatum</td>
+                                    </tr>
+                                </thead>
+                                <tbody ng-repeat="item in allRelations['{{key}}']">
+                                    <tr ng-class="{selected: classes['{{ key }}'][{[{ item.id }]}]}"
+                                        data-title="{[{ item.title }]}"
+                                        data-id="{[{ item.id }]}"
+                                        ng-click="relationTableToggleSelected('{{ key }}', item.id)"
+                                    >
+                                        <td>
+                                            <a href="" >{[{ item.title }]}</a>
+                                        </td>
+                                        <td>
+                                            {[{ item.createDate }]}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            </ul>
+                        </div>
+                    </div>
+                </form>
+
+            </div> <!-- /.modal-body -->
+            <div class="modal-footer">
+                <button class="btn btn-default" ng-click="addRelation('{{ class }}{{ entry.id }}Table{{ key }}', '{{ key }}')" data-dismiss="modal" aria-hidden="true">Add</button>
+                <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

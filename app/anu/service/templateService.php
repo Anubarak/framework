@@ -38,6 +38,7 @@ class templateService
             'dev', true
         ));
         $this->twig->addExtension(new \Twig_Extension_Debug());
+        $this->twig->addExtension(new ClassTwigExtension());
         $this->twig->addTokenParser(new IncludeResource_TokenParser('includeJsFile'));
         $this->twig->addTokenParser(new IncludeResource_TokenParser('includeCssFile'));
         $this->twig->addGlobal('anu', anu());
@@ -258,5 +259,25 @@ class IncludeResource_TokenParser extends \Twig_TokenParser
         }
 
         return $first;
+    }
+}
+
+class ClassTwigExtension extends \Twig_Extension
+{
+    public function getFunctions()
+    {
+        return array(
+            'class' => new \Twig_SimpleFunction('class', array($this, 'getClass'))
+        );
+    }
+
+    public function getName()
+    {
+        return 'class_twig_extension';
+    }
+
+    public function getClass($object)
+    {
+        return (new \ReflectionClass($object))->getShortName();
     }
 }

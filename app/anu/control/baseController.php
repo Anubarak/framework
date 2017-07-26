@@ -58,12 +58,6 @@ class baseController
         //$matrix->position = 0;
         //anu()->matrix->saveMatrix($matrix);
 
-        $question = anu()->question->getEntryById(1);
-
-        anu()->template->addJsCode('
-            var question = ' . json_encode($question) . ';
-        ');
-
         anu()->template->render('pages/home.twig', array(
             'title'       => "test Title",
             'headline'    => "headline",

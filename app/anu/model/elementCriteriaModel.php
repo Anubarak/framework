@@ -20,6 +20,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
     );
 
     private $ids = array();
+    private $titles = array();
 
     private $service = null;
     private $class = null;
@@ -65,7 +66,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
             ));
         }
 
-        $where = array();
+        $where = array('enabled' => '1');
         $join = array();
         $relations = $this->stripAttribute('relatedTo');
 
@@ -225,7 +226,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
      * @param $ids
      */
     public function storeIds($ids){
-        $this->ids = $ids;
+        $this->ids = array_values($ids);
     }
 
     /**
@@ -233,6 +234,27 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
      */
     public function getStoredIds(){
         return $this->ids;
+    }
+
+    /**
+     *  save titles for javascript
+     */
+    public function storeTitles(){
+        if(!$this->service){
+            return null;
+        }
+
+        if(is_array($this->ids) && count($this->ids)){
+            $this->titles = anu()->database->select($this->service->getTable(), 'title', array(
+                $this->service->getPrimaryKey() => $this->ids,
+                'ORDER' => array(
+                    $this->service->getPrimaryKey() => $this->ids
+                )
+            ));
+
+            return true;
+        }
+        return false;
     }
 
 }

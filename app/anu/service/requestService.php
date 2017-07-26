@@ -61,21 +61,33 @@ class requestService
 
 
     private function castAngular(){
-        $entryStd = $this->angularRequest->entry;
-        $entry = Anu::getClassByName($entryStd->class, "Model", true);
-        $entry->setData((array)$entryStd);
-        foreach ($entry as $k => $data){
-            if(is_object($data)){
-                $criteriaName = Anu::getClassByName($data->class, "Model");
-                /* @var elementCriteriaModel */
-                $serviceClass = $data->service->class;
-                $criteria = new $criteriaName(anu()->$serviceClass);
-                $criteria->storeIds($data->ids);
-                $criteria->relatedTo = (array)$data->relatedTo;
-                $entry->$k = $criteria;
+        if(isset($this->angularRequest->entry)){
+            $entryStd = $this->angularRequest->entry;
+            $entry = Anu::getClassByName($entryStd->class, "Model", true);
+            $entry->setData((array)$entryStd);
+            $attributes = $entry->defineAttributes();
+            foreach ($entry as $k => $data){
+                if(is_object($data)){
+                    $criteriaName = Anu::getClassByName($data->class, "Model");
+                    /* @var elementCriteriaModel */
+                    $serviceClass = $data->service->class;
+                    $criteria = new $criteriaName(anu()->$serviceClass);
+                    $criteria->storeIds($data->ids);
+                    $criteria->relatedTo = (array)$data->relatedTo;
+                    $entry->$k = $criteria;
+                }
+                if(array_key_exists($k, $attributes)){
+                    if($attributes[$k][0] == AttributeType::DateTime){
+                        //$date = new \DateTime($data, new \DateTimeZone('Europe/Berlin'));
+                        $UTC = new \DateTimeZone("UTC");
+                        $date = new \DateTime( $data, $UTC );
+                        $entry->$k = $date->format('Y-m-d H:i:s');
+                    }
+                }
             }
+            $this->angularRequest->entry = $entry;
+
         }
-        $this->angularRequest->entry = $entry;
     }
 
     public function process(){
@@ -101,10 +113,13 @@ class requestService
             $i = (count($arrRoute) == 2)? 0 : 1;
             $controller = $arrRoute[$i];
             $function = $arrRoute[$i+1];
-            if(count($arrRoute)){
+            if(count($arrRoute) == 2){
                 $className = Anu::getClassByName($controller, "Controller");
                 $class = new $className();
                 $class->$function();
+            }elseif (count($arrRoute) == 3 && $arrRoute[0] == 'ajax'){
+                $ajaxController = new ajaxController();
+                $ajaxController->service($arrRoute[1], $arrRoute[2]);
             }
         }
 

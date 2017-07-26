@@ -1,3 +1,54 @@
+/* notifications */
+#notifications-wrapper { position: fixed; z-index: 101; width: 100%; pointer-events: none; }
+body.ltr #notifications-wrapper { left: 0; }
+body.rtl #notifications-wrapper { right: 0; }
+
+#notifications-wrapper.fixed { position: fixed; top: 0; }
+
+#notifications { text-align: center; }
+
+#notifications .notification { display: inline-block; padding: 5px 10px; border-radius: 0 0 3px 3px; border-width: 0 1px 1px; color: #fff !important; pointer-events: auto; -moz-osx-font-smoothing: grayscale; -webkit-font-smoothing: antialiased; font-weight: 600; -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.25); -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.25); box-shadow: 0 0 5px rgba(0, 0, 0, 0.25); }
+
+#notifications .notification.notice { background: #5286d9; }
+
+#notifications .notification.error { background: #da5a47; }
+
+#container .topbar:not(:empty) { padding: 0 24px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); background: rgba(0, 0, 0, 0.03); }
+
+#container .topbar .show-nav { width: 24px; height: 24px; padding: 10px; display: block; line-height: 22px; color: #8f98a3; text-align: center; }
+body.ltr #container .topbar .show-nav { margin-left: -24px; }
+body.rtl #container .topbar .show-nav { margin-right: -24px; }
+
+#container .topbar .show-nav:before { font-family: 'Craft'; speak: none; -webkit-font-feature-settings: "liga", "dlig"; -moz-font-feature-settings: "liga=1, dlig=1"; -moz-font-feature-settings: "liga", "dlig"; -ms-font-feature-settings: "liga", "dlig"; -o-font-feature-settings: "liga", "dlig"; font-feature-settings: "liga", "dlig"; text-rendering: optimizeLegibility; font-weight: normal; font-variant: normal; text-transform: none; line-height: 1; direction: ltr; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; display: inline-block; text-align: center; font-style: normal; vertical-align: middle; word-wrap: normal !important; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; content: 'menu'; font-size: 16px; line-height: 0; }
+
+
+
+form .btn-xs { margin: 4px 0; }
+form p, .control-label {
+    display: block;
+    padding-top: 4px !important;
+}
+.sub-modal form { margin: 0; }
+.no-padding { pading: 0; }
+.text-center { text-align: center; }
+
+
+table tr.selected, table tr.selected>td{
+    background-color: #d5d8dd !important;
+}
+
+
+form .formItem{
+    padding:5px;
+}
+
+ul.errors li {
+    color: #da5a47;
+}
+
+.error > input{
+    border: 1px solid #da5a47 !important;
+}
 
 
 html, body
@@ -193,104 +244,6 @@ header #imageContainer{
     clear: both;
 }
 
-
-table#field{
-	color: blue;
-	border: solid black 1px;
-	border-spacing: 0;
-	background-image: url('../img/tableBackground01.png');
-	background-size: contain;
-	/*width: 50%;
-	height: 50%;*/
-}
-
-table#field tr{
-	width: 12.5%;
-	padding: 0px;
-}
-
-table#field td{
-	/*height: 12.5%;
-	width: 16.666%;*/
-	height: 50px;
-	width: 50px;
-	border: solid white 1px;
-	margin: 0;
-    padding: 0;
-}
-
-.draggableEnemy{
-	width: 50px;
-	height: 50px;
-}
-
-.boss{
-	background: blue;
-	width: 100px;
-	height: 100px;
-}
-
-.minion{
-	background: green;
-}
-
-.draggablePlayerUnit{
-	background: red;
-	width: 50px;
-	height: 50px;
-}
-
-.gegoZ{
-	background: yellow;
-}
-
-#draggableMinion{
-	background: green;
-}
-
-.dragging {
-    box-shadow: 0 0px 5px 4px rgba(57, 63, 255, 0.76);
-}
-
-#containerGameFiles{
-	width: 40%;
-	max-height: 300px;
-    padding-top: 10px;
-    margin-top: 10px;
-	border: 1px solid black;
-	border-radius: 10px;
-}
-
-#containerGameFiles ul li{
-	list-style-type: none;
-	padding-left: 10px;
-	border-radius: 10px;
-    cursor:pointer;
-	margin-top: 1px;
-	width:100%;
-}
-
-#containerGameFiles ul li a{
-	border-radius:10px;    
-	padding-left: 10px;
-}
-
-#containerGameFiles ul li a:hover {
-    color:#ffffff;
-    background-color:rgb(34, 34, 34);
-    border:1px solid #241d13;
-    -webkit-transition: background-color 1000ms linear;
-	-moz-transition: background-color 1000ms linear;
-	-o-transition: background-color 1000ms linear;
-	-ms-transition: background-color 1000ms linear;
-	transition: background-color 1000ms linear;
-	transition: color 500ms linear;
-    -webkit-transition: color 500ms linear;
-	-moz-transition: color 500ms linear;
-	-o-transition: color 500ms linear;
-	-ms-transition: color 500ms linear;
-}
-
 /*
 #containerGameFiles2 ul li:active {
 	background: white;
@@ -307,7 +260,7 @@ table#field td{
    Then we position it in relation to the viewport window
    with position:fixed. Width, height, top and left speak
    for themselves. Background we set to 80% white with
-   our animation centered, and no-repeating */
+   our animation centered, and no-repeating
 .modal {
     display:    none;
     position:   fixed;
@@ -323,155 +276,14 @@ table#field td{
 }
 
 /* When the body has the loading class, we turn
-   the scrollbar off with overflow:hidden */
+   the scrollbar off with overflow:hidden
 body.loading {
     overflow: hidden;
 }
 
 /* Anytime the body has the loading class, our
-   modal element will be visible */
+   modal element will be visible
 body.loading .modal {
     display: block;
 }
-
-#publishContainer{
-    padding-top: 5px;
-}
-
-#inputPublishString{
-    margin: 10px;
-    padding: 5px;
-    width: 600px;
-    height: 25px;
-}
-
-#publishContainer #copyClipBoard{
-    margin: 10px 10px 10px 0px;
-    padding: 5px 5px 5px 0px;
-}
-
-#gameMenu{
-    margin-top:10px;
-    padding-top: 5px;
-}
-
-.myButton {
-    -moz-box-shadow:inset 0px 34px 0px -15px rgb(51, 51, 51);
-    -webkit-box-shadow:inset 0px 34px 0px -15px rgb(51, 51, 51);
-    box-shadow:inset 0px 34px 0px -15px rgb(51, 51, 51);
-    background-color:rgb(34, 34, 34);
-    border:1px solid #241d13;
-    display:inline-block;
-    cursor:pointer;
-    color:#ffffff;
-    font-family:Arial;
-    font-size:15px;
-    font-weight:bold;
-    padding:9px 23px;
-    text-decoration:none;
-    text-shadow:0px -1px 0px #7a2a1d;
-}
-.myButton:hover {
-    background-color: rgb(51, 51, 51);
-}
-.myButton:active {
-    position:relative;
-    top:1px;
-}
-
-
-/*Login Blackscreen*/
-.div_blackscreen{
-    z-index: 50;
-    position:fixed;
-    padding:0;
-    margin:0;
-    top:0;
-    left:0;
-    width: 100%;
-    height: 100%;
-    background:rgba(0,0,0,0.5);
-    display:none;
-}
-
-#unitSelection{
-	float:left;
-	width:500px;
-	padding-left:10px;
-}
-
-#showLoginPanel{
-	float:right;
-	height: 100%;
-}
-
-.gameList{
-	width: 100%;
-	height: 90px;
-	background: rgb(34, 34, 34);
-	box-shadow: 0px 0px 5px 5px grey;
-	border-radius: 3px;
-	color: white;
-	margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.gameList .gameListInner{
-    padding: 5px;
-}
-
-.gameList .gameListInner .date{
-	float:left;
-}
-
-.gameList .gameListInner .date{
-	width: 120px;
-    height: 80px;
-	background: rgb(51, 51, 51);
-	border-radius: 5px;
-    margin-right: 5px;
-}
-
-.gameList .gameListInner .user{
-    width:auto;
-    overflow:hidden;
-    height: 80px;
-	background: rgb(51, 51, 51);
-	border-radius: 5px;
-}
-
-.gameList::after{
-	clear:both;
-}
-
-.gameList .gameListInner .date span{
-	width: 100%;
-	float:left;
-	text-align: center;
-	font-weight: bold;
-}
-
-.gameList .gameListInner .date .day{
-	font-size: 40px;
-	margin-top: 12px;
-	margin-left: 22%;
-	vertical-align: middle;
-	width: 50%;
-	border: 1px solid white;
-	border-radius: 10px;
-}
-
-.gameList .gameListInner .date .month, .gameList .gameListInner .date .year{
-	margin-top: 5px;
-	font-size: 12px;
-    text-align: center;
-}
-
-.noLink{
-	color: black;
-	text-decoration: none;
-}
-
-.linkWhite{
-    color: white;
-}
+*/

@@ -10,5 +10,5 @@ namespace Anu;
 
 class answerService extends entryService
 {
-
+    protected $template = 'answer/index.twig';
 }

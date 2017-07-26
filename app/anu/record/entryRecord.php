@@ -25,7 +25,7 @@ class entryRecord extends baseRecord
         return array_merge(array(
             'slug'          => array(AttributeType::Mixed),
             'author_id'     => array(AttributeType::Number),
-            'enabled'       => array(AttributeType::Number),
+            'enabled'       => array(AttributeType::Bool),
         ), parent::defineAttributes());
 
     }

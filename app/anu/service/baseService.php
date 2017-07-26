@@ -394,9 +394,27 @@ class baseService implements \JsonSerializable
     /**
      * @param $entry baseModel
      */
-    public function renderForm($entry){
+    public function renderForm($entry = null){
+        if(!$entry){
+            $entry = Anu::getClassByName($this, "Model", true);
+        }
+
+        //store titles for modules...
+        foreach ($entry->defineAttributes() as $k => $v){
+            if($v[0] == AttributeType::Relation){
+                $entry->$k->storeTitles();
+            }
+
+            if($v[0] == AttributeType::Bool){
+                $entry->$k = (bool)$entry->$k;
+            }
+        }
+
         anu()->template->addJsCode('
             var entry = ' . json_encode($entry) . ';
+        ');
+        anu()->template->addJsCode('
+            var attributes = ' . json_encode($entry->defineAttributes()) . ';
         ');
         return anu()->template->render('forms/index.twig', array(
             'entry' => $entry,

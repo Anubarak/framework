@@ -53,8 +53,11 @@ class entryService extends baseService
 
             foreach ($entry->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
-                    if(isset($value['relatedTo'])){
+                    if($value[0] == AttributeType::Relation){
                         if(isset($entry->$key)){
+                            if(!isset($value['relatedTo'])){
+                                throw new Exception("Error: missing relatedTo Attribute in " . Anu::getClassName($this) . " Service");
+                            }
                             $relations = $this->getRelationsFromEntryByKey($entry, $key);
                             $relation = $value['relatedTo'];
                             foreach ($relations as $rel){
@@ -87,8 +90,11 @@ class entryService extends baseService
             foreach ($entry->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
                     //relations
-                    if(isset($value['relatedTo'])){
+                    if($value[0] == AttributeType::Relation){
                         if(isset($entry->$key)){
+                            if(!isset($value['relatedTo'])){
+                                throw new Exception("Error: missing relatedTo Attribute in " . Anu::getClassName($this) . " Service");
+                            }
                             $relation = $value['relatedTo'];
                             $relations = $this->getRelationsFromEntryByKey($entry, $key);
                             //delete prevoius relations if there are any

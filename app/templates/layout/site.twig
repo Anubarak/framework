@@ -1,14 +1,15 @@
 {% extends "layout/_layout.twig" %}
 
 {% block body %}
-        {% block header %}
-            {% include 'layout/partials/header.twig' %}
-        {% endblock %}
-
+    {% block header %}
+        {% include 'layout/partials/header.twig' %}
+    {% endblock %}
+    <div id="content">
         {% block content %}
 
 
         {% endblock %}
+    </div>
     {% block footer %}
         {% include 'layout/partials/footer.twig' %}
     {% endblock %}
