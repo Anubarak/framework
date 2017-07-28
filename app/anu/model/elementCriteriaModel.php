@@ -99,11 +99,19 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                 if(is_object($relations)){
                     $id = $relations->id;
                     $model = Anu::getClassName($relations);
-                    $where[anu()->$className->getTable() . '.' . anu()->$className->getPrimaryKey() . '[!]'] = $id;
                 }else{
                     $field = isset($relations['field'])? $relations['field'] : null;
-                    $id = isset($relations['id'])? $relations['id'] : null;
+                    $id = array_key_exists("id", $relations)? $relations['id'] : 0;
                     $model = isset($relations['model'])? $relations['model'] : null;
+                }
+
+                //if id of entry or index == null return nothing since there are no relations if there is no id
+                if($id === null){
+                    return array();
+                }
+
+                if($className == $model ){
+                    $where[anu()->$className->getTable() . '.' . anu()->$className->getPrimaryKey() . '[!]'] = $id;
                 }
 
                 if($field){
@@ -166,8 +174,8 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
     /**
      * @return array
      */
-    public function ids(){
-        return $this->find(null, true);
+    public function ids($attributes = null){
+        return $this->find($attributes, true);
     }
 
     /**

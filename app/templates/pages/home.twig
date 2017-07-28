@@ -2,12 +2,11 @@
 
 {% block content %}
 
-
-    {% set form = anu.answer.renderForm() %}
+    {% set form = anu.page.renderList() %}
     {{ form|raw }}
     <br><br><br><br>
 
-    <div>
+    <div style="display: none">
         <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
             <input type="hidden" name="action" value="action/home/save">
             <!--<input type="hidden" name="data[question_id]" value="1">-->
@@ -24,7 +23,6 @@
             <input type="text" name="data[correctAnswer]" value="2">
             <input type="button" ng-click="send()" value="senden">
         </form>
-    </div>
 
     <br>
     <br>
@@ -111,6 +109,7 @@
     {% set asset = anu.asset.getAssetById(6) %}
     <img src="{{ asset.getUrl() }}">
 
+    </div>
     {% includeJsFile 't'%}
     {% includeJsFile 't2'%}
     {% includeJsFile 't23'%}

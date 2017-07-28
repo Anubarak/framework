@@ -13,7 +13,7 @@ class baseModel implements \JsonSerializable
 {
 
     private $errors = null;
-    public $id = 0;
+    public $id = null;
 
     public function __construct(){
         $attributes = $this->defineAttributes();
@@ -55,6 +55,7 @@ class baseModel implements \JsonSerializable
      * @return bool
      */
     public function setData($data, $key = null){
+        if($data == null) return true;
         if(!is_array($data) && $key){
             if(array_key_exists($key, $this->defineAttributes())){
                 $this->$key = $data;

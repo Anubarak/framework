@@ -14,8 +14,10 @@ class pageModel extends entryModel
                 'table' => 'pages',
                 'field' => 'page_id',
                 'model' => 'page',
-            )),
+                'limit' => 1
+            ), 'parentChild' => true),
             'linkName'          => array(AttributeType::Mixed),
+            'position'          => array(AttributeType::Position, "relatedField" => 'parent_pid')
         ));
     }
 

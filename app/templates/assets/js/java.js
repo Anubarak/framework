@@ -2,14 +2,6 @@
  * Created by SECONDRED on 25.07.2017.
  */
 
-//Table
-$(document).ready(function(){
-    $('table.selectable tr').click(function(){
-        $(this).toggleClass('selected');
-    });
-});
-
-
 String.prototype.setTime = function(time){
     var target = this;
     alert(target);
@@ -23,6 +15,8 @@ String.prototype.replaceAll = function(search, replacement) {
 
 var showNotification = function (message, notificationClass) {
     var container = $("#notifications").children().first();
+    console.log(message);
+    console.log(notificationClass);
     container.text(message);
     container.toggleClass(notificationClass).fadeIn(800, function(){
         setTimeout(function(){
@@ -127,4 +121,4 @@ var datepickerOptions = {
         dayNamesMin: ["S","M","D","M","D","F","S"],
         monthNames: ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
         monthNamesShort: ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"]
-}
+};

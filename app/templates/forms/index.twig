@@ -1,6 +1,3 @@
-<script type="text/javascript">
-
-</script>
 <div ng-controller="entryController{{ entry.id }}">
     {% set class = class(entry) %}
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="{{ class }}{{ entry.id }}Form">
@@ -74,11 +71,15 @@
             opacity: '0.8',
             axis: 'y',
             tolerance: 'pointer',
-        }
+        };
 
         $scope.relationTableToggleSelected = function(key, id){
+            console.log(key);
+            console.log(id);
+            console.log($scope.classes[key][id]);
             if(typeof $scope.classes[key][id] === "undefined" ){
                 $scope.classes[key][id] = false;
+                console.log("crash");
             }
             $scope.classes[key][id] = !$scope.classes[key][id];
         };
@@ -152,6 +153,7 @@
         }
 
         $scope.addRelation = function($id, relation){
+            console.log($id + " " + relation);
             var rows = $("#"+$id).find('.selected');
             var newRelations = [];
             var arrIds = [];

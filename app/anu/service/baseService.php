@@ -149,21 +149,22 @@ class baseService implements \JsonSerializable
         if($model->setData($data)){
             $attributes = $model->defineAttributes();
             foreach ($attributes as $k => $v){
-                if(isset($v['relatedTo'], $data[$k])){
+                if($v[0] == AttributeType::Relation && isset($v['relatedTo'])){
                     if($relation = $v['relatedTo']){
-                        if(!is_array($data[$k])){
+                        /*if(!is_array($data[$k])){
                             $data[$k] = explode(",", $data[$k]);
                         }
-                        $data[$k] = array_unique($data[$k]);
+                        $data[$k] = array_unique($data[$k]);*/
                         $class = $relation['model'];
                         $criteriaModel = new elementCriteriaModel(anu()->$class);
-                        $criteriaModel->storeIds($data[$k]);
-                        $id = isset($model->id) ? $model->id : 0;
+                        $id = isset($model->id) ? $model->id : null;
                         $criteriaModel->relatedTo  = array(
                             'field' => $k,
                             'id'    => $id,
                             'model' => Anu::getClassName($this)
                         );
+                        $ids = $criteriaModel->ids();
+                        $criteriaModel->storeIds($ids);
                         $model->$k = $criteriaModel;
                     }
                 }
@@ -197,24 +198,25 @@ class baseService implements \JsonSerializable
      * @param null $parentTable
      * @return array
      */
-    public function iterateDBSelect($attributes, $parentTable, &$join = array(), &$where = array()){
+    public function iterateDBSelect($attributes, $parentTable){
         $select = array();
         $primaryKey = $this->primary_key;
 
         $select[] = $parentTable . "." . $primaryKey . "(id)";
         foreach ($attributes as $k => $v){
             if(isset($v['relatedTo'])){
+                /*
                 $relation = $v['relatedTo'];
                 if(is_array($relation)){
                     if(isset($relation['table'], $relation['field'])){
-                        $select[] = '#GROUP_CONCAT(relation' . count($join) . ' .id_2 SEPARATOR \',\') as ' . $k;
+                        /*$select[] = '#GROUP_CONCAT(relation' . count($join) . ' .id_2 SEPARATOR \',\') as ' . $k;
                         $where['relation' . count($join) . '.field_1'] = $k;
                         $where['relation' . count($join) . '.field_2'] = $relation['field'];
                         $where['relation' . count($join) . '.model_1'] = Anu::getClassName($this);
                         $where['relation' . count($join) . '.model_2'] = $relation['model'];
-                        $join["[>]relation(relation" . count($join) . ")"] = array($this->table . "." . $this->primary_key => 'id_1');
-                    }
-                }
+                        $join["[>]relation(relation" . count($join) . ")"] = array($this->table . "." . $this->primary_key => 'id_1');*/
+                    /*}
+                }*/
             }elseif(!isset($v['ignoreInDatabase'])){
                 $select[] = $parentTable . "." . $k;
             }
@@ -357,9 +359,9 @@ class baseService implements \JsonSerializable
     /**
      * @param $attributes
      */
-    public function find($attributes = null){
+    public function find($attributes = null, $onlyIds = false){
         $criteria = new elementCriteriaModel($this);
-        return $criteria->find($attributes);
+        return $criteria->find($attributes, $onlyIds);
     }
 
 
@@ -369,6 +371,17 @@ class baseService implements \JsonSerializable
      * @param $attributes
      */
     public function changePositions($element, $key,  $attributes){
+
+        //TODO: check for children... this is suspicious <.<
+        $children = null;
+        if($attributes){
+            if(is_array($element->$attributes) && $element->$attributes[0]){
+                $parentId = $element->$attributes[0];
+                $parent = $this->getElementById($parentId);
+                $children = $this->find(['relatedTo' => $parent, $this->primary_key.'[!]' => $element->id], true);
+            }
+        }
+
         $where = array();
         if(isset($attributes['relatedField'])){
             $field = $attributes['relatedField'];
@@ -397,15 +410,17 @@ class baseService implements \JsonSerializable
     public function renderForm($entry = null){
         if(!$entry){
             $entry = Anu::getClassByName($this, "Model", true);
+            //just to add relationModels
+            $this->populateModel(null, $entry);
         }
 
         //store titles for modules...
         foreach ($entry->defineAttributes() as $k => $v){
-            if($v[0] == AttributeType::Relation){
+            if($v[0] == AttributeType::Relation && $entry->$k){
                 $entry->$k->storeTitles();
             }
 
-            if($v[0] == AttributeType::Bool){
+            if($v[0] == AttributeType::Bool && $entry->$k){
                 $entry->$k = (bool)$entry->$k;
             }
         }
@@ -416,9 +431,35 @@ class baseService implements \JsonSerializable
         anu()->template->addJsCode('
             var attributes = ' . json_encode($entry->defineAttributes()) . ';
         ');
+
         return anu()->template->render('forms/index.twig', array(
             'entry' => $entry,
             'attributes' => $entry->defineAttributes()
+        ));
+    }
+
+    /**
+     * @param $entry baseModel
+     */
+    public function renderList(){
+        $className = Anu::getClassName($this);
+        $entries = anu()->$className->find();
+        $model = Anu::getClassByName($className, "Model", true);
+        $attributes = $model->defineAttributes();
+        foreach ($entries as $entry){
+            $entry->children = array();
+        }
+
+        anu()->template->addJsCode('
+            var entries = ' . json_encode($entries) . ';
+        ');
+        anu()->template->addJsCode('
+            var attributes = ' . json_encode($attributes) . ';
+        ');
+        return anu()->template->render('lists/index.twig', array(
+            'entries'       => $entries,
+            'attributes'    => $attributes,
+            'list'          => $className
         ));
     }
 }

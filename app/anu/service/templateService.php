@@ -26,6 +26,7 @@ class templateService
     private $js_files   = array();
     private $css_files   = array();
     private $js_code    =  array();
+    private $notice = array();
 
 
     public function init(){
@@ -80,6 +81,36 @@ class templateService
     private function _combineJs($js)
     {
         return implode("\n\n", $js);
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getNotice(){
+        if(is_array($this->notice) && isset($this->notice['message'], $this->notice['level'])){
+            $this->addJsCode('showNotification("' . $this->notice['message'] . '" , "' . $this->notice['level'] . '");');
+        }
+        return isset($this->notice['message'])? $this->notice['message'] : '';
+
+    }
+
+    /**
+     * Set notice
+     *
+     * @param $message
+     * @param string $level
+     * @return bool
+     */
+    public function setNotice($message, $level = 'notice'){
+        if($message){
+            $this->notice = array(
+                'message'   => $message,
+                'level'     => $level
+            );
+            return true;
+        }
+        return false;
     }
 
     /**

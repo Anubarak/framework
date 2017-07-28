@@ -50,23 +50,23 @@ class entryService extends baseService
             $data = $entry->getData();
             $values = array();
             $relationsToSave = array();
-
-            foreach ($entry->defineAttributes() as $key => $value){
+            $attributes = $entry->defineAttributes();
+            foreach ($attributes as $key => $value){
                 if($data[$key] !== 'now()'){
-                    if($value[0] == AttributeType::Relation){
-                        if(isset($entry->$key)){
-                            if(!isset($value['relatedTo'])){
+                    if($value[0] == AttributeType::Relation) {
+                        if (isset($entry->$key)) {
+                            if (!isset($value['relatedTo'])) {
                                 throw new Exception("Error: missing relatedTo Attribute in " . Anu::getClassName($this) . " Service");
                             }
                             $relations = $this->getRelationsFromEntryByKey($entry, $key);
                             $relation = $value['relatedTo'];
-                            foreach ($relations as $rel){
+                            foreach ($relations as $rel) {
                                 $relationsToSave[] = $this->getRelationData($relation, $key, $rel);
                             }
-                        }
-                    }else{
-                        if(array_key_exists($key, $recordAttributes)){
-                            $values[$key] = $entry->$key;
+                        }else{
+                            if(array_key_exists($key, $recordAttributes)){
+                                $values[$key] = $entry->$key;
+                            }
                         }
                     }
                 }else{
@@ -87,7 +87,8 @@ class entryService extends baseService
         }else{
             $data = $entry->getData();
             $values = array();
-            foreach ($entry->defineAttributes() as $key => $value){
+            $attributes = $entry->defineAttributes();
+            foreach ($attributes as $key => $value){
                 if($data[$key] !== 'now()'){
                     //relations
                     if($value[0] == AttributeType::Relation){
@@ -109,6 +110,8 @@ class entryService extends baseService
                                 anu()->database->insert('relation', $this->getRelationData($relation, $key, $rel, $entry->id));
                             }
                         }
+                    }elseif($value[0] == AttributeType::Position){
+                        $this->changePositions($entry, $key, $value['relatedField']);
                     }
                     if(array_key_exists($key, $recordAttributes)){
                         $values[$key] = $entry->$key;
@@ -152,16 +155,12 @@ class entryService extends baseService
         $this->id = $entryId;
         if($model = Anu::getClassByName($this, 'Model', true)){
             $attributes = $model->defineAttributes();
-            $join = array();
             $where = array();
-            $select = $this->iterateDBSelect($attributes, $this->table, $join, $where);
+            $select = $this->iterateDBSelect($attributes, $this->table);
 
             $where[$this->table . "." . $this->primary_key] = $entryId;
-            if($join){
-                $row = anu()->database->get($this->table, $join, $select, $where);
-            }else{
-                $row = anu()->database->get($this->table, $select, $where);
-            }
+
+            $row = anu()->database->get($this->table, $select, $where);
 
             if($row){
                 return $this->populateModel($row, $model);

@@ -26,6 +26,17 @@ class entryController extends baseController
     }
 
 
+    public function saveTree(){
+        $entry = anu()->request->getValue('entry');
+        $parentId = anu()->request->getValue('parentId');
+        $entry->parent_pid = array($parentId);
+        $className = $entry->class;
+        if(!anu()->$className->saveEntry($entry)){
+            $this->returnJson($entry->getErrors());
+        }
+        $this->returnJson(true);
+    }
+
     /**
      * save entry
      */

@@ -57,7 +57,14 @@ class baseController
         //$matrix = anu()->matrix->getMatrixById(4);
         //$matrix->position = 0;
         //anu()->matrix->saveMatrix($matrix);
+        //anu()->record->deleteRecord('page');
+        /*$success = anu()->record->installRecord('page');
 
+        if($success){
+            anu()->template->setNotice('success');
+        }else{
+            anu()->template->setNotice("could not install Record", 'error');
+        }*/
         anu()->template->render('pages/home.twig', array(
             'title'       => "test Title",
             'headline'    => "headline",

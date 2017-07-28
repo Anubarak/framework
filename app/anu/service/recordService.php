@@ -106,7 +106,7 @@ class recordService
         if($items){
             $success = anu()->database->action(function($database){
                 anu()->database->query("
-                    CREATE TABLE `" . $this->record->getTableName() . "` ( " . $this->items . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;"
+                    CREATE TABLE `" . $this->record->getTableName() . "` ( " . $this->items . ") ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;"
                 );
 
                 $errors = anu()->database->error();
@@ -127,7 +127,7 @@ class recordService
                                         ADD PRIMARY KEY (`' . $k . '`);
                                 ');
 
-                                anu()->database->debugError();
+                                //anu()->database->debugError();
                                 if($errors){
                                     return false;
                                 }
@@ -138,7 +138,7 @@ class recordService
                                         MODIFY `' . $k . '` int(11) NOT NULL AUTO_INCREMENT
                                 ');
 
-                                $errors = anu()->database->error();
+                                //$errors = anu()->database->error();
                                 if($errors){
                                     return false;
                                 }
@@ -149,7 +149,7 @@ class recordService
                                         ADD UNIQUE (`' . $k . '`);
                                 ');
 
-                                $errors = anu()->database->error();
+                                //$errors = anu()->database->error();
                                 if($errors){
                                     return false;
                                 }
@@ -159,7 +159,7 @@ class recordService
                     }
                 }
             });
-
+            //anu()->database->debugError();
             if($success && !$ignoreRecordTable){
                 anu()->database->insert('records', array(
                     'name' => $this->record->getTableName(),
@@ -174,7 +174,7 @@ class recordService
     /**
      * @param $record array
      */
-    public function deleteRecord($record, $blub){
+    public function deleteRecord($record){
         if(is_string($record)){
             $record = $this->getRecordByName($record);
             if($record){
@@ -189,6 +189,12 @@ class recordService
             anu()->database->query('DROP TABLE . ' . $record['table_name']);
             anu()->database->debugError();
             anu()->database->delete('records', array('id' => $id));
+            anu()->database->delete('relation', array(
+                'OR'    => array(
+                   'model_1'    => $record['name'],
+                   'model_2'    => $record['name']
+                )
+            ));
             //anu()->database->debugError();
             return true;
         }else{

@@ -19,6 +19,7 @@ class pageRecord extends entryRecord
         return array_merge(array(
             'page_id'   => array(AttributeType::Number ),
             'linkName'  => array(AttributeType::Mixed),
+            'position'  => array(AttributeType::Number),
         ), parent::defineAttributes());
     }
 

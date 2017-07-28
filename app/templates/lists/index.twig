@@ -1,0 +1,177 @@
+<div ng-controller="listController" class="form-group">
+    <div class="floatleft">
+        <tg-dynamic-directive ng-model="rootItem" tg-dynamic-directive-view="getView">
+        </tg-dynamic-directive>
+        <div style="clear: both;"></div>
+    </div>
+
+    <input type="button" class="btn btn-default pull-right" ng-click="send()" value="senden">
+
+    <script type="text/ng-template" id="nestable_item.html">
+        <div>
+            {[{ngModelItem.title}]}
+            <ul class="apps-container" data-id="{[{ngModelItem.id}]}" ui-sortable="sortableOptions" ng-model="ngModelItem.children" style="border: 1px dashed blue;padding-bottom: 10px;">
+                <li class="" ng-repeat="innerItem in ngModelItem.children">
+                    <tg-dynamic-directive ng-model="innerItem" tg-dynamic-directive-view="getView">
+                    </tg-dynamic-directive>
+                </li>
+            </ul>
+        </div>
+    </script>
+</div>
+
+<script type="text/javascript">
+    var test = null;
+
+    function treeify(list, idAttr, parentAttr, childrenAttr) {
+        if (!idAttr) idAttr = 'id';
+        if (!parentAttr) parentAttr = 'parent';
+        if (!childrenAttr) childrenAttr = 'children';
+        var treeList = [];
+        var lookup = {};
+        list.forEach(function(obj) {
+            lookup[obj[idAttr]] = obj;
+            obj[childrenAttr] = [];
+        });
+        list.forEach(function(obj) {
+            if (obj[parentAttr] != null) {
+                lookup[obj[parentAttr]][childrenAttr].push(obj);
+            } else {
+                treeList.push(obj);
+            }
+        });
+        return treeList;
+    };
+
+
+    myApp.controller('listController', ['$scope','$http', function($scope,$http) {
+
+        $scope.init = function(){
+            $scope.entries = [];
+            if(typeof entries !== undefined){
+                var myEntries = [];
+                //create object with id => entryId
+                angular.forEach(entries, function(item){
+                    item.parent = (item.parent_pid.ids.length)? item.parent_pid.ids[0] : null;
+                    myEntries.push(item);
+                });
+                $scope.entries = treeify(myEntries);
+            }
+        };
+
+        $scope.send = function(model, parentId, position){
+            $http({
+                method: 'POST',
+                url: '',
+                data: {
+                    action: "entry/saveTree", entry: model, parentId: parentId, position: position
+                }
+            }).then(function successCallback(response) {
+                console.log(response.data);
+                if(response.data === "true"){
+                    showNotification('Der Eintrag wurde erfolgreich gespeichert', 'notice');
+                }else{
+                    showNotification('Fehler beim Speichern des Eintrags', 'error');
+                }
+                // this callback will be called asynchronously
+                // when the response is available
+            }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+            });
+        }
+
+
+        var tmpList = [];
+
+        $scope.init();
+        $scope.rootItem = {
+            title: '{{ list }}',
+            children: $scope.entries
+        };
+        console.log($scope);
+
+        $scope.sortableOptions = {
+            opacity: '0.8',
+            tolerance: 'pointer',
+            //connectWith: ".sortable",
+            connectWith: ".apps-container",
+            update: function(e, ui){
+                if (this === ui.item.parent()[0]) {
+                    var position = ui.item.sortable.dropindex;
+                    var parentId = $(ui.item.sortable.droptarget[0]).data('id');
+                    var model = ui.item.sortable.model;
+                    $scope.send(model, parentId, position);
+                }
+            }
+        };
+
+        $scope.getView = function (item) {
+            /*
+             you can return a different url
+             to load a different template dynamically
+             based on the provided item
+             */
+            if (item) {
+                return 'nestable_item.html';
+            }
+            return null;
+        };
+
+
+        test = $scope;
+    }]);
+</script>
+
+<!--
+$( ".list-group" ).sortable({
+      connectWith: ".list-group"
+    }).disableSelection();
+
+-->
+
+{#
+<ul class="list-group"  ng-model="relations['{{key}}']" >
+        <li class="list-group-item" >
+            test
+            <a href=""  ng-click="removeRelation(x, '{{ key }}')">
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </a>
+        </li>
+        <div style="padding-left: 100px">
+            <ul class="list-group">
+                <li class="list-group-item" >
+                    test
+                    <a href=""  ng-click="removeRelation(x, '{{ key }}')">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li class="list-group-item" >
+                    test
+                    <a href=""  ng-click="removeRelation(x, '{{ key }}')">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <li class="list-group-item" >
+            test
+            <a href=""  ng-click="removeRelation(x, '{{ key }}')">
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </a>
+        </li>
+        <li class="list-group-item" >
+            test
+            <a href=""  ng-click="removeRelation(x, '{{ key }}')">
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </a>
+        </li>
+        <li class="list-group-item" >
+            test
+            <a href=""  ng-click="removeRelation(x, '{{ key }}')">
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+
+#}

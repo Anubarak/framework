@@ -119,6 +119,10 @@ class Anu
         return Anu::$paths['pluginServiceDirectory'];
     }
 
+    public static function notice($message, $level = "notice"){
+
+    }
+
 
     /**
      * @param $class
