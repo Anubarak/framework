@@ -28,8 +28,25 @@ class entryController extends baseController
 
     public function saveTree(){
         $entry = anu()->request->getValue('entry');
-        $parentId = anu()->request->getValue('parentId');
-        $entry->parent_pid = array($parentId);
+        $data = (array)anu()->request->getValue('data');
+
+        $parentId = $data['parentId'];
+        $position = $data['position'];
+        $oldPosition = $data['oldPosition'];
+        $oldIds = isset($data['sourceIds'])? $data['sourceIds'] : null;
+        $attributes = $entry->defineAttributes();
+        foreach ($attributes as $k => $v){
+            if($v[0] == AttributeType::Position){
+                $entry->$k = $position;
+                $entry->oldPosition = $oldPosition;
+                $entry->oldIds = $oldIds;
+                if(array_key_exists("relatedField", $v)){
+                    $key = $v['relatedField'];
+                    $entry->$key = array($parentId);
+                }
+            }
+        }
+
         $className = $entry->class;
         if(!anu()->$className->saveEntry($entry)){
             $this->returnJson($entry->getErrors());
@@ -44,11 +61,11 @@ class entryController extends baseController
         if($this->isAjaxRequest()){
             $entry = anu()->request->postVar('entry');
             $class = $entry->class;
-            if(!anu()->$class->saveEntry($entry)){
+            if(!$id = anu()->$class->saveEntry($entry)){
                 $this->returnJson($entry->getErrors());
             }
 
-            $this->returnJson(true);
+            $this->returnJson(array('success' => true, 'id' => $id));
         }
         //craft()->question->deleteEntry($question);
     }

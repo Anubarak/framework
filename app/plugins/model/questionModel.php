@@ -26,6 +26,7 @@ class questionModel extends entryModel
             'correctAnswer' => array(AttributeType::Number),
             'pointsPlus'    => array(AttributeType::Number),
             'pointsMinus'   => array(AttributeType::Number),
+            'position'      => array(AttributeType::Position)
         ));
     }
 

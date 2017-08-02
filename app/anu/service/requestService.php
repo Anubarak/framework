@@ -86,7 +86,6 @@ class requestService
                 }
             }
             $this->angularRequest->entry = $entry;
-
         }
     }
 

@@ -24,6 +24,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
 
     private $service = null;
     private $class = null;
+    private $order = null;
 
     /**
      * @return array
@@ -44,6 +45,14 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
             throw new \Exception("Parameter must be kind of Service");
         }
         $this->service = $service;
+        $model = Anu::getClassByName($service, "Model", true);
+        $attributes = $model->defineAttributes();
+        foreach ($attributes as $k => $v){
+            if($v[0] == AttributeType::Position){
+                $this->order = $k;
+                break;
+            }
+        }
     }
 
     /**
@@ -73,6 +82,9 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
         foreach ($this->attributes as $k => $v){
             $where[$k] = $v;
         }
+        if($where['enabled'] === 'all'){
+            unset($where['enabled']);
+        }
 
         $entries = array();
         foreach ($tables as $record){
@@ -81,18 +93,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
             $select = array();
             $select[] = anu()->$className->getPrimaryKey() . '(id)';
             if($relations){
-                $join = array(
-                    '[>]relation(relation1)' => array(
-                        anu()->$className->getPrimaryKey() => 'id_1'
-                    ),
-                    '[>]relation(relation2)' => array(
-                        anu()->$className->getPrimaryKey() => 'id_2'
-                    )
-                );
-                $whereFirstTable = array();
-                $whereSecondTable = array();
-                $whereThirdTable = array();
-                $whereFourthTable = array();
+
                 $id = null;
                 $field = null;
                 $model = null;
@@ -110,39 +111,79 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                     return array();
                 }
 
-                if($className == $model ){
-                    $where[anu()->$className->getTable() . '.' . anu()->$className->getPrimaryKey() . '[!]'] = $id;
-                }
+                if($id !== 'nothing'){
+                    $join = array(
+                        '[>]relation(relation1)' => array(
+                            anu()->$className->getPrimaryKey() => 'id_1'
+                        ),
+                        '[>]relation(relation2)' => array(
+                            anu()->$className->getPrimaryKey() => 'id_2'
+                        )
+                    );
+                    $whereFirstTable = array();
+                    $whereSecondTable = array();
+                    $whereThirdTable = array();
+                    $whereFourthTable = array();
 
-                if($field){
-                    $whereFirstTable['relation1.field_1'] = $field;
-                    $whereSecondTable['relation2.field_2'] = $field;
-                    $whereThirdTable['relation1.field_2'] = $field;
-                    $whereFourthTable['relation2.field_1'] = $field;
-                }
 
-                if($id){
-                    $whereFirstTable['relation1.id_1'] = $id;
-                    $whereSecondTable['relation2.id_2'] = $id;
-                    $whereThirdTable['relation1.id_2'] = $id;
-                    $whereFourthTable['relation2.id_1'] = $id;
-                }
+                    if($className == $model ){
+                        $where[anu()->$className->getTable() . '.' . anu()->$className->getPrimaryKey() . '[!]'] = $id;
+                    }
 
-                if($model){
-                    $whereFirstTable['relation1.model_1'] = $model;
-                    $whereSecondTable['relation2.model_2'] = $model;
-                    $whereThirdTable['relation1.model_2'] = $model;
-                    $whereFourthTable['relation2.model_1'] = $model;
-                }
+                    if($field){
+                        $whereFirstTable['relation1.field_1'] = $field;
+                        $whereSecondTable['relation2.field_2'] = $field;
+                        $whereThirdTable['relation1.field_2'] = $field;
+                        $whereFourthTable['relation2.field_1'] = $field;
+                    }
 
-                $where['OR # joins'] = array(
-                    'AND # first' => $whereFirstTable,
-                    'AND # second' => $whereSecondTable,
-                    'AND # third' => $whereThirdTable,
-                    'AND # fourth' => $whereFourthTable
-                );
+                    if($id !== null){
+                        $whereFirstTable['relation1.id_1'] = $id;
+                        $whereSecondTable['relation2.id_2'] = $id;
+                        $whereThirdTable['relation1.id_2'] = $id;
+                        $whereFourthTable['relation2.id_1'] = $id;
+                    }
+
+                    if($model){
+                        $whereFirstTable['relation1.model_1'] = $model;
+                        $whereSecondTable['relation2.model_2'] = $model;
+                        $whereThirdTable['relation1.model_2'] = $model;
+                        $whereFourthTable['relation2.model_1'] = $model;
+                    }
+
+                    $where['OR # joins'] = array(
+                        'AND # first' => $whereFirstTable,
+                        'AND # second' => $whereSecondTable,
+                        'AND # third' => $whereThirdTable,
+                        'AND # fourth' => $whereFourthTable
+                    );
+                }else{
+                    $relationTable = anu()->database->select('relation', 'id_1', array(
+                        'field_1'   => $field,
+                        'model_1'   => $model
+                    ));
+
+                    if(array_key_exists($this->service->getPrimaryKey(). '[!]', $where)){
+                        $key = $this->service->getPrimaryKey(). '[!]';
+                        if(is_array($where[$key])){
+                            foreach ($relationTable as $rel){
+                                $where[$key][] = $rel;
+                            }
+                        }else{
+                            $tmp = $where[$key];
+                            $where[$key] = $relationTable;
+                            $where[$key][] = $tmp;
+                        }
+                    }else{
+                        $where[$this->service->getPrimaryKey(). '[!]'] = $relationTable;
+                    }
+
+                }
             }
 
+            if($this->order !== null){
+                $where['ORDER'] = $this->order;
+            }
             if($join){
                 $rows = anu()->database->select(anu()->$className->getTable(), $join, $select , $where);
             }else{
@@ -150,6 +191,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
             }
 
             $rows = array_unique($rows,SORT_REGULAR);
+
             //anu()->database->debugError();
             if($rows){
                 foreach ($rows as $row){
@@ -183,11 +225,29 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
      *
      * @return entryModel
      */
-    public function first(){
+    public function first($attributes = null){
         $limit = $this->LIMIT;
         $this->LIMIT = 1;
-        $element = $this->find();
+        $element = $this->find($attributes);
         $this->LIMIT = $limit;
+        return $element[0];
+    }
+
+
+    /**
+     * Get First found Element from CriteriaModel
+     *
+     * @return entryModel
+     */
+    public function last($attributes = null){
+        $order = $this->order;
+        $this->order = array($order => "DESC");
+        $limit = 1;//property_exists($this, 'LIMIT')? $this->LIMIT : 100;
+        $this->LIMIT = 1;
+        $element = $this->find($attributes);
+
+        $this->LIMIT = $limit;
+        $this->order = $order;
         return $element[0];
     }
 

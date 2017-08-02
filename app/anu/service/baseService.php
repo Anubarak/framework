@@ -366,41 +366,61 @@ class baseService implements \JsonSerializable
 
 
     /**
-     * @param $element
-     * @param $key
-     * @param $attributes
+     * @param $element      baseModel|entryModel
+     * @param $key          string
+     * @param $attributes   array
      */
-    public function changePositions($element, $key,  $attributes){
-
-        //TODO: check for children... this is suspicious <.<
+    public function changePositions($element, $field,  $parentfield){
         $children = null;
-        if($attributes){
-            if(is_array($element->$attributes) && $element->$attributes[0]){
-                $parentId = $element->$attributes[0];
-                $parent = $this->getElementById($parentId);
-                $children = $this->find(['relatedTo' => $parent, $this->primary_key.'[!]' => $element->id], true);
-            }
-        }
-
         $where = array();
-        if(isset($attributes['relatedField'])){
-            $field = $attributes['relatedField'];
-            $where[$field] = $element->$field;
-        }
+        $newPosition = $element->$field;
+        $oldPosition = anu()->database->get($this->getTable(), $field, array($this->primary_key => $element->id));
+        $attributes = $element->defineAttributes();
+        if($parentfield){
+            if($attributes[$parentfield][0] == AttributeType::Relation){
+                //relation
+                if(is_array($element->$parentfield) && $element->$parentfield[0]){
+                    $parentId = $element->$parentfield[0];
+                    $parent = $this->getElementById($parentId);
+                    $children = $this->find(['relatedTo' => $parent, $this->primary_key.'[!]' => $element->id], true);
+                }else{
+                    //find entries related to nothing...
+                    $children = $this->find([
+                        'relatedTo' => array(
+                            'field' => $parentfield,
+                            'id'    => 'nothing',
+                            'model' => Anu::getClassName($this)
+                    ), $this->primary_key.'[!]' => $element->id], true);
+                }
 
-        //get Old Position of element
-        $oldPosition = anu()->database->get($this->getTable(), 'position', array($this->primary_key => $element->id));
-        //Todo: check new Entry
-        $newPosition = $element->$key;
-
-        if($oldPosition > $newPosition){
-            $where[$key . "[<=]"] = $oldPosition;
-            $where[$key . "[>=]"] = $newPosition;
-            anu()->database->update($this->getTable(), array("#".$key => "$key+1"), $where);
+                $where[$this->primary_key] = $children;
+            }else{
+                //just normal int field relation...
+                //TODO check this....
+                $where[$parentfield] = $element->$parentfield;
+            }
         }else{
-            $where[$key . "[>=]"] = $oldPosition;
-            $where[$key . "[<=]"] = $newPosition;
-            anu()->database->update($this->getTable(), array("#".$key => "$key-1"), $where);
+            $where[$this->primary_key . "[!]"] = $element->id;
+        }
+        $isInsert = false;
+        if(property_exists($element, 'oldIds') && property_exists($element, 'oldPosition') && $element->oldIds !== null){
+            $isInsert = true;
+            anu()->database->update($this->getTable(), array("#".$field => "$field-1"), array(
+                $this->primary_key => $element->oldIds,
+                $field . "[>=]" => $element->oldPosition
+            ));
+        }
+        //TODO check unterseiten change
+        if(($oldPosition > $newPosition) || $isInsert){
+            if(!$isInsert){
+                $where[$field . "[<=]"] = $oldPosition;
+            }
+            $where[$field . "[>=]"] = $newPosition;
+            anu()->database->update($this->getTable(), array("#".$field => "$field+1"), $where);
+        }else{
+            $where[$field . "[<=]"] = $newPosition;
+            $where[$field . "[>=]"] = $oldPosition;
+            anu()->database->update($this->getTable(), array("#".$field => "$field-1"), $where);
         }
     }
 
@@ -443,7 +463,7 @@ class baseService implements \JsonSerializable
      */
     public function renderList(){
         $className = Anu::getClassName($this);
-        $entries = anu()->$className->find();
+        $entries = anu()->$className->find(['enabled' => 'all']);
         $model = Anu::getClassByName($className, "Model", true);
         $attributes = $model->defineAttributes();
         foreach ($entries as $entry){
@@ -451,10 +471,16 @@ class baseService implements \JsonSerializable
         }
 
         anu()->template->addJsCode('
-            var entries = ' . json_encode($entries) . ';
+            if(typeof entries === "undefined"){
+                var entries = {};
+            }
+            entries["' . $className .  '"] = ' . json_encode($entries) . ';
         ');
         anu()->template->addJsCode('
-            var attributes = ' . json_encode($attributes) . ';
+            if(typeof attributes === "undefined"){
+                var attributes = {};
+            }
+            attributes["' . $className .  '"] = ' . json_encode($attributes) . ';
         ');
         return anu()->template->render('lists/index.twig', array(
             'entries'       => $entries,

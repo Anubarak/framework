@@ -53,27 +53,41 @@ class entryService extends baseService
             $attributes = $entry->defineAttributes();
             foreach ($attributes as $key => $value){
                 if($data[$key] !== 'now()'){
-                    if($value[0] == AttributeType::Relation) {
-                        if (isset($entry->$key)) {
-                            if (!isset($value['relatedTo'])) {
-                                throw new Exception("Error: missing relatedTo Attribute in " . Anu::getClassName($this) . " Service");
+                    switch ($value[0]){
+                        case AttributeType::Relation:
+                            if (property_exists($entry, $key)) {
+                                if (!isset($value['relatedTo'])) {
+                                    throw new Exception("Error: missing relatedTo Attribute in " . Anu::getClassName($this) . " Service");
+                                }
+                                $relations = $this->getRelationsFromEntryByKey($entry, $key);
+                                $relation = $value['relatedTo'];
+                                foreach ($relations as $rel) {
+                                    $relationsToSave[] = $this->getRelationData($relation, $key, $rel);
+                                }
                             }
-                            $relations = $this->getRelationsFromEntryByKey($entry, $key);
-                            $relation = $value['relatedTo'];
-                            foreach ($relations as $rel) {
-                                $relationsToSave[] = $this->getRelationData($relation, $key, $rel);
+                            break;
+                        case AttributeType::Position:
+                            $relatedField = $value['relatedField'];
+                            if(!$entry->$relatedField || count($entry->$relatedField) == 0){
+                                //no relation.. just get last one and increase by one...
+                                $position = $this->setNewPosition($key, $relatedField);
+                                $entry->$key = $position;
+                            }else{
+                                $parent = $this->getEntryById($entry->$relatedField[0]);
+                                $entry->$key = $parent->$key + 1;
                             }
-                        }else{
+                            $values[$key] = $entry->$key;
+                            break;
+                        default:
                             if(array_key_exists($key, $recordAttributes)){
                                 $values[$key] = $entry->$key;
                             }
-                        }
+                            break;
                     }
                 }else{
                     $values["#".$key] = $data[$key];
                 }
             }
-
             anu()->database->insert($this->table, $values);
             $id = anu()->database->id();
             $entry->id = $id;
@@ -91,30 +105,47 @@ class entryService extends baseService
             foreach ($attributes as $key => $value){
                 if($data[$key] !== 'now()'){
                     //relations
-                    if($value[0] == AttributeType::Relation){
-                        if(isset($entry->$key)){
-                            if(!isset($value['relatedTo'])){
-                                throw new Exception("Error: missing relatedTo Attribute in " . Anu::getClassName($this) . " Service");
-                            }
-                            $relation = $value['relatedTo'];
-                            $relations = $this->getRelationsFromEntryByKey($entry, $key);
-                            //delete prevoius relations if there are any
-                            $className = Anu::getClassName($this);
-                            anu()->database->delete('relation', array(
-                                'field_1'   => $key,
-                                'model_1'   => $className,
-                                'id_1'      => $entry->id
-                            ));
+                    switch ($value[0]){
+                        case AttributeType::Relation:
+                            if(property_exists($entry, $key)){
+                                if(!isset($value['relatedTo'])){
+                                    throw new Exception("Error: missing relatedTo Attribute in " . Anu::getClassName($this) . " Service");
+                                }
+                                $relation = $value['relatedTo'];
+                                $relations = $this->getRelationsFromEntryByKey($entry, $key);
+                                //delete prevoius relations if there are any
+                                $className = Anu::getClassName($this);
+                                anu()->database->delete('relation', array(
+                                    'field_1'   => $key,
+                                    'model_1'   => $className,
+                                    'id_1'      => $entry->id
+                                ));
 
-                            foreach ($relations as $rel){
-                                anu()->database->insert('relation', $this->getRelationData($relation, $key, $rel, $entry->id));
+                                foreach ($relations as $rel){
+                                    if($rel){
+                                        anu()->database->insert('relation', $this->getRelationData($relation, $key, $rel, $entry->id));
+                                    }
+                                }
                             }
-                        }
-                    }elseif($value[0] == AttributeType::Position){
-                        $this->changePositions($entry, $key, $value['relatedField']);
-                    }
-                    if(array_key_exists($key, $recordAttributes)){
-                        $values[$key] = $entry->$key;
+                            break;
+                        case AttributeType::Position:
+                            //TODO check, derzeit immer null
+                            if(property_exists($entry, $key)){
+                                $relatedField = array_key_exists('relatedField', $value)? $value['relatedField'] : null;
+                                if($relatedField && (!$entry->$relatedField || count($entry->$relatedField) == 0)){
+                                    //no relation.. just get last one and increase by one...
+                                    $position = $this->setNewPosition($key, $relatedField);
+                                    $entry->$key = $position;
+                                }
+                                $this->changePositions($entry, $key, $relatedField);
+                            }
+                            $values[$key] = $entry->$key;
+                            break;
+                        default:
+                            if(array_key_exists($key, $recordAttributes)){
+                                $values[$key] = $entry->$key;
+                            }
+                            break;
                     }
                 }else{
                     $values["#".$key] = $data[$key];
@@ -316,5 +347,24 @@ class entryService extends baseService
             'model_1' => Anu::getClassName($this),
             'model_2'=> $relation['model']
         );
+    }
+
+
+    /**
+     * Set new position if relations are deledeted/changed
+     *
+     * @param $positionField
+     * @param $relatedField
+     * @return mixed
+     */
+    private function setNewPosition($positionField, $relatedField){
+        $criteria = new elementCriteriaModel($this);
+        $criteria->relatedTo = array(
+            'field' => $relatedField,
+            'id'    => 'nothing',
+            'model' => Anu::getClassName($this)
+        );
+        $parent = $criteria->last();
+        return $parent->$positionField + 1;
     }
 }

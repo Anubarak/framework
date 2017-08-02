@@ -1,12 +1,20 @@
 {% extends 'layout/site.twig' %}
 
 {% block content %}
-
     {% set form = anu.page.renderList() %}
     {{ form|raw }}
+
+    <br><br><br><br>
+    {% set form = anu.question.renderList() %}
+    {{ form|raw }}
+
+    <br><br><br><br>
+    <br><br><br><br>
+    <br><br><br><br>
+    <br><br><br><br>
     <br><br><br><br>
 
-    <div style="display: none">
+    <div style="">
         <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">
             <input type="hidden" name="action" value="action/home/save">
             <!--<input type="hidden" name="data[question_id]" value="1">-->

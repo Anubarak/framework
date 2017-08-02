@@ -139,7 +139,7 @@
                 }
             }).then(function successCallback(response) {
                 console.log(response.data);
-                if(response.data === "true"){
+                if('success' in response.data && response.data['success'] === true){
                     showNotification('Der Eintrag wurde erfolgreich gespeichert', 'notice');
                 }else{
                     showNotification('Fehler beim Speichern des Eintrags', 'error');

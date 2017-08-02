@@ -22,6 +22,7 @@ class questionRecord extends entryRecord
             'correctAnswer' => array(AttributeType::Number),
             'pointsPlus'    => array(AttributeType::Number),
             'pointsMinus'   => array(AttributeType::Number),
+            'position'  => array(AttributeType::Number),
         ), parent::defineAttributes());
     }
 
