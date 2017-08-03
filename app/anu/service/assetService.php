@@ -42,12 +42,17 @@ class assetService extends baseService
             $asset = Anu::getClassByName($this, "Model", true);
         }
 
-        $post = anu()->request->getValue('data');
+        $post = anu()->request->getValue('data', array());
+
         $attributes = $asset->defineAttributes();
         foreach ($attributes as $k => $v){
             if($v[0] == AttributeType::File){
+                if(array_key_exists($k, $_FILES)){
+                    $file = $_FILES[$k];
+                }else{
+                    $file = array_values($_FILES)[0];
+                }
 
-                $file = $_FILES[$k];
                 $config = anu()->config->get('paths');
                 $path = BASE . $config['imgPath'];
                 $additionalPath = (isset($v['folder']))? $v['folder'] : '';
@@ -63,6 +68,15 @@ class assetService extends baseService
                     }
                 }
             }
+            if(($k === 'title' || $k === 'name') && (!isset($post[$k]) || !$post[$k])){
+                if(array_key_exists($k, $_FILES)){
+                    $file = $_FILES[$k];
+                }else{
+                    $file = array_values($_FILES)[0];
+                }
+                $post[$k] = preg_replace('/\\.[^.\\s]{3,4}$/', '', $file['name']);
+            }
+
             if(array_key_exists($k, $post)){
                 $asset->setData($post[$k], $k);
             }
@@ -145,4 +159,5 @@ class assetService extends baseService
             imagedestroy($img);
         }
     }
+
 }

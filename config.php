@@ -25,4 +25,5 @@ $config = array(
         'imgPath'                   => 'app\templates\assets\img',
         'namespace'                 => 'anu\\'
     ),
+    'mode' => 'dev'
 );

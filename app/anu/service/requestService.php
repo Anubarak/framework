@@ -36,26 +36,26 @@ class requestService
         $this->request = array_merge($this->getVar, $this->postVar);
     }
 
-    public function getValue($var = null){
-        return $this->_getValue($this->request, $var);
+    public function getValue($var = null, $default = null){
+        return $this->_getValue($this->request, $var, $default);
     }
 
-    public function getVar($var = null){
-        return $this->_getValue($this->getVar, $var);
+    public function getVar($var = null, $default = null){
+        return $this->_getValue($this->getVar, $var, $default);
     }
 
-    public function postVar($var = null){
-        return $this->_getValue($this->postVar, $var);
+    public function postVar($var = null, $default = null){
+        return $this->_getValue($this->postVar, $var, $default);
     }
 
-    private function _getValue($array, $key){
+    private function _getValue($array, $key, $default = null){
         if(!$key){
             return $array;
         }
         if(isset($array[$key])){
             return $array[$key];
         }
-        return null;
+        return $default;
     }
 
 
@@ -91,6 +91,7 @@ class requestService
 
     public function process(){
         $this->angularRequest = json_decode(file_get_contents("php://input"));
+
         if($this->angularRequest){
             $this->castAngular();
             $this->setPost($this->angularRequest);
@@ -109,14 +110,20 @@ class requestService
         //check for actions... -> ajax request
         if($action = $this->getValue('action')){
             $arrRoute = explode('/', $action);
-            $i = (count($arrRoute) == 2)? 0 : 1;
+            $i = ($arrRoute[0] !== 'ajax')? 0 : 1;
             $controller = $arrRoute[$i];
             $function = $arrRoute[$i+1];
-            if(count($arrRoute) == 2){
+            if($arrRoute[0] !== 'ajax'){
                 $className = Anu::getClassByName($controller, "Controller");
                 $class = new $className();
-                $class->$function();
-            }elseif (count($arrRoute) == 3 && $arrRoute[0] == 'ajax'){
+
+                if(count($arrRoute) >= 3){
+                    $parameter = array_slice($arrRoute, 2, count($arrRoute)-1);
+                    $class->$function($parameter);
+                }else{
+                    $class->$function();
+                }
+            }elseif (count($arrRoute) == 3 && $arrRoute[0] === 'ajax'){
                 $ajaxController = new ajaxController();
                 $ajaxController->service($arrRoute[1], $arrRoute[2]);
             }

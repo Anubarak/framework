@@ -1,19 +1,5 @@
 {% extends 'layout/site.twig' %}
 
 {% block content %}
-    {#
-    some question detailsrrrr
-    {% set answers = craft.answer.find({
-        relatedTo: entry
-    }) %}
-
-    {{ answers|length }}<br>
-    {% for answer in answers %}
-        {{ answer.title }}<br>
-    {% endfor %}
-    #}
-
-    {% set form = anu.question.renderForm(entry) %}
-    {{ form|raw }}
-
+    {{ entry.title }}
 {% endblock %}

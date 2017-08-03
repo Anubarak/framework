@@ -22,7 +22,7 @@ class questionModel extends entryModel
                 'model' => 'page',
                 'limit' => 1
             )),
-            'text'          => array(AttributeType::Text, 'min_len' => 3, 'max_len' => 10),
+            'text'          => array(AttributeType::Text, 'min_len' => 3, 'max_len' => 1000),
             'correctAnswer' => array(AttributeType::Number),
             'pointsPlus'    => array(AttributeType::Number),
             'pointsMinus'   => array(AttributeType::Number),

@@ -37,7 +37,7 @@ class userService extends baseService
     public function login($title = null, $email = null, $password){
         $response = array();
         if(!$title && !$email){
-            $response['email'] = 'Email not set';
+            $response['username'] = 'Email or Username not set';
         }
         if(!$password){
             $response['password'] = 'Password not set';
@@ -51,9 +51,9 @@ class userService extends baseService
         ));
 
         if(!$userId){
-            $response['email'] = Anu::parse('No user Found with email = {email} or title = {title}', array(
+            $response['username'] = Anu::parse('No user Found with email = {email} or title = {username}', array(
                 'email' => $email,
-                'title' => $title
+                'username' => $title
             ));
         }
 
@@ -100,16 +100,20 @@ class userService extends baseService
         }
 
         //check if its a new entry of if we should update an existing one
+        $record =  new userRecord();
+        $recordValues = $record->defineAttributes();
         if(!$user->id){
             $data = $user->getData();
             $values = array();
             foreach ($user->defineAttributes() as $key => $value){
                 if($data[$key] !== 'now()'){
-                    if(isset($data[$key])){
+                    if(array_key_exists($key, $data) && array_key_exists($key, $recordValues)){
                         $values[$key] = ($data[$key])? $data[$key] : 0;
                     }
                 }else{
-                    $values["#".$key] = $data[$key];
+                    if(array_key_exists($key, $recordValues)){
+                        $values["#".$key] = $data[$key];
+                    }
                 }
             }
             //new entry -> crypt password
@@ -118,6 +122,7 @@ class userService extends baseService
             }
 
             anu()->database->insert($this->table, $values);
+
             $id = anu()->database->id();
             $user->id = $id;
             return $id;
@@ -127,11 +132,13 @@ class userService extends baseService
             foreach ($user->defineAttributes() as $key => $value){
                 if(isset($data[$key])){
                     if($data[$key] !== 'now()'){
-                        if(isset($data[$key])){
+                        if(array_key_exists($key, $data) && array_key_exists($key, $recordValues)){
                             $values[$key] = ($data[$key])? $data[$key] : 0;
                         }
                     }else{
-                        $values["#".$key] = $data[$key];
+                        if(array_key_exists($key, $recordValues)) {
+                            $values["#" . $key] = $data[$key];
+                        }
                     }
                 }
             }

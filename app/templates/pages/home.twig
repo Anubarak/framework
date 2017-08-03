@@ -1,6 +1,11 @@
 {% extends 'layout/site.twig' %}
 
 {% block content %}
+
+
+    {% include 'user/login.twig' %}
+
+
     {% set form = anu.page.renderList() %}
     {{ form|raw }}
 
@@ -13,6 +18,19 @@
     <br><br><br><br>
     <br><br><br><br>
     <br><br><br><br>
+
+
+    <!-- Create the editor container -->
+    <div class="editor" >
+        <p>Hello World!</p>
+        <p>Some initial <strong>bold</strong> text</p>
+        <p><br></p>
+    </div>
+    <script>
+
+
+    </script>
+
 
     <div style="">
         <form method="post" accept-charset="UTF-8" enctype="multipart/form-data">

@@ -69,4 +69,39 @@ class entryController extends baseController
         }
         //craft()->question->deleteEntry($question);
     }
+
+    /**
+     * Render Template to add an entry
+     *
+     * @param $parameter array
+     */
+    public function add($parameter){
+        anu()->template->render('forms/edit.twig', array(
+            'form' => $parameter[0],
+            'entry' => null
+        ));
+        exit();
+    }
+
+    /**
+     * Render Template to add an entry
+     *
+     * @param $parameter array
+     */
+    public function edit($parameter){
+        $this->requireLogin();
+
+        if(count($parameter) != 2){
+            return null;
+        }
+        $class = $parameter[0];
+        if($entry = anu()->$class->getEntryById($parameter[1])){
+            anu()->template->render('forms/edit.twig', array(
+                'form' => $parameter[0],
+                'entry' => $entry
+            ));
+            exit;
+        }
+        return null;
+    }
 }

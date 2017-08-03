@@ -15,11 +15,12 @@ class userModel extends baseModel
     {
         return array(
             'user_id'           => array(AttributeType::Number),
-            'first_name'        => array(AttributeType::Mixed, "required" => "true"),
-            'last_name'         => array(AttributeType::Mixed, "required" => "true"),
-            'email'             => array(AttributeType::Email, "required" => "true"),
-            'password'          => array(AttributeType::Password, "required" => "true"),
-            'newPassword'       => array(AttributeType::NewPassword, "ignoreInDatabase" => true),
+            'first_name'        => array(AttributeType::Mixed),
+            'last_name'         => array(AttributeType::Mixed),
+            'email'             => array(AttributeType::Email, "required" => "true", "unique" => true),
+            'password'          => array(AttributeType::Password, "required" => "true", 'min_len' => 8, 'max_len' => 16),
+            'newPassword'       => array(AttributeType::NewPassword, 'min_len' => 8, 'max_len' => 16),
+            'title'             => array(AttributeType::NewPassword, "unique" => true),
 
             'createDate'        => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp),
             'updateDate'        => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp),

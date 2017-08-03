@@ -1,9 +1,0 @@
-<ul class="list-group sortable" ui-sortable="sortableOptions" style="min-height: 20px" ng-model="entries">
-    <li class="list-group-item" ng-repeat="entry in entries">
-        {[{entry.title}]} id: {[{entry.id}]}
-        <div  ng-switch on="entry.children.length > 0">
-            <div ng-init="entries = entry.children;" ng-include="'http://localhost:8080/framework/app/templates/lists/partialList.twig'"></div>
-        </div>
-    </li>
-
-</ul>

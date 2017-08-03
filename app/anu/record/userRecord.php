@@ -29,7 +29,7 @@ class userRecord extends baseRecord
             'email'             => array(AttributeType::Mixed),
             'enabled'           => array(AttributeType::Number, 'default' => '1'),
             'admin'             => array(AttributeType::Number, 'default' => '0'),
-            'password'          => array(AttributeType::Mixed),
+            'password'          => array(AttributeType::Mixed)
         ), parent::defineAttributes());
 
     }

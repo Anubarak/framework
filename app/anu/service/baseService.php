@@ -95,6 +95,21 @@ class baseService implements \JsonSerializable
                         $entry->addError($k, $validated[0]);
                     }
                 }
+
+                //check for unique
+                if(array_key_exists('unique', $v)){
+                    $exists = anu()->database->has($this->getTable(), array(
+                       $k => $entry->$k
+                    ));
+
+                    if($exists){
+                        $entry->addError($k, Anu::parse('There is already a {type} with the {key} {value}', array(
+                            'type'  => Anu::getClassName($this),
+                            'key'   => $k,
+                            'value' => $entry->$k
+                        )));
+                    }
+                }
             }
         }
 
@@ -427,7 +442,7 @@ class baseService implements \JsonSerializable
     /**
      * @param $entry baseModel
      */
-    public function renderForm($entry = null){
+    public function renderForm($entry = null, $template = 'forms/index.twig'){
         if(!$entry){
             $entry = Anu::getClassByName($this, "Model", true);
             //just to add relationModels
@@ -452,7 +467,7 @@ class baseService implements \JsonSerializable
             var attributes = ' . json_encode($entry->defineAttributes()) . ';
         ');
 
-        return anu()->template->render('forms/index.twig', array(
+        return anu()->template->render($template, array(
             'entry' => $entry,
             'attributes' => $entry->defineAttributes()
         ));
@@ -468,6 +483,7 @@ class baseService implements \JsonSerializable
         $attributes = $model->defineAttributes();
         foreach ($entries as $entry){
             $entry->children = array();
+            $entry->url = $entry->getUrl();
         }
 
         anu()->template->addJsCode('

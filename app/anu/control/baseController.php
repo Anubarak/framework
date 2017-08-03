@@ -47,8 +47,7 @@ class baseController
                 echo "</pre>";
                 die();
         */
-
-        //anu()->user->login("blub", "anubarak1993@gmail.com");
+        anu()->user->login("", "anubarak1993@gmail.com", 'Warpten5000');
         //anu()->user->login("blub", "Friedl@Uwe.de");
         //$user = anu()->user->getUserById(2);
         //$loggedIn = anu()->user->login('Fischer@Fisch.de', 'Fischer@Fisch.de');
@@ -79,7 +78,15 @@ class baseController
      */
     public function requireAjaxRequest(){
         if(!$this->isAjaxRequest()){
-            throw new \Exception("This action requires an Ajax Request");
+            $mode = anu()->config->get('mode');
+            switch ($mode){
+                case 'dev':
+                    throw new \Exception("This action requires an Ajax Request");
+                    break;
+                case 'live':
+                    $this->getContent();
+                    die();
+            }
         }
     }
 
@@ -101,5 +108,25 @@ class baseController
     {
         echo json_encode($var);
         exit();
+    }
+
+    /**
+     * Check user
+     *
+     * @return bool
+     */
+    public function requireLogin(){
+        if(anu()->user->getCurrentUser()){
+            return true;
+        }
+        $mode = anu()->config->get('mode');
+        switch ($mode){
+            case 'dev':
+                throw new \Exception('user has no permission');
+                break;
+            case 'live':
+                $this->getContent();
+                die();
+        }
     }
 }

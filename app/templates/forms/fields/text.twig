@@ -1,6 +1,7 @@
 <div class="form-group">
     <label for="{{ class }}{{ entry.id }}{{ key }}">{{ key }}</label>
-    <textarea id="{{ class }}{{ entry.id }}{{ key }}" ng-model="data.{{ key }}" name="data[{{ key }}]" class="form-control">
+    <ng-quill-editor theme="bubble" id="{{ class }}{{ entry.id }}{{ key }}" ng-model="data.{{ key }}" name="data[{{ key }}]">
         {{ entry[key] }}
-    </textarea>
+    </ng-quill-editor>
+
 </div>

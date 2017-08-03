@@ -1,0 +1,100 @@
+<a href="#loginPanel" class="btn btn-default" data-toggle="modal">Login</a>
+
+
+<div ng-controller="loginController" class="modal fade" id="loginPanel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </a>
+                <h4 class="modal-title">Login</h4>
+            </div>
+
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+
+                        <!-- Registrierung -->
+                        <div class="col-xs-8 col-centered" ng-show="showRegister">
+                            <ng-form name="registerForm">
+                                <div  class="input-group">
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                                    <input id="register-username" type="text" class="form-control" ng-model="register.username" name="username" placeholder="username">
+                                </div>
+                                <ul class="errors">
+                                    <li ng-show="registerForm.$error.username">
+                                        {[{ errorMessages.register.username }]}
+                                    </li>
+                                </ul>
+
+                                <div style="margin-top: 25px" class="input-group">
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></span>
+                                    <input id="register-email" type="text" class="form-control" ng-model="register.email" name="email" placeholder="Email Adresse">
+                                </div>
+                                <ul class="errors">
+                                    <li ng-show="registerForm.$error.email">
+                                        {[{ errorMessages.register.email }]}
+                                    </li>
+                                </ul>
+
+                                <div style="margin-top: 25px" class="input-group">
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                                    <input id="register-password" type="password" class="form-control" ng-model="register.password" name="password" placeholder="password">
+                                </div>
+                                <ul class="errors">
+                                    <li ng-show="registerForm.$error.password">
+                                        {[{ errorMessages.register.password}]}
+                                    </li>
+                                </ul>
+                            </ng-form >
+                        </div>
+
+                        <div class="col-xs-8 col-centered" ng-show="showPassword">
+                            <ng-form name="resetForm" >
+                                <div style="margin-bottom: 25px" class="input-group">
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></span>
+                                    <input id="reset-email" type="text" class="form-control" ng-model="reset.email" name="email" placeholder="Email Adresse">
+                                </div>
+                            </ng-form>
+                        </div>
+
+                        <div class="col-xs-8 col-centered" ng-show="showLogin">
+                            <ng-form name="loginForm">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                                    <input id="login-username" type="text" class="form-control" name="username" ng-model="login.username" value="" placeholder="username or email">
+                                </div>
+                                <ul class="errors">
+                                    <li ng-show="loginForm.$error.username">
+                                        {[{ errorMessages.login.username }]}
+                                    </li>
+                                </ul>
+
+                                <div style="margin-top: 25px" class="input-group">
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                                    <input id="login-password" type="password" class="form-control"  ng-model="login.password" name="password">
+                                </div>
+                                <ul class="errors">
+                                    <li ng-show="loginForm.$error.password">
+                                        {[{ errorMessages.login.password }]}
+                                    </li>
+                                </ul>
+
+                                <button class="btn btn-link" ng-click="ShowHide('showPassword')" aria-hidden="true">Forgot Password</button>
+                            </ng-form>
+                        </div>
+
+                    </div>
+                </form>
+
+            </div> <!-- /.modal-body -->
+            <div class="modal-footer">
+                <button class="btn btn-link pull-left" ng-click="ShowHide(state)" aria-hidden="true">{[{title}]}</button>
+                <button class="btn btn-default" ng-click="send()" aria-hidden="true">Submit</button>
+                <button class="btn btn-danger" ng-click="reset()" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

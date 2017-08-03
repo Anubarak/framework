@@ -15,8 +15,6 @@ String.prototype.replaceAll = function(search, replacement) {
 
 var showNotification = function (message, notificationClass) {
     var container = $("#notifications").children().first();
-    console.log(message);
-    console.log(notificationClass);
     container.text(message);
     container.toggleClass(notificationClass).fadeIn(800, function(){
         setTimeout(function(){
@@ -42,14 +40,11 @@ myApp.directive('uniqueSlug', function($http) {
                         action: 'entry/validateSlug', slug: value, class: scope.data.class, id: scope.data.id
                     }
                 }).then(function resolved(data) {
-                    console.log(data.data.isValid);
                     if(!data.data.isValid){
-                        console.log("invalid Slug");
                         return $q.reject("slug");
                     }
                     return true;
                 }, function rejected(data) {
-                    console.log(data);
                     //username does not exist, therefore this validation passes
                     return true;
                 });
