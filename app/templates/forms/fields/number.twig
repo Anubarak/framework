@@ -1,5 +1,5 @@
 <div class="form-group">
-    <label for="{{ class }}{{ entry.id }}{{ key }}">{{ key }}</label>
+    <label for="{{ class }}{{ entry.id }}{{ key }}">{{ title(attribute, key) }}</label>
     <input type="number"
            id="{{ class }}{{ entry.id }}{{ key }}"
            ng-model="data.{{ key }}"
@@ -7,6 +7,7 @@
            value="{{ attribute(entry, key) }}"
            class="form-control"
            string-to-number
+           ng-blur="resetError('{{ key }}')"
             {% if attributes[key] and attributes[key]['required'] is defined %}
                 required
             {% endif %}

@@ -58,7 +58,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
     /**
      * @return array
      */
-    public function find($attributes = null, $justIds = null){
+    public function find($attributes = null, $justIds = null, $debug = false){
         if($attributes){
             $this->attributes = $attributes;
         }else{
@@ -184,12 +184,12 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
             if($this->order !== null){
                 $where['ORDER'] = $this->order;
             }
+
             if($join){
                 $rows = anu()->database->select(anu()->$className->getTable(), $join, $select , $where);
             }else{
                 $rows = anu()->database->select(anu()->$className->getTable(), $select , $where);
             }
-
             $rows = array_unique($rows,SORT_REGULAR);
 
             //anu()->database->debugError();
@@ -226,11 +226,11 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
      * @return entryModel
      */
     public function first($attributes = null){
-        $limit = $this->LIMIT;
+        //$limit = $this->LIMIT;
         $this->LIMIT = 1;
         $element = $this->find($attributes);
-        $this->LIMIT = $limit;
-        return $element[0];
+        //$this->LIMIT = $limit;
+        return count($element)? $element[0] : null;
     }
 
 
@@ -248,7 +248,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
 
         $this->LIMIT = $limit;
         $this->order = $order;
-        return $element[0];
+        return count($element)? $element[0] : null;
     }
 
     public function count(){

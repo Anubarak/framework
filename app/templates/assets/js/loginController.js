@@ -16,7 +16,8 @@ myApp.controller('loginController', ['$scope','$http', function($scope,$http) {
         $scope.register = {
             username: '',
             email: '',
-            password: ''
+            password: '',
+            repeatPassword: '',
         };
         $scope.reset = {
             email: ''

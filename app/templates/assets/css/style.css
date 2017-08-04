@@ -60,6 +60,10 @@
     background-color: #27AE60;
 }
 
+.status:not(.on):not(.live):not(.active):not(.enabled):not(.locked):not(.pending):not(.off):not(.suspended):not(.expired):not(.yellow):not(.orange):not(.red):not(.pink):not(.purple):not(.blue):not(.green):not(.turquoise):not(.light):not(.grey):not(.black) {
+    border-color: rgba(0, 0, 0, 0.4);
+}
+
 
 [ng-quill-editor] { display: block; }
 

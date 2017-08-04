@@ -14,11 +14,13 @@ $.each(container, function(index, item){
         $scope.form = className + id +  'Form';
         $scope.slugEmpty = true;
         $scope.allRelations = {};
+        $scope.errorMessages = {};
         angular.forEach(attributes, function (item, index) {
             if ("relatedTo" in item) {
                 $scope.allRelations[index] = [];
             }
         });
+        $scope.editor = null;
 
         $.each(entry, function (index, item) {
             if (typeof item === "object" && item) {
@@ -110,6 +112,7 @@ $.each(container, function(index, item){
 
         $scope.send = function () {
             var key;
+            $scope.reset();
             for (key in $scope.relations) {
                 var relations = [];
                 angular.forEach($scope.relations[key], function (item, index) {
@@ -125,11 +128,23 @@ $.each(container, function(index, item){
                     action: "entry/save", entry: $scope.data
                 }
             }).then(function successCallback(response) {
-                console.log(response.data);
                 if ('success' in response.data && response.data['success'] === true) {
                     showNotification('Der Eintrag wurde erfolgreich gespeichert', 'notice');
+                    if('id' in response.data && response.data.id){
+                        $scope.data.id = response.data.id;
+                    }
                 } else {
                     showNotification('Fehler beim Speichern des Eintrags', 'error');
+                    angular.forEach($scope.data, function(item, index){
+                        if(index in response.data.errors){
+                            $scope.errorMessages[index] = response.data.errors[index];
+                            $scope[$scope.form].$setValidity(index,false);
+                        }else{
+                            $scope[$scope.form][index] = '';
+                            $scope[$scope.form].$setPristine();
+                            $scope[$scope.form].$setValidity(index, true);
+                        }
+                    });
                 }
                 // this callback will be called asynchronously
                 // when the response is available
@@ -139,8 +154,12 @@ $.each(container, function(index, item){
             });
         };
 
+        //TODO quill callback
+        $scope.$on("onSelectionChanged", function () {
+           alert("selekt change");
+        });
+
         $scope.addRelation = function ($id, relation) {
-            console.log($id + " " + relation);
             var rows = $("#" + $id).find('.selected');
             var newRelations = [];
             var arrIds = [];
@@ -154,12 +173,28 @@ $.each(container, function(index, item){
             });
             $scope.data[relation] = arrIds;
             $scope.relations[relation] = newRelations;
-            console.log($scope);
+        };
+
+        $scope.resetError = function(key){
+            $scope[$scope.form].$setValidity(key, true);
+            console.log(key);
+            console.log($scope[$scope.form]);
         };
 
 
+
         $scope.editorCreated = function (editor) {
+            alert("test");
             console.log(editor)
         }
+
+        $scope.reset = function() {
+            $scope[$scope.form].$setPristine();
+            $scope[$scope.form].$setUntouched();
+            angular.forEach($scope.data, function(item, index){
+                //$scope[$scope.form][index].$error = {};
+                $scope[$scope.form].$setValidity(index, true);
+            });
+        };
     }]);
 });

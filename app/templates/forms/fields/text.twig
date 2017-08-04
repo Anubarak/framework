@@ -1,7 +1,17 @@
 <div class="form-group">
-    <label for="{{ class }}{{ entry.id }}{{ key }}">{{ key }}</label>
-    <ng-quill-editor theme="bubble" id="{{ class }}{{ entry.id }}{{ key }}" ng-model="data.{{ key }}" name="data[{{ key }}]">
+    <label for="{{ class }}{{ entry.id }}{{ key }}">{{ title(attribute, key) }}</label>
+    <ng-quill-editor
+            theme="bubble"
+            id="{{ class }}{{ entry.id }}{{ key }}"
+            ng-model="data.{{ key }}"
+            name="data[{{ key }}]"
+            ng-blur="resetError('{{ key }}')"
+            on-content-changed="myCallback(editor)">
         {{ entry[key] }}
     </ng-quill-editor>
-
+    <ul class="errors">
+        <li ng-show="{{ class }}{{ entry.id }}Form.$error.{{ key }}">
+            {[{ errorMessages['{{ key }}'] }]}
+        </li>
+    </ul>
 </div>

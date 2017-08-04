@@ -592,7 +592,8 @@ class validator
                 if (is_array($param)) {
                     $param = implode(', ', $param);
                 }
-                $message = str_replace('{param}', $param, str_replace('{field}', '<span class="'.$field_class.'">'.$field.'</span>', $messages[$e['rule']]));
+                //$message = str_replace('{param}', $param, str_replace('{field}', '<span class="'.$field_class.'">'.$field.'</span>', $messages[$e['rule']]));
+                $message = str_replace('{param}', $param, str_replace('{field}', $field, $messages[$e['rule']]));
                 $resp[] = $message;
             } else {
                 throw new \Exception ('Rule "'.$e['rule'].'" does not have an error message');

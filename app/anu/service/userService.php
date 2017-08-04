@@ -93,6 +93,13 @@ class userService extends baseService
         if(!$this->validate($user)){
             return false;
         }
+
+        if(($user->newPassword || $user->repeatPassword) && ($user->repeatPassword !== $user->password)){
+            $user->addError('password', 'Passwords do not match');
+            $user->addError('repeatPassword', 'Passwords do not match');
+            return false;
+        }
+
         if(!$this->table || !$this->primary_key){
             $className = Anu::getClassName($this);
             $this->table = anu()->$className->table;

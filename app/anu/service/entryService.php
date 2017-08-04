@@ -67,15 +67,24 @@ class entryService extends baseService
                             }
                             break;
                         case AttributeType::Position:
-                            $relatedField = $value['relatedField'];
-                            if(!$entry->$relatedField || count($entry->$relatedField) == 0){
-                                //no relation.. just get last one and increase by one...
-                                $position = $this->setNewPosition($key, $relatedField);
-                                $entry->$key = $position;
+                            $relatedField = (array_key_exists('relatedField', $value))? $value['relatedField'] : 'nothing';
+                            if($relatedField !== 'nothing') {
+                                if(!$entry->$relatedField || count($entry->$relatedField) == 0) {
+                                    //no relation.. just get last one and increase by one...
+                                    $position = $this->setNewPosition($key, $relatedField);
+                                    $entry->$key = $position;
+                                }else {
+                                    $parent = $this->getEntryById($entry->$relatedField[0]);
+                                    $entry->$key = $parent->$key + 1;
+                                }
                             }else{
-                                $parent = $this->getEntryById($entry->$relatedField[0]);
-                                $entry->$key = $parent->$key + 1;
+                                $criteria = new elementCriteriaModel($this);
+                                $criteria->ORDER = $key;
+                                $criteria->enabled = 'all';
+                                $last = $criteria->last();
+                                $entry->$key = $last->$key + 1;
                             }
+
                             $values[$key] = $entry->$key;
                             break;
                         default:
@@ -99,9 +108,14 @@ class entryService extends baseService
             }
             return $id;
         }else{
+            $this->defineSiblingsFromEntry($entry, $oldEntry);
+            $attributes = $entry->defineAttributes();
             $data = $entry->getData();
             $values = array();
-            $attributes = $entry->defineAttributes();
+            if($entry->id){
+                $prim = $this->getPrimaryKey();
+                $entry->$prim = $entry->id;
+            }
             foreach ($attributes as $key => $value){
                 if($data[$key] !== 'now()'){
                     //relations
@@ -129,15 +143,39 @@ class entryService extends baseService
                             }
                             break;
                         case AttributeType::Position:
-                            //TODO check, derzeit immer null
                             if(property_exists($entry, $key)){
                                 $relatedField = array_key_exists('relatedField', $value)? $value['relatedField'] : null;
-                                if($relatedField && (!$entry->$relatedField || count($entry->$relatedField) == 0)){
-                                    //no relation.. just get last one and increase by one...
-                                    $position = $this->setNewPosition($key, $relatedField);
-                                    $entry->$key = $position;
+                                //no position change -> increase value by one if there is a relation change
+                                if($entry->$key === null){
+                                    //save from edit field -> no direct position change by user
+                                    if($relatedField){
+                                        if($oldEntry->$relatedField->getStoredIds() != $entry->$relatedField){
+                                            //just a relation change -> set position = last
+                                            if(count($entry->$relatedField)){
+                                                $relationId = $entry->$relatedField[0];
+                                                $relField = $attributes[$relatedField]['relatedTo']['field'];
+                                            }else{
+                                                $relationId = 'nothing';
+                                                $relField = $relatedField;
+                                            }
+                                            $position = $this->setNewPosition($key, $relField, $relationId, $entry->id);
+                                            $entry->$key = $position;
+                                            //save old Values to fill the empty one
+                                            //old Parent
+                                            $entry->oldIds = $oldEntry->$relatedField->getStoredIds();
+
+                                            $entry->oldPosition = $oldEntry->$key;
+                                            $this->changePositions($entry, $key, $relatedField);
+                                        }else{
+                                            $entry->$key = $oldEntry->$key;
+                                        }
+                                    }else{
+                                        $entry->$key = $oldEntry->$key;
+                                    }
+                                }else{
+                                    //save from list -> position changes every time
+                                    $this->changePositions($entry, $key, $relatedField);
                                 }
-                                $this->changePositions($entry, $key, $relatedField);
                             }
                             $values[$key] = $entry->$key;
                             break;
@@ -187,7 +225,7 @@ class entryService extends baseService
         if($model = Anu::getClassByName($this, 'Model', true)){
             $attributes = $model->defineAttributes();
             $where = array();
-            $select = $this->iterateDBSelect($attributes, $this->table);
+            $select = $this->iterateDBSelect($attributes);
 
             $where[$this->table . "." . $this->primary_key] = $entryId;
 
@@ -357,14 +395,67 @@ class entryService extends baseService
      * @param $relatedField
      * @return mixed
      */
-    private function setNewPosition($positionField, $relatedField){
+    private function setNewPosition($positionField, $relatedField, $relationId = 'nothing', $excludeId = null){
         $criteria = new elementCriteriaModel($this);
         $criteria->relatedTo = array(
             'field' => $relatedField,
-            'id'    => 'nothing',
+            'id'    => $relationId,
             'model' => Anu::getClassName($this)
         );
+        if($excludeId){
+            $string = $this->primary_key . "[!]";
+            $criteria->$string = $excludeId;
+        }
         $parent = $criteria->last();
         return $parent->$positionField + 1;
+    }
+
+
+    /**
+     * Get Children from Entry if the relation side is the opposite
+     *
+     * @param $relatedField
+     * @param string $relationId
+     * @param null $excludeId
+     * @return array
+     */
+    private function getChildrenFromEntry($relatedField, $relationId = 'nothing', $excludeId = null){
+        $criteria = new elementCriteriaModel($this);
+        $criteria->relatedTo = array(
+            'field' => $relatedField,
+            'id'    => $relationId,
+            'model' => Anu::getClassName($this)
+        );
+        if($excludeId){
+            $string = $this->primary_key . "[!]";
+            $criteria->$string = $excludeId;
+        }
+        return $criteria->ids();
+    }
+
+    /**
+     * Used as a helper before updating
+     *
+     * @param $entry    baseModel|entryModel
+     * @param null $oldEntry baseModel|entryModel
+     * @return bool
+     */
+    private function defineSiblingsFromEntry($entry, &$oldEntry = null){
+        $attributes = $entry->defineAttributes();
+        if(property_exists($entry, 'oldSiblings')){
+            return true;
+        }
+        if($key = Anu::array_search_parent(AttributeType::Position, $attributes)){
+            $relatedField = array_key_exists('relatedField', $attributes[$key])? $attributes[$key]['relatedField'] : null;
+            $oldEntry = $this->getEntryById($entry->id);
+            if($relatedField !== null && $oldParent = $oldEntry->$relatedField->first()){
+                $relationId = $oldParent->id;
+                $relField = $attributes[$relatedField]['relatedTo']['field'];
+            }else{
+                $relationId = 'nothing';
+                $relField = $relatedField;
+            }
+            $entry->oldSiblings =  $this->getChildrenFromEntry($relField, $relationId, $entry->id);
+        }
     }
 }

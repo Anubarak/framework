@@ -40,6 +40,7 @@ class templateService
         ));
         $this->twig->addExtension(new \Twig_Extension_Debug());
         $this->twig->addExtension(new ClassTwigExtension());
+        $this->twig->addExtension(new AttributeTwigExtension());
         $this->twig->addTokenParser(new IncludeResource_TokenParser('includeJsFile'));
         $this->twig->addTokenParser(new IncludeResource_TokenParser('includeCssFile'));
         $this->twig->addGlobal('anu', anu());
@@ -309,6 +310,29 @@ class ClassTwigExtension extends \Twig_Extension
 
     public function getClass($object)
     {
-        return (new \ReflectionClass($object))->getShortName();
+        return (Anu::getClassName($object));
+    }
+}
+
+class AttributeTwigExtension extends \Twig_Extension
+{
+    public function getFunctions()
+    {
+        return array(
+            'title' => new \Twig_SimpleFunction('title', array($this, 'title'))
+        );
+    }
+
+    public function getName()
+    {
+        return 'class_twig_extension';
+    }
+
+    public function title($attribute, $key)
+    {
+        if(array_key_exists('title', $attribute)){
+            return $attribute['title'];
+        }
+        return $key;
     }
 }

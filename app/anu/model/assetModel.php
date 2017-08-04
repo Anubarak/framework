@@ -14,9 +14,9 @@ class assetModel extends baseModel
     public function defineAttributes()
     {
         return array(
-            'asset_id'                  => array(AttributeType::Number),
-            'path'                      => array(AttributeType::File, 'folder' => '/upload'),
-            'name'                      => array(AttributeType::Mixed),
+            'asset_id'      => array(AttributeType::Number),
+            'path'          => array(AttributeType::File, 'folder' => '/upload'),
+            'name'          => array(AttributeType::Mixed),
             'createDate'    => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp),
             'updateDate'    => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp),
             'enabled'       => array(AttributeType::Number, 'default' => '1'),

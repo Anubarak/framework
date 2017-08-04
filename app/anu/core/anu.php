@@ -123,6 +123,40 @@ class Anu
 
     }
 
+    public static function in_array_r($needle, $haystack, $strict = false) {
+        foreach ($haystack as $item) {
+            if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && Anu::in_array_r($needle, $item, $strict))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $message string
+     * @return string
+     */
+    public static function t($message){
+        return $message;
+    }
+
+    /**
+     * Search array for value and return parent key
+     *
+     * @param $needle
+     * @param $haystack
+     * @return bool|int|string
+     */
+    public static function array_search_parent($needle, $haystack){
+        foreach ($haystack as $k => $v){
+            if($v[0] == $needle){
+                return $k;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * @param $class

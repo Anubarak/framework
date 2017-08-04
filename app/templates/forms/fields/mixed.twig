@@ -1,11 +1,12 @@
 {% set class = class(entry) %}
 <div class="form-group">
-    <label for="{{ class }}{{ entry.id }}{{ key }}">{{ key }}</label>
+    <label for="{{ class }}{{ entry.id }}{{ key }}">{{ title(attribute, key) }}</label>
     <input type="text"
            id="{{ class }}{{ entry.id }}{{ key }}"
-           ng-model="data.{{ key }}"
+           ng-model="data['{{ key }}']"
            name="{{ key }}"
            class="form-control"
+           ng-blur="resetError('{{ key }}')"
            {% if attributes[key] and attributes[key]['required'] is defined %}
                 required
             {% endif %}
@@ -25,6 +26,9 @@
         </li>
         <li ng-show="{{ class }}{{ entry.id }}Form.{{ key }}.$error.slug">
             Dieser Slug ist bereits vergeben
+        </li>
+        <li ng-show="{{ class }}{{ entry.id }}Form.$error.{{ key }}">
+            {[{ errorMessages['{{ key }}'] }]}
         </li>
     </ul>
 </div>

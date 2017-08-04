@@ -15,12 +15,12 @@ class entryModel extends baseModel
     public function defineAttributes()
     {
         return array(
-            'title'         => array(AttributeType::Mixed, 'required' => true),
-            'slug'          => array(AttributeType::Mixed, 'required' => true),
-            'createDate'    => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp),
-            'updateDate'    => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp),
-            'enabled'       => array(AttributeType::Bool, 'default' => '1'),
-            'author_id'     => array(AttributeType::Number, 'default' => Defaults::currentUserId)
+            'title'         => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Titel')),
+            'slug'          => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Slug')),
+            'createDate'    => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp, 'title' => Anu::t('Erstellungsdatum')),
+            'updateDate'    => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp, 'title' => Anu::t('Bearbeitungsdatum')),
+            'enabled'       => array(AttributeType::Bool, 'default' => '1', 'title' => Anu::t('Aktiv')),
+            'author_id'     => array(AttributeType::Number, 'default' => Defaults::currentUserId, 'title' => Anu::t('Author'))
         );
     }
 

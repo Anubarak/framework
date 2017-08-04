@@ -26,6 +26,9 @@ class entryController extends baseController
     }
 
 
+    /**
+     *
+     */
     public function saveTree(){
         $entry = anu()->request->getValue('entry');
         $data = (array)anu()->request->getValue('data');
@@ -39,7 +42,7 @@ class entryController extends baseController
             if($v[0] == AttributeType::Position){
                 $entry->$k = $position;
                 $entry->oldPosition = $oldPosition;
-                $entry->oldIds = $oldIds;
+                $entry->oldSiblings = $oldIds;
                 if(array_key_exists("relatedField", $v)){
                     $key = $v['relatedField'];
                     $entry->$key = array($parentId);
@@ -61,13 +64,22 @@ class entryController extends baseController
         if($this->isAjaxRequest()){
             $entry = anu()->request->postVar('entry');
             $class = $entry->class;
+
+            $response = array();
             if(!$id = anu()->$class->saveEntry($entry)){
-                $this->returnJson($entry->getErrors());
+                $response['success'] = false;
+                $response['errors'] = $entry->getErrors();
+            }else {
+                $response['success'] = true;
+                $response['id']     = $id;
             }
 
-            $this->returnJson(array('success' => true, 'id' => $id));
+            if($this->isAjaxRequest()){
+                $this->returnJson($response);
+            }else{
+                return $response;
+            }
         }
-        //craft()->question->deleteEntry($question);
     }
 
     /**
@@ -78,7 +90,7 @@ class entryController extends baseController
     public function add($parameter){
         anu()->template->render('forms/edit.twig', array(
             'form' => $parameter[0],
-            'entry' => null
+            'entry' => null,
         ));
         exit();
     }
@@ -98,7 +110,8 @@ class entryController extends baseController
         if($entry = anu()->$class->getEntryById($parameter[1])){
             anu()->template->render('forms/edit.twig', array(
                 'form' => $parameter[0],
-                'entry' => $entry
+                'entry' => $entry,
+                'class' => $class
             ));
             exit;
         }

@@ -17,8 +17,9 @@ class userModel extends baseModel
             'user_id'           => array(AttributeType::Number),
             'first_name'        => array(AttributeType::Mixed),
             'last_name'         => array(AttributeType::Mixed),
-            'email'             => array(AttributeType::Email, "required" => "true", "unique" => true),
+            'email'             => array(AttributeType::Email, "required" => "true", "unique" => true, 'title' => Anu::t('E-mail')),
             'password'          => array(AttributeType::Password, "required" => "true", 'min_len' => 8, 'max_len' => 16),
+            'repeatPassword'    => array(AttributeType::Password, 'min_len' => 8, 'max_len' => 16),
             'newPassword'       => array(AttributeType::NewPassword, 'min_len' => 8, 'max_len' => 16),
             'title'             => array(AttributeType::NewPassword, "unique" => true),
 

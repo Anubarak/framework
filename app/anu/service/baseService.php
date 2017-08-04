@@ -86,9 +86,11 @@ class baseService implements \JsonSerializable
         foreach ($attributes as $k => $v){
             if(!is_object($entry->$k) && !is_array($entry->$k) && $entry->$k !== 'now()'){
                 $validatorList = $this->getValidatorList($v);
+                $fieldName = array_key_exists('title', $v)? $v['title'] : $k;
+
                 if($validatorList){
-                    $validated = validator::is_valid(array($k => $entry->$k), array(
-                        $k => $validatorList
+                    $validated = validator::is_valid(array($fieldName => strip_tags($entry->$k)), array(
+                        $fieldName => $validatorList
                     ));
 
                     if($validated !== true){
@@ -105,7 +107,7 @@ class baseService implements \JsonSerializable
                     if($exists){
                         $entry->addError($k, Anu::parse('There is already a {type} with the {key} {value}', array(
                             'type'  => Anu::getClassName($this),
-                            'key'   => $k,
+                            'key'   => $fieldName,
                             'value' => $entry->$k
                         )));
                     }
@@ -209,31 +211,18 @@ class baseService implements \JsonSerializable
 
     /**
      * @param $attributes
-     * @param $join
-     * @param null $parentTable
      * @return array
      */
-    public function iterateDBSelect($attributes, $parentTable){
+    public function iterateDBSelect($attributes){
         $select = array();
         $primaryKey = $this->primary_key;
 
-        $select[] = $parentTable . "." . $primaryKey . "(id)";
-        foreach ($attributes as $k => $v){
-            if(isset($v['relatedTo'])){
-                /*
-                $relation = $v['relatedTo'];
-                if(is_array($relation)){
-                    if(isset($relation['table'], $relation['field'])){
-                        /*$select[] = '#GROUP_CONCAT(relation' . count($join) . ' .id_2 SEPARATOR \',\') as ' . $k;
-                        $where['relation' . count($join) . '.field_1'] = $k;
-                        $where['relation' . count($join) . '.field_2'] = $relation['field'];
-                        $where['relation' . count($join) . '.model_1'] = Anu::getClassName($this);
-                        $where['relation' . count($join) . '.model_2'] = $relation['model'];
-                        $join["[>]relation(relation" . count($join) . ")"] = array($this->table . "." . $this->primary_key => 'id_1');*/
-                    /*}
-                }*/
-            }elseif(!isset($v['ignoreInDatabase'])){
-                $select[] = $parentTable . "." . $k;
+        $select[] = $this->table . "." . $primaryKey . "(id)";
+        $record = Anu::getClassByName($this, 'Record', true);
+        $recordAttributes = $record->defineAttributes();
+        foreach ($recordAttributes as $k => $v){
+            if(array_key_exists($k, $attributes)){
+                $select[] = $this->table . "." . $k;
             }
         }
 
@@ -253,7 +242,7 @@ class baseService implements \JsonSerializable
         if($model = Anu::getClassByName($this, 'Model', true)){
             $attributes = $model->defineAttributes();
 
-            $select = $this->iterateDBSelect($attributes, $this->table);
+            $select = $this->iterateDBSelect($attributes);
 
             $join = array(
                 "[>]relation" => array($this->table . "." . $this->primary_key => 'id_1')
@@ -388,13 +377,13 @@ class baseService implements \JsonSerializable
     public function changePositions($element, $field,  $parentfield){
         $children = null;
         $where = array();
+        $oldPosition = $element->oldPosition;
         $newPosition = $element->$field;
-        $oldPosition = anu()->database->get($this->getTable(), $field, array($this->primary_key => $element->id));
         $attributes = $element->defineAttributes();
         if($parentfield){
             if($attributes[$parentfield][0] == AttributeType::Relation){
                 //relation
-                if(is_array($element->$parentfield) && $element->$parentfield[0]){
+                if(is_array($element->$parentfield) && count($element->$parentfield) && $element->$parentfield[0]){
                     $parentId = $element->$parentfield[0];
                     $parent = $this->getElementById($parentId);
                     $children = $this->find(['relatedTo' => $parent, $this->primary_key.'[!]' => $element->id], true);
@@ -411,21 +400,20 @@ class baseService implements \JsonSerializable
                 $where[$this->primary_key] = $children;
             }else{
                 //just normal int field relation...
-                //TODO check this....
                 $where[$parentfield] = $element->$parentfield;
             }
         }else{
             $where[$this->primary_key . "[!]"] = $element->id;
         }
         $isInsert = false;
-        if(property_exists($element, 'oldIds') && property_exists($element, 'oldPosition') && $element->oldIds !== null){
+        if(property_exists($element, 'oldSiblings') && property_exists($element, 'oldPosition') && $element->oldSiblings !== null){
             $isInsert = true;
             anu()->database->update($this->getTable(), array("#".$field => "$field-1"), array(
-                $this->primary_key => $element->oldIds,
+                $this->primary_key => $element->oldSiblings,
                 $field . "[>=]" => $element->oldPosition
             ));
         }
-        //TODO check unterseiten change
+
         if(($oldPosition > $newPosition) || $isInsert){
             if(!$isInsert){
                 $where[$field . "[<=]"] = $oldPosition;
@@ -457,6 +445,10 @@ class baseService implements \JsonSerializable
 
             if($v[0] == AttributeType::Bool && $entry->$k){
                 $entry->$k = (bool)$entry->$k;
+            }
+
+            if($v[0] == AttributeType::Position){
+                $entry->$k = null;
             }
         }
 

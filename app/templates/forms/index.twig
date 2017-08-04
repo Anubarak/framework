@@ -1,5 +1,5 @@
+{% set class = class(entry) %}
 <div ng-controller="entryController{{ entry.id }}" class="entryController" data-id="{{ entry.id }}" data-class="{{ class }}">
-    {% set class = class(entry) %}
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="{{ class }}{{ entry.id }}Form">
         {% for key, attribute in attributes %}
             {% set currentTimestamp = 'currentTimestamp' %}

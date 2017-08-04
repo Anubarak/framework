@@ -33,6 +33,7 @@ class userController extends baseController
     }
 
     public function reset(){
+        //TODO reset
         echo "<pre>";
         var_dump("res");
         echo "</pre>";
@@ -44,6 +45,7 @@ class userController extends baseController
         $data = (array)anu()->request->getValue('user');
         $user->title = $data['username'];
         $user->password = $data['password'];
+        $user->repeatPassword = $data['repeatPassword'];
         $user->email = $data['email'];
 
         $response = array();

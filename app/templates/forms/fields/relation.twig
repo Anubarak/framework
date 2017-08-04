@@ -15,7 +15,7 @@
 
 <div class="form-group">
     <div style="width: 300px">
-        <label for="{{ class }}{{ entry.id }}{{ key }}">{{ key }}</label>
+        <label for="{{ class }}{{ entry.id }}{{ key }}">{{ title(attribute, key) }}</label>
         <ul class="list-group" ui-sortable="sortableOptions" ng-model="relations['{{key}}']" >
             <li class="list-group-item" ng-repeat="x in relations['{{key}}']">
                 {[{ x.title }]}
