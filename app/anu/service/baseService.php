@@ -162,7 +162,7 @@ class baseService implements \JsonSerializable
      * @return mixed
      * @throws \Exception
      */
-    protected function populateModel($data, $model){
+    public function populateModel($data, $model){
         if($model->setData($data)){
             $attributes = $model->defineAttributes();
             foreach ($attributes as $k => $v){
@@ -184,6 +184,11 @@ class baseService implements \JsonSerializable
                         $criteriaModel->storeIds($ids);
                         $model->$k = $criteriaModel;
                     }
+                }
+                if($v[0] == AttributeType::DateTime){
+                    $UTC = new \DateTimeZone("UTC");
+                    $date = new \DateTime( $data[$k], $UTC );
+                    $model->$k = $date->format('Y-m-d H:i:s');
                 }
             }
             return $model;

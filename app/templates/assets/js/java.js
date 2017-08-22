@@ -105,6 +105,29 @@ myApp.directive('timepicker', function () {
     };
 });
 
+myApp.directive('thinDirective', function($compile,$templateRequest, configService) {
+    console.log(configService);
+    return {
+        restrict: 'A',
+        scope: false,
+        compile: function (element, attrs) {
+            return function (scope, element, attrs) {
+                $templateRequest(configService.angularTemplatePath + 'forms/test/' + attrs.thinDirective + ".twig").then(function (html) {
+                    //var template = angular.element(html);
+                    //console.log(html);
+                    element.append($compile(html)(scope));
+
+                });
+            }
+        }
+    }
+});
+
+angular.module("myApp").factory("configService", function () {
+    var config = anu.config;
+    return config;
+});
+
 var datepickerOptions = {
     constrainInput: false,
         format: "dd.mm.yyyy",

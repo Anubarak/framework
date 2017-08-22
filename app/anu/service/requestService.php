@@ -21,8 +21,13 @@ class requestService
 
     public function __construct()
     {
+        if(is_array($_POST) && count($_POST)){
+            foreach ($_POST as $key => $post){
+                $string = json_decode($post ,true);
+                $this->postVar[$key] = (json_last_error() == JSON_ERROR_NONE)? (array)$string : $post;
+            }
+        }
         $this->getVar = $_GET;
-        $this->postVar = $_POST;
         $this->request = array_merge($this->getVar, $this->postVar);
     }
 
@@ -90,12 +95,13 @@ class requestService
     }
 
     public function process(){
-        $this->angularRequest = json_decode(file_get_contents("php://input"));
+        /*$this->angularRequest = json_decode(file_get_contents("php://input"));
 
         if($this->angularRequest){
             $this->castAngular();
             $this->setPost($this->angularRequest);
         }
+        */
         $page = $this->getValue('p');
         $stat = $this->getValue('s');
         $entry = $this->getValue('e');
@@ -116,7 +122,6 @@ class requestService
             if($arrRoute[0] !== 'ajax'){
                 $className = Anu::getClassByName($controller, "Controller");
                 $class = new $className();
-
                 if(count($arrRoute) >= 3){
                     $parameter = array_slice($arrRoute, 2, count($arrRoute)-1);
                     $class->$function($parameter);

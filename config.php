@@ -16,6 +16,7 @@ $config = array(
     ),
     'paths' => array(
         'coreServiceDirectory'      => 'app\anu\service',
+        'pluginDirectory'           => 'app\plugins',
         'coreRecordDirectory'       => 'app\plugins\record',
         'pluginRecordDirectory'     => 'app\plugins\record',
         'pluginServiceDirectory'    => 'app\plugins\service',

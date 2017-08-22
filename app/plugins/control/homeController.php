@@ -112,4 +112,13 @@ class homeController extends baseController
         die();
     }
 
+    /**
+     * @param $params
+     */
+    public function onBeforeSaveEntry($params){
+        echo "<pre>";
+        var_dump("blub");
+        echo "</pre>";
+        die();
+    }
 }

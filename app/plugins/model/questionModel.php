@@ -4,8 +4,6 @@ namespace Anu;
 
 class questionModel extends entryModel
 {
-    private $data;
-
     public function defineAttributes()
     {
         return array_merge(parent::defineAttributes(), array(
@@ -26,7 +24,8 @@ class questionModel extends entryModel
             'correctAnswer' => array(AttributeType::Number),
             'pointsPlus'    => array(AttributeType::Number),
             'pointsMinus'   => array(AttributeType::Number),
-            'position'      => array(AttributeType::Position)
+            'position'      => array(AttributeType::Position),
+            'matrix'        => array(AttributeType::Matrix, 'testMatrix')
         ));
     }
 

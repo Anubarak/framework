@@ -3,7 +3,7 @@
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="{{ class }}{{ entry.id }}Form">
         {% for key, attribute in attributes %}
             {% set currentTimestamp = 'currentTimestamp' %}
-           {% include 'forms/fields/'~attribute[0] ~ '.twig' with {
+            {% include 'forms/fields/'~attribute[0] ~ '.twig' with {
                 'key': key,
                 'attribute': attribute
             }%}

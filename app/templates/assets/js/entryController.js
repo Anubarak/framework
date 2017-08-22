@@ -6,7 +6,7 @@ var container = $('.entryController');
 $.each(container, function(index, item){
     var id = $(item).data('id');
     var className = $(item).data('class');
-    myApp.controller('entryController'+id, ['$scope', '$http', '$timeout', function ($scope, $http, $timeout) {
+    myApp.controller('entryController'+id, ['$scope', '$http', '$timeout', '$compile', 'configService', function ($scope, $http, $timeout, $compile, configService) {
         $scope.data = {};
         $scope.relations = [];
         $scope.classes = {};
@@ -15,6 +15,28 @@ $.each(container, function(index, item){
         $scope.slugEmpty = true;
         $scope.allRelations = {};
         $scope.errorMessages = {};
+        $scope.editors = {};
+
+        /**
+         * Contentmatrix build
+         * @type {{matrix: [*]}}
+         */
+        $scope.matrixElements = {
+            matrix: [
+                {
+                    title: "text",
+                    attributes: {
+                        headline: ['mixed'],
+                        text: ['text']
+                    },
+                    text: "zewites",
+                    headline: "zweites"
+                },
+
+            ]
+        };
+
+
         angular.forEach(attributes, function (item, index) {
             if ("relatedTo" in item) {
                 $scope.allRelations[index] = [];
@@ -22,6 +44,13 @@ $.each(container, function(index, item){
         });
         $scope.editor = null;
 
+        $scope.getTemplatePath = function(){
+            return configService.angularTemplatePath;
+        };
+
+        /**
+         * init scope
+         */
         $.each(entry, function (index, item) {
             if (typeof item === "object" && item) {
                 if ("class" in item && item.class === "elementCriteria") {
@@ -50,18 +79,40 @@ $.each(container, function(index, item){
             } else {
                 $scope.data[index] = item;
             }
+
+            if (index in attributes && attributes[index][0] === 'matrix') {
+                //$scope.matrixElements[index] = [];
+            }
         });
+
+        /**
+         * Slug handling
+         */
         if ("slug" in $scope.data && $scope.data.slug) {
             $scope.slugEmpty = false;
         }
+
+        /**
+         * TODO remove just for console debuggin
+         * @type {*}
+         */
         test = $scope;
 
+        /**
+         * Sortable options
+         * @type {{opacity: string, axis: string, tolerance: string}}
+         */
         $scope.sortableOptions = {
             opacity: '0.8',
             axis: 'y',
             tolerance: 'pointer',
         };
 
+        /**
+         * Toggle selection for Relation Modal
+         * @param key
+         * @param id
+         */
         $scope.relationTableToggleSelected = function (key, id) {
             console.log(key);
             console.log(id);
@@ -73,6 +124,10 @@ $.each(container, function(index, item){
             $scope.classes[key][id] = !$scope.classes[key][id];
         };
 
+        /**
+         * Get all possible active elements, that can be related
+         * @param key
+         */
         $scope.getRelation = function (key) {
             var relationModel = attributes[key]['relatedTo']['model'];
             var action = 'ajax/' + relationModel + "/find";
@@ -94,6 +149,11 @@ $.each(container, function(index, item){
 
         };
 
+        /**
+         * Remove relation from Entry
+         * @param element
+         * @param key
+         */
         $scope.removeRelation = function (element, key) {
             var id = element.index;
             $scope.relations[key] = $scope.relations[key].filter(function (el) {
@@ -101,7 +161,9 @@ $.each(container, function(index, item){
             });
         };
 
-
+        /**
+         * onchange - titlechange for slug
+         */
         $scope.titleChange = function () {
             var touched = $scope[$scope.form].slug.$dirty;
             if (!touched && $scope.slugEmpty) {
@@ -110,6 +172,9 @@ $.each(container, function(index, item){
             }
         };
 
+        /**
+         * Save entry -> upload to server
+         */
         $scope.send = function () {
             var key;
             $scope.reset();
@@ -120,13 +185,18 @@ $.each(container, function(index, item){
                 });
                 $scope.data[key] = relations;
             }
-
+            var form = new FormData();
+            var data = angular.copy($scope.data);
+            var matrix = angular.copy($scope.matrixElements);
+            form.append("entry", JSON.stringify(data));
+            form.append("matrix", JSON.stringify(matrix));
+            form.append('action', "entry/save");
             $http({
                 method: 'POST',
                 url: '',
-                data: {
-                    action: "entry/save", entry: $scope.data
-                }
+                data: form,
+                headers: { 'Content-Type': undefined},
+                transformRequest: angular.identity
             }).then(function successCallback(response) {
                 if ('success' in response.data && response.data['success'] === true) {
                     showNotification('Der Eintrag wurde erfolgreich gespeichert', 'notice');
@@ -154,11 +224,52 @@ $.each(container, function(index, item){
             });
         };
 
-        //TODO quill callback
-        $scope.$on("onSelectionChanged", function () {
-           alert("selekt change");
-        });
+        /**
+         * Add Matrix Element entry
+         *
+         * @param matrixKey
+         * @param attributeKey
+         */
+        $scope.addMatrixElement = function(matrixKey, attributeKey){
+            $http({
+                method: 'POST',
+                url: '',
+                data: {
+                    action: "entry/getMatrixHtml", matrixKey: matrixKey, entryType: className, attributeKey: attributeKey, index: $scope.matrixElements[attributeKey].length
+                }
+            }).then(function successCallback(response) {
+                console.log(response);
+                //console.log(response.data.html);
+                var attributes = {
+                    title: matrixKey,
+                    attributes: response.data.attributes
+                }
 
+                $scope.matrixElements[attributeKey].push(attributes);
+                console.log($scope.matrixElements);
+                /*
+                $scope.data[attributeKey].push({});
+                if("attributes" in response.data){
+                    var newMatrixAttributes = {};
+                    angular.forEach(response.data.attributes, function(item, index){
+                        newMatrixAttributes[index] = '';
+                    });
+                    $scope.data[attributeKey].push(newMatrixAttributes);
+                }
+
+                $('#'+className+id+attributeKey).append($compile('<li>' + response.data.html + '</li>')($scope));*/
+                //$scope.apply();
+            }, function errorCallback(response) {
+                console.log(response);
+            });
+            //$scope.matrix
+        };
+
+        /**
+         * Add Relations
+         * @param $id
+         * @param relation
+         */
         $scope.addRelation = function ($id, relation) {
             var rows = $("#" + $id).find('.selected');
             var newRelations = [];
@@ -175,19 +286,47 @@ $.each(container, function(index, item){
             $scope.relations[relation] = newRelations;
         };
 
+        /**
+         * Reset form before save
+         * @param key
+         */
         $scope.resetError = function(key){
             $scope[$scope.form].$setValidity(key, true);
-            console.log(key);
-            console.log($scope[$scope.form]);
         };
 
 
+        /**
+         * callback after editor is created
+         * @param editor
+         * @param key
+         */
+        $scope.editorCreated = function (editor, key) {
+            $scope.editors[key] = editor;
+            editor.on('selection-change', function(range, oldRange, source) {
+                if (range) {
+                    var toolbar = $scope.editors[key].getModule('toolbar');
+                    var container = $(toolbar.container);
+                    container.show();
+                    if (range.length === 0) {
+                        //console.log('User cursor is on', range.index);
+                    } else {
+                        //var text = editor.getText(range.index, range.length);
+                        //console.log('User has highlighted', text);
+                    }
+                } else {
+                    $scope[$scope.form].$setValidity(key, true);
+                    var toolbar = $scope.editors[key].getModule('toolbar');
+                    var container = $(toolbar.container);
+                    container.hide();
+                    //console.log('Cursor not in the editor');
+                }
+            });
+            console.log(editor);
+        };
 
-        $scope.editorCreated = function (editor) {
-            alert("test");
-            console.log(editor)
-        }
-
+        /**
+         * Reset form before validation
+         */
         $scope.reset = function() {
             $scope[$scope.form].$setPristine();
             $scope[$scope.form].$setUntouched();

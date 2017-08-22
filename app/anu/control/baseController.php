@@ -48,6 +48,7 @@ class baseController
                 die();
         */
         anu()->user->login("", "anubarak1993@gmail.com", 'Warpten5000');
+
         //anu()->user->login("blub", "Friedl@Uwe.de");
         //$user = anu()->user->getUserById(2);
         //$loggedIn = anu()->user->login('Fischer@Fisch.de', 'Fischer@Fisch.de');

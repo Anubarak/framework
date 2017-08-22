@@ -9,7 +9,7 @@
 }(this, function (Quill) {
     'use strict'
 
-    var app
+    var app;
     // declare ngQuill module
     app = angular.module('ngQuill', [])
 
@@ -197,7 +197,7 @@
                         // file type is only image.
                         if (/^image\//.test(file.type)) {
                             console.log(file);
-                            //saveToServer(file);
+                            saveToServer(file);
 
                         } else {
                             console.warn('You could only upload images.');

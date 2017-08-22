@@ -9,7 +9,7 @@
 namespace Anu;
 
 
-class matrixService extends baseService
+class matrixService extends entryService
 {
     protected   $table = null;
     protected   $template = null;
@@ -29,7 +29,7 @@ class matrixService extends baseService
      * @return bool|int
      */
     public function saveMatrix($matrix){
-        return $this->saveElement($matrix);
+        return $this->saveEntry($matrix);
     }
 
     /**
@@ -37,6 +37,11 @@ class matrixService extends baseService
      * @return baseModel|null
      */
     public function getMatrixById($matrixId){
-        return $this->getElementById($matrixId);
+        return $this->getEntryById($matrixId);
+    }
+
+    public function getMatrixByName($name){
+        $matrix = Anu::getClassByName($name, "Model", true);
+        return $matrix;
     }
 }

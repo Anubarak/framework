@@ -20,7 +20,7 @@ class entryModel extends baseModel
             'createDate'    => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp, 'title' => Anu::t('Erstellungsdatum')),
             'updateDate'    => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp, 'title' => Anu::t('Bearbeitungsdatum')),
             'enabled'       => array(AttributeType::Bool, 'default' => '1', 'title' => Anu::t('Aktiv')),
-            'author_id'     => array(AttributeType::Number, 'default' => Defaults::currentUserId, 'title' => Anu::t('Author'))
+            'author_id'     => array(AttributeType::Hidden, 'default' => Defaults::currentUserId, 'title' => Anu::t('Author'))
         );
     }
 

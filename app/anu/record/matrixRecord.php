@@ -24,7 +24,6 @@ class matrixRecord extends baseRecord
     public function defineAttributes(){
         return array(
             'matrix_id'         => array(AttributeType::Number),
-            'page_id'           => array(AttributeType::Number),
             'position'          => array(AttributeType::Number),
             'content'           => array(AttributeType::Text),
             'createDate'        => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP'),

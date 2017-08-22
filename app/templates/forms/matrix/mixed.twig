@@ -1,0 +1,14 @@
+<div class="form-group">
+    <label for="matrix{{ index }}{{ key }}">{{ title(attribute, key) }}</label>
+    <input type="text"
+           id="matrix{{ index }}{{ key }}"
+           ng-model="data['matrix'][{{ index }}]['{{ key }}']"
+           name="matrix{{ index }}{{ key }}"
+           class="form-control"
+           ng-blur="resetError('matrix[{{ index }}][{{ key }}]')"
+           {% if attributes[key] and attributes[key]['required'] is defined %}
+                required
+            {% endif %}
+    >
+    {[{ data['matrix'][{{ index }}]['{{ key }}'] }]}
+</div>

@@ -10,7 +10,7 @@
 
     $dirs = array(
         'app\anu\service', 'app\anu\model', 'app\anu\control', 'app\anu\core', 'app\anu\record', 'app\anu\twig',
-        'app\plugins\model', 'app\plugins\service', 'app\plugins\control', 'app\plugins\record',
+        'app\plugins', 'app\plugins\model', 'app\plugins\service', 'app\plugins\control', 'app\plugins\record',
     );
 
     $baseFiles = array(

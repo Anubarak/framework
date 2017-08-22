@@ -41,6 +41,11 @@ class entryService extends baseService
             $this->primary_key = anu()->$className->primary_key;
         }
 
+        $event = new event($this, array(
+           'entry'  => &$entry
+        ));
+        $event->raiseEvent('onBeforeSaveEntry');
+
         //check if its a new entry of if we should update an existing one
         $record = Anu::getClassByName($this, "Record", true);
         $recordAttributes = $record->defineAttributes();
@@ -116,6 +121,7 @@ class entryService extends baseService
                 $prim = $this->getPrimaryKey();
                 $entry->$prim = $entry->id;
             }
+
             foreach ($attributes as $key => $value){
                 if($data[$key] !== 'now()'){
                     //relations
@@ -178,6 +184,47 @@ class entryService extends baseService
                                 }
                             }
                             $values[$key] = $entry->$key;
+                            break;
+                        case AttributeType::Matrix:
+                            if(property_exists($entry, $key)){
+                                if(!isset($value['1'])){
+                                    throw new Exception("Error: missing related Matrix Attribute in " . Anu::getClassName($this) . "Service");
+                                }
+                                //$matrix = anu()->matrix->getMatrixByName($value[1]);
+                                //array of matrixes...
+                                if(is_array($entry->$key) && count($entry->$key)){
+                                    $matrixIds = array();
+                                    foreach ($entry->$key as $matrix){
+                                        if($id = anu()->matrix->saveEntry($matrix)){
+                                            $matrixIds[] = $id;
+                                        }
+                                    }
+                                }
+
+                                //delete prevoius relations if there are any
+                                $className = Anu::getClassName($this);
+                                $relation = array(
+                                    'table' => 'matrix',
+                                    'field' => 'matrix_id',
+                                    'model' => 'matrix',
+                                );
+                                anu()->database->delete('relation', array(
+                                    'field_1'   => $key,
+                                    'model_1'   => $className,
+                                    'id_1'      => $entry->id
+                                ));
+
+                                foreach ($matrixIds as $rel){
+                                    if($rel){
+                                        anu()->database->insert('relation', $this->getRelationData($relation, $key, $rel, $entry->id));
+                                    }
+                                }
+
+                                echo "<pre>";
+                                var_dump($matrixIds);
+                                echo "</pre>";
+                                die();
+                            }
                             break;
                         default:
                             if(array_key_exists($key, $recordAttributes)){
@@ -313,7 +360,7 @@ class entryService extends baseService
      * @param $entry entryModel
      */
     public function generateSlugForEntry($entry){
-        if(!$entry->id){
+        if(!$entry->id && property_exists($entry, 'slug')){
             $slug = $entry->slug;
             $slugInUse = anu()->database->has($this->table, array('slug' => $slug));
             if(!$slugInUse && $slug != null){
@@ -456,6 +503,30 @@ class entryService extends baseService
                 $relField = $relatedField;
             }
             $entry->oldSiblings =  $this->getChildrenFromEntry($relField, $relationId, $entry->id);
+        }
+    }
+
+    /**
+     *
+     * TODO Update Relations move relation update from update and insert entry to this place in order to update the one from matrix easier
+     * @param $entry
+     * @param $key
+     * @param $relationArray
+     * @param $relationIds
+     */
+    private function updateRelations($entry, $key, $relationArray, $relationIds){
+        //delete prevoius relations if there are any
+        $className = Anu::getClassName($this);
+        anu()->database->delete('relation', array(
+            'field_1'   => $key,
+            'model_1'   => $className,
+            'id_1'      => $entry->id
+        ));
+
+        foreach ($relationIds as $rel){
+            if($rel){
+                anu()->database->insert('relation', $this->getRelationData($relationArray, $key, $rel, $entry->id));
+            }
         }
     }
 }

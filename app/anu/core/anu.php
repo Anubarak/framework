@@ -25,9 +25,10 @@ namespace Anu;
 class app{
 
     public $database = null;
+    public $plugins;
     private $initServices = array();
-    public function __construct(){
 
+    public function __construct(){
         $whoops = new \Whoops\Run;
         $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
         $whoops->register();
@@ -41,13 +42,36 @@ class app{
             $countFiles = count($files);
             if($countFiles > 2){
                 for($i = 2; $i < $countFiles; $i++){
-                    require_once $dir . '\\' . $files[$i];
-                    $withoutExt = preg_replace('/\\.[^.\\s]{3,4}$/', '', $files[$i]);
-                    $magicOperator = preg_replace('/\\Service.[^.\\s]{3,4}$/', '', $files[$i]);
-                    $withNameSpace = 'anu\\' . $withoutExt;
-                    $this->$magicOperator = new $withNameSpace();
-                    if(method_exists($this->$magicOperator, "init")){
-                        $this->initServices[] = $magicOperator;
+                    if(strpos($files[$i], 'Service') !== false) {
+                        require_once $dir . '\\' . $files[$i];
+                        $withoutExt = preg_replace('/\\.[^.\\s]{3,4}$/', '', $files[$i]);
+                        $magicOperator = preg_replace('/\\Service.[^.\\s]{3,4}$/', '', $files[$i]);
+                        $withNameSpace = 'anu\\' . $withoutExt;
+                        $this->$magicOperator = new $withNameSpace();
+                        if (method_exists($this->$magicOperator, "init")) {
+                            $this->initServices[] = $magicOperator;
+                        }
+                    }
+                }
+            }
+        }
+
+        $this->plugins = (object)array();
+        //include Plugin directories
+        $dirs = array(
+            Anu::getPluginDirectory()
+        );
+        foreach ($dirs as $dir){
+            $files = scandir($dir);
+            $countFiles = count($files);
+            if($countFiles > 2) {
+                for ($i = 2; $i < $countFiles; $i++) {
+                    if(strpos($files[$i], 'Plugin') !== false){
+                        $withoutExt = preg_replace('/\\.[^.\\s]{3,4}$/', '', $files[$i]);
+
+                        $magicOperator = preg_replace('/Plugin.php/', '', $files[$i]);
+                        $withNameSpace = 'anu\\' . $withoutExt;
+                        $this->plugins->$magicOperator = new $withNameSpace();
                     }
                 }
             }
@@ -97,6 +121,14 @@ class Anu
     public static function getCoreServiceDirectory(){
         return Anu::$paths['coreServiceDirectory'];
     }
+
+    /**
+     * @return string
+     */
+    public static function getPluginDirectory(){
+        return Anu::$paths['pluginDirectory'];
+    }
+
 
     /**
      * @return string

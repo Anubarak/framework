@@ -27,6 +27,7 @@ abstract class AttributeType extends BaseEnum
     const Text       = 'text';
     const Relation   = 'relation';
     const Hidden     = 'hidden';
+    const Matrix     = 'matrix';
 
     const ClassName  = 'classname';
     const DateTime   = 'datetime';

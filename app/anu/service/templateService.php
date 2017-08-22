@@ -32,7 +32,11 @@ class templateService
     public function init(){
         $path = anu()->config->get('paths');
         $templatePath = $path['customTemplateDirectory'];
-
+        $path['angularTemplatePath'] = BASE_URL . $path['customTemplateDirectory'];
+        $this->addJsCode('
+            var anu = {};
+            anu.config = ' . json_encode($path) .  '
+        ');
         $this->loader = new \Twig_Loader_Filesystem($templatePath);
         $this->twig = new \Twig_Environment($this->loader, array(
             'debug' => true,
@@ -126,13 +130,19 @@ class templateService
      * @param $template
      * @param array $data
      */
-    public function render($template, $data = array()){
+    public function render($template, $data = array(), $returnTemplate = false){
         $template = $this->twig->load($template);
 
-        echo $template->render(array_merge($data, array(
+        $html = $template->render(array_merge($data, array(
             'assetPathCSS'   =>  BASE_URL . 'app/templates/assets/css/',
             'assetPathJS'   => BASE_URL . 'app/templates/assets/js/',
         )));
+
+        if(!$returnTemplate){
+            echo $html;
+        }else{
+            return $html;
+        }
     }
 }
 

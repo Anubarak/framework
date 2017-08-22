@@ -1,0 +1,18 @@
+I'm a matrix
+{% set matrixId = attribute[1] %}
+{{ matrixId }}
+{% set matrix = anu.matrix.getMatrixByName(matrixId) %}
+{% set matrixAttributes =  matrix.defineAttributes() %}
+{% for index, attributes in matrixAttributes %}
+    <button class="btn btn-default" ng-click="addMatrixElement('{{ index }}', '{{ key }}')" name="{{ index }}" value="{{ index }}">{{ index }}</button>
+{% endfor %}
+
+
+<ul id="{{ class }}{{ entry.id }}{{ key }}" ui-sortable="sortableOptions" ng-model="matrixElements['{{ key }}']" style="border: solid 1px black"  >
+    <li ng-repeat="item in matrixElements['{{ key }}']" style="border: solid 1px black">
+        {[{ item.title }]}
+        <div class="panel" ng-repeat="(index, key) in item.attributes">
+            <div thin-directive="{[{key[0]}]}" item-info="item"> </div>
+        </div>
+    </li>
+</ul>

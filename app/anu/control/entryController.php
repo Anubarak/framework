@@ -61,12 +61,32 @@ class entryController extends baseController
      * save entry
      */
     public function save(){
-        if($this->isAjaxRequest()){
-            $entry = anu()->request->postVar('entry');
-            $class = $entry->class;
-
+            $data = anu()->request->postVar('entry');
+            $className = $data['class'];
+            $entry = Anu::getClassByName($className, 'Model', true);
+            anu()->$className->populateModel($data, $entry);
+            $matrix = anu()->request->postVar('matrix', null);
+            $matrixArray = array();
+            if($matrix && is_array($matrix)){
+                foreach ($matrix as $matrixKey => $matrixType){
+                    foreach ($matrixType as $matrixElement){
+                        $singleMatrix = new matrixModel();
+                        $matrixAttributes = anu()->matrix->getMatrixByName('testMatrix')->defineAttributes()[$matrixElement['title']];
+                        $content = array();
+                        foreach ($matrixAttributes as $k => $v){
+                            if(array_key_exists($k, $matrixElement)){
+                                $content[$k] = $matrixElement[$k];
+                            }
+                        }
+                        $singleMatrix->content = json_encode($content);
+                        $singleMatrix->id = 1;
+                        $matrixArray[] = $singleMatrix;
+                    }
+                    $entry->$matrixKey = $matrixArray;
+                }
+            }
             $response = array();
-            if(!$id = anu()->$class->saveEntry($entry)){
+            if(!$id = anu()->$className->saveEntry($entry)){
                 $response['success'] = false;
                 $response['errors'] = $entry->getErrors();
             }else {
@@ -74,12 +94,9 @@ class entryController extends baseController
                 $response['id']     = $id;
             }
 
-            if($this->isAjaxRequest()){
-                $this->returnJson($response);
-            }else{
-                return $response;
-            }
-        }
+
+            $this->returnJson($response);
+
     }
 
     /**
@@ -116,5 +133,33 @@ class entryController extends baseController
             exit;
         }
         return null;
+    }
+
+    public function getMatrixHtml(){
+        $entryModel = Anu::getClassByName(anu()->request->getValue('entryType'), 'Model', true);
+        $matrixKey = anu()->request->getValue('matrixKey');
+        $attributeKey = anu()->request->getValue('attributeKey');
+        $index = anu()->request->getValue('index');
+        $atributes = $entryModel->defineAttributes();
+        $matrixModel = anu()->matrix->getMatrixByName($atributes[$attributeKey][1]);
+        $matrixAttributes = $matrixModel->defineAttributes();
+
+        $html = '';
+        foreach ($matrixAttributes[$matrixKey] as $k => $v){
+            $variables = array(
+                'index'         => $index,
+                'key'           => $k,
+                'attribute'     => $v,
+                'entry'         => $matrixModel,
+                'class'         => Anu::getClassName($this)
+            );
+
+            $html .= anu()->template->render('forms/matrix/' . $v[0] . '.twig', $variables, true);
+        }
+
+        $this->returnJson(array(
+            "html" => $html,
+            'attributes'    => $matrixAttributes[$matrixKey]
+        ));
     }
 }
