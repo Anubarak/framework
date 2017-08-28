@@ -173,9 +173,11 @@ class baseService implements \JsonSerializable
      * @return mixed
      * @throws \Exception
      */
-    public function populateModel($data, $model){
+    public function populateModel($data, $model, $attributes = null){
         if($model->setData($data)){
-            $attributes = $model->defineAttributes();
+            if($attributes === null){
+                $attributes = $model->defineAttributes();
+            }
             foreach ($attributes as $k => $v){
                 switch ($v[0]){
                     case AttributeType::Relation:
@@ -220,7 +222,7 @@ class baseService implements \JsonSerializable
      * @param $field                string                      the field in the data
      * @return elementCriteriaModel
      */
-    private function getBaseCriteriaModelForPopulatedEntry($entry, $data, $class, $field){
+    public function getBaseCriteriaModelForPopulatedEntry($entry, $data, $class, $field){
         $criteriaModel = new elementCriteriaModel(anu()->$class);
         $id = isset($entry->id) ? $entry->id : null;
         //new empty entry at all.... with no id an nothing

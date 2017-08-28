@@ -9,14 +9,14 @@
 namespace Anu;
 
 
-class testMatrixModel
+class testMatrixModel extends baseModel
 {
     public function defineAttributes()
     {
         return array(
             'text' => array(
-                'text'  => array(AttributeType::Text),
-                'headline'  => array(AttributeType::Mixed)
+                'headline'  => array(AttributeType::Mixed),
+                'text'  => array(AttributeType::Text)
             ),
             'module'    => array(
                 'headline'  => array(AttributeType::Mixed),

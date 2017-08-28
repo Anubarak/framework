@@ -14,7 +14,7 @@ class recordController extends baseController
     public function getContent(){
         $records = anu()->record->loadAllRecords();
         //$record = craft()->record->getRecordByName('page');
-        anu()->record->installRecord('page');
+        //anu()->record->installRecord('page');
 
         /*foreach ($records as $record){
             $record->installRecord();

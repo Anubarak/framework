@@ -20,10 +20,10 @@ $config = array(
         'coreRecordDirectory'       => 'app\plugins\record',
         'pluginRecordDirectory'     => 'app\plugins\record',
         'pluginServiceDirectory'    => 'app\plugins\service',
-        'customTemplateDirectory'   => 'app\templates\\',
+        'customTemplateDirectory'   => 'app\public\templates\\',
         'adminTemplateDirectory'    => 'app\anu\templates\\',
-        'assetPath'                 => 'app\templates\assets',
-        'imgPath'                   => 'app\templates\assets\img',
+        'assetPath'                 => 'app\public\assets',
+        'imgPath'                   => 'app\public\assets\img',
         'namespace'                 => 'anu\\'
     ),
     'mode' => 'dev'

@@ -26,6 +26,7 @@ class matrixRecord extends baseRecord
             'matrix_id'         => array(AttributeType::Number),
             'position'          => array(AttributeType::Number),
             'content'           => array(AttributeType::Text),
+            'handle'            => array(AttributeType::Text),
             'type'              => array(AttributeType::Text),
             'createDate'        => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP'),
             'updateDate'        => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP'),

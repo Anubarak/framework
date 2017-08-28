@@ -48,6 +48,8 @@ class templateService
         $this->twig->addTokenParser(new IncludeResource_TokenParser('includeJsFile'));
         $this->twig->addTokenParser(new IncludeResource_TokenParser('includeCssFile'));
         $this->twig->addGlobal('anu', anu());
+        $this->twig->addGlobal('assetPathCSS', BASE_URL . $path['assetPath'] . '/css/');
+        $this->twig->addGlobal('assetPathJS', BASE_URL . $path['assetPath'] . '/js/');
         $this->twig->addGlobal('baseUrl', BASE_URL);
     }
 
@@ -132,11 +134,7 @@ class templateService
      */
     public function render($template, $data = array(), $returnTemplate = false){
         $template = $this->twig->load($template);
-
-        $html = $template->render(array_merge($data, array(
-            'assetPathCSS'   =>  BASE_URL . 'app/templates/assets/css/',
-            'assetPathJS'   => BASE_URL . 'app/templates/assets/js/',
-        )));
+        $html = $template->render($data);
 
         if(!$returnTemplate){
             echo $html;

@@ -85,6 +85,7 @@ class entryController extends baseController
                                 switch ($v[0]){
                                     case AttributeType::Relation:
                                         $singleMatrix->$k = $matrixElement[$k];
+                                        $content[$k] = $matrixElement[$k];
                                         break;
                                     default:
                                         $content[$k] = $matrixElement[$k];
@@ -95,6 +96,7 @@ class entryController extends baseController
                             }
                         }
                         $singleMatrix->type = $matrixElement['type'];
+                        $singleMatrix->handle = $matrixElement['matrixId'];
                         $singleMatrix->content = json_encode($content);
                         $matrixArray[] = $singleMatrix;
                     }

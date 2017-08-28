@@ -6,7 +6,7 @@ var container = $('.entryController');
 $.each(container, function(index, item){
     var id = $(item).data('id');
     var className = $(item).data('class');
-    myApp.controller('entryController'+id, ['$scope', '$http', '$timeout', '$compile', 'configService', function ($scope, $http, $timeout, $compile, configService) {
+    myApp.controller('entryController'+id, ['$scope', '$http', '$timeout', '$compile', 'configService', 'RelationService', function ($scope, $http, $timeout, $compile, configService, RelationService) {
         $scope.data = {};
         $scope.relations = [];
         $scope.classes = {};
@@ -40,10 +40,11 @@ $.each(container, function(index, item){
         };
         $scope.matrixTempIdCounter = 0;
 
-
         angular.forEach(attributes, function (item, index) {
             if ("relatedTo" in item) {
-                $scope.allRelations[index] = [];
+                RelationService.getElements(item.relatedTo.model).then(function(element){
+                    $scope.allRelations[item.relatedTo.model] = element;
+                });
             }
         });
         $scope.editor = null;
@@ -88,7 +89,6 @@ $.each(container, function(index, item){
                 angular.forEach(item, function(i){
                     i.tmpId = $scope.matrixTempIdCounter;
                     $scope.matrixTempIdCounter++;
-                    console.log(i);
                 });
                 $scope.matrixElements[index] = item;
             }
@@ -157,25 +157,10 @@ $.each(container, function(index, item){
          * @param relationModel
          * @param key
          */
-        $scope.getRelation = function (relationModel, key) {
-            var action = 'ajax/' + relationModel + "/find";
-            $http({
-                method: 'POST',
-                url: '',
-                data: {
-                    action: action
-                }
-            }).then(function successCallback(response) {
-                console.log(response);
-                if (response.data) {
-                    $scope.allRelations[key] = response.data;
-                }
-
-            }, function errorCallback(response) {
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
+        $scope.getRelation = function (relationModel) {
+            RelationService.getElements(relationModel).then(function(element){
+                $scope.allRelations[relationModel] = element;
             });
-
         };
 
         /**
@@ -190,16 +175,8 @@ $.each(container, function(index, item){
             });
         };
 
-        $scope.getRelationByEntryId = function(index){
-            var element = $scope.allRelations["test_id"].filter(function (el) {
-                console.log(el);
-                console.log(el.id);
-                return el.id == index;
-            });
-            return (element.length)? element[0] : null;
-        };
-
         $scope.removeRelations = function(item, key, id){
+            console.log("test");
             if(typeof id === 'undefined'){
                 alert("remove all");
                 item[key] = [];
@@ -384,7 +361,6 @@ $.each(container, function(index, item){
                     //console.log('Cursor not in the editor');
                 }
             });
-            console.log(editor);
         };
 
         /**

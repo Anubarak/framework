@@ -33,7 +33,6 @@ class entryService extends baseService
      * @return bool|int|string
      */
     public function saveEntry($entry){
-
         $this->defineDefaultValues($entry);
         $this->generateSlugForEntry($entry);
         if(!$this->validate($entry) || !$this->checkSavePermission($entry)){
@@ -216,6 +215,7 @@ class entryService extends baseService
                                 }
                                 //$matrix = anu()->matrix->getMatrixByName($value[1]);
                                 //array of matrixes...
+                                $oldIds = $oldEntry->$key->ids();
                                 $matrixIds = array();
                                 $i = 0;
                                 if(is_array($entry->$key) && count($entry->$key)){
@@ -227,6 +227,21 @@ class entryService extends baseService
                                         $i++;
                                     }
                                 }
+
+                                if($max = count($oldIds)){
+                                    $idsToDelete = array();
+                                    for($i = 0; $i < $max; $i++){
+                                        if(!in_array($oldIds[$i], $matrixIds)){
+                                            $idsToDelete[] = $oldIds[$i];
+                                        }
+                                    }
+                                    if(count($idsToDelete)){
+                                        anu()->database->delete('matrix', array(
+                                            'matrix_id' => $idsToDelete
+                                        ));
+                                    }
+                                }
+
                                 $relation = array(
                                     'table' => 'matrix',
                                     'field' => 'matrix_id',
@@ -401,7 +416,7 @@ class entryService extends baseService
      * @return array|int
      * @throws Exception
      */
-    private function getRelationsFromEntryByKey($entry, $key){
+    public function getRelationsFromEntryByKey($entry, $key){
         $relations = array();
         if(!$entry->$key instanceof elementCriteriaModel){
             if(!is_array($entry->$key)){
@@ -433,7 +448,7 @@ class entryService extends baseService
      * @param int $id_1
      * @return array
      */
-    private function getRelationData($relation, $field_1, $id_2, $id_1 = 0){
+    public function getRelationData($relation, $field_1, $id_2, $id_1 = 0){
         return array(
             'field_1' => $field_1,
             'field_2' => $relation['field'],
@@ -452,7 +467,7 @@ class entryService extends baseService
      * @param $relatedField
      * @return mixed
      */
-    private function setNewPosition($positionField, $relatedField, $relationId = 'nothing', $excludeId = null){
+    public function setNewPosition($positionField, $relatedField, $relationId = 'nothing', $excludeId = null){
         $criteria = new elementCriteriaModel($this);
         $criteria->relatedTo = array(
             'field' => $relatedField,
@@ -480,7 +495,7 @@ class entryService extends baseService
      * @param null $excludeId
      * @return array
      */
-    private function getChildrenFromEntry($relatedField, $relationId = 'nothing', $excludeId = null){
+    public function getChildrenFromEntry($relatedField, $relationId = 'nothing', $excludeId = null){
         $criteria = new elementCriteriaModel($this);
         $criteria->relatedTo = array(
             'field' => $relatedField,
@@ -501,7 +516,7 @@ class entryService extends baseService
      * @param null $oldEntry baseModel|entryModel
      * @return bool
      */
-    private function defineSiblingsFromEntry($entry, &$oldEntry = null){
+    public function defineSiblingsFromEntry($entry, &$oldEntry = null){
         $attributes = $entry->defineAttributes();
         if(property_exists($entry, 'oldSiblings')){
             return true;
@@ -528,7 +543,7 @@ class entryService extends baseService
      * @param $relationArray
      * @param $relationIds
      */
-    private function updateRelations($entry, $field, $relationInformation, $relationIds){
+    public function updateRelations($entry, $field, $relationInformation, $relationIds){
         //delete prevoius relations if there are any
         $className = Anu::getClassName($this);
         anu()->database->delete('relation', array(

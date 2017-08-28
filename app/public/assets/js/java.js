@@ -111,8 +111,44 @@ myApp.directive('timepicker', function () {
     };
 });
 
+myApp.directive('moduleRelations', ['RelationService', function(RelationService) {
+    return {
+        restrict: 'E',
+
+        replace: true,
+        transclude: false,
+        scope: {
+            x:'=x',
+            item:'=item',
+            index:'=index',
+            allRelations:'=relations'
+        },
+        template:   '<div>' +
+                        '{[{ b.title }]}' +
+                        ' <a href=""  ng-click="removeRelations(item, index, x)">' +
+                            '<i class="fa fa-trash-o" aria-hidden="true"></i>' +
+                        '</a>' +
+                    '</div>',
+        link: function(scope) {
+            RelationService.getElements('answer', true).then(function(elements){
+                var newElement = elements.filter(function (el) {
+                    return el.id == scope.x;
+                });
+                scope.b = (newElement.length)? newElement[0] : null;
+            });
+
+            scope.removeRelations = function(item, key, id){
+                var index = item[key].indexOf(id);
+                if(index !== -1){
+                    item[key].splice( index, 1 );
+                }
+            };
+        }
+    }
+}]);
+
+
 myApp.directive('thinDirective', function($compile,$templateRequest, configService) {
-    console.log(configService);
     return {
         restrict: 'A',
         scope: false,
@@ -132,6 +168,27 @@ myApp.directive('thinDirective', function($compile,$templateRequest, configServi
 angular.module("myApp").factory("configService", function () {
     var config = anu.config;
     return config;
+});
+
+angular.module("myApp").factory('RelationService', function($http) {
+    return {
+        getElements: function(relationModel) {
+            var action = 'ajax/' + relationModel + "/find";
+            return $http({
+                method: 'POST',
+                url: '',
+                data: {
+                    action: action
+                }
+            }).then(function successCallback(response) {
+                return response.data;
+
+            }, function errorCallback(response) {
+                console.log(response);
+                return [];
+            });
+        }
+    }
 });
 
 var datepickerOptions = {

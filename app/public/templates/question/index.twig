@@ -4,8 +4,13 @@
     {{ entry.title }}
 
     {% for matrix in entry.matrix %}
+
         {{ matrix.id }}<br>
         {{ dump(matrix.content) }}
         {{ matrix.text }}
+        {% if matrix.test_id is defined %}
+            {{ matrix.test_id.first().id }}
+            {{ matrix.test_id.first().title }}
+        {% endif %}
     {% endfor %}
 {% endblock %}

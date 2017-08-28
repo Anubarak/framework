@@ -21,7 +21,7 @@
                                         <td>Eintragsdatum</td>
                                     </tr>
                                 </thead>
-                                <tbody ng-repeat="item in allRelations['{{key}}']">
+                                <tbody ng-repeat="item in allRelations['{{model}}']">
                                     <tr ng-class="{selected: classes['{{ key }}'][{[{ item.id }]}]}"
                                         data-title="{[{ item.title }]}"
                                         data-id="{[{ item.id }]}"

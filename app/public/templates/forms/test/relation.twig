@@ -2,12 +2,7 @@
     <label for="matrix">{[{ index }]}</label>
     <ul class="list-group" ui-sortable="sortableOptions" ng-model="item[index]" >
         <li class="list-group-item" ng-repeat="x in item[index]">
-            <div ng-init="b = getRelationByEntryId(x)">
-                {[{ b.title }]}
-                <a href=""  ng-click="removeRelations(item, index, x)">
-                    <i class="fa fa-trash-o" aria-hidden="true"></i>
-                </a>
-            </div>
+            <module-relations x="x" item="item" index="index" relations="allRelations" model="item['attributes'][index]['relatedTo']['model']"></module-relations>
         </li>
     </ul>
     <a href="#{[{form}]}MatrixModal{[{item.tmpId}]}" class="btn btn-default" data-toggle="modal" ng-click="getRelation(item['attributes'][index]['relatedTo']['model'], index)">Add Relation</a>
@@ -37,7 +32,7 @@
                                     <td>Eintragsdatum</td>
                                 </tr>
                                 </thead>
-                                <tbody ng-repeat="relation in allRelations[index]">
+                                <tbody ng-repeat="relation in allRelations[item['attributes'][index]['relatedTo']['model']]">
                                 <tr ng-class="{selected: inArray(item[index], relation.id)}"
                                     data-title="{[{ relation.title }]}"
                                     data-id="{[{ relation.id }]}"

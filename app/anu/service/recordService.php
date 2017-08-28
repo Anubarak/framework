@@ -49,7 +49,7 @@ class recordService
             if($countFiles > 2){
                 for($i = 2; $i < $countFiles; $i++){
                     $withoutExt = preg_replace('/\\.[^.\\s]{3,4}$/', '', $files[$i]);
-                    $withNameSpace = 'craft\\' . $withoutExt;
+                    $withNameSpace = Anu::getNameSpace() . $withoutExt;
                     $this->records[] = new $withNameSpace();
                 }
             }
@@ -213,5 +213,24 @@ class recordService
         }
 
         anu()->database->dumpTable($record->getTableName());
+    }
+
+    /**
+     * @param $record   string|baseRecord
+     * @return bool
+     */
+    public function isRecordInstalled($record){
+        if(is_string($record)){
+            $className = Anu::getNameSpace() . $record . "Record";
+            if(class_exists($className)){
+                $record = new $className();
+            }else{
+                return false;
+            }
+        }
+
+        return anu()->database->has('records', array(
+            'table_name'   => $record->getTableName()
+        ));
     }
 }
