@@ -11,8 +11,8 @@ namespace Anu;
 
 class questionPlugin
 {
-    public function onBeforeSaveEntry($param){
-        $param['entry']->title = "test";
+    /*public function onBeforeSaveEntry($param){
+        $param['entry']->title = "gehookter Title";
         return $param;
-    }
+    }*/
 }

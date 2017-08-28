@@ -1,0 +1,70 @@
+<div class="form-group">
+    <label for="matrix">{[{ index }]}</label>
+    <ul class="list-group" ui-sortable="sortableOptions" ng-model="item[index]" >
+        <li class="list-group-item" ng-repeat="x in item[index]">
+            <div ng-init="b = getRelationByEntryId(x)">
+                {[{ b.title }]}
+                <a href=""  ng-click="removeRelations(item, index, x)">
+                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                </a>
+            </div>
+        </li>
+    </ul>
+    <a href="#{[{form}]}MatrixModal{[{item.tmpId}]}" class="btn btn-default" data-toggle="modal" ng-click="getRelation(item['attributes'][index]['relatedTo']['model'], index)">Add Relation</a>
+</div>
+
+
+<div class="modal fade" id="{[{form}]}MatrixModal{[{item.tmpId}]}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </a>
+                <h4 class="modal-title">Relations for {[{ index }]}</h4>
+            </div>
+
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-sm">
+                            <table id="{[{form}]}Table{[{item.tmpId}]}" class="table selectable table-striped">
+                                <thead>
+                                <tr>
+                                    <td>Title</td>
+                                    <td>Eintragsdatum</td>
+                                </tr>
+                                </thead>
+                                <tbody ng-repeat="relation in allRelations[index]">
+                                <tr ng-class="{selected: inArray(item[index], relation.id)}"
+                                    data-title="{[{ relation.title }]}"
+                                    data-id="{[{ relation.id }]}"
+                                    ng-click="relationTableToggleSelected(index, relation.id, item)"
+                                >
+                                    <td>
+                                        <a href="" >{[{ relation.title }]}</a>
+                                    </td>
+                                    <td>
+                                        {[{ relation.createDate }]}
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            </ul>
+                        </div>
+                    </div>
+                </form>
+
+            </div> <!-- /.modal-body -->
+            <div class="modal-footer">
+                <button class="btn btn-default"data-dismiss="modal" aria-hidden="true">Add</button>
+                <button class="btn btn-danger" data-dismiss="modal" ng-click="removeRelations(item, index)">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

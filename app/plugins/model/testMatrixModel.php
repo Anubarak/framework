@@ -19,7 +19,12 @@ class testMatrixModel
                 'headline'  => array(AttributeType::Mixed)
             ),
             'module'    => array(
-                'headline'  => array(AttributeType::Mixed)
+                'headline'  => array(AttributeType::Mixed),
+                'test_id'   => array(AttributeType::Relation, 'title' => Anu::t('Fragen'), 'relatedTo' => array(
+                    'table' => 'answer',
+                    'field' => 'answer_id',
+                    'model' => 'answer'
+                )),
             )
         );
     }

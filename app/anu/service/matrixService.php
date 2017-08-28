@@ -19,6 +19,9 @@ class matrixService extends entryService
 
     public function init(){
         $class = Anu::getClassByName($this, "Record", true);
+        if($class === false){
+            throw new \Exception('could not find Record for ' . get_class($this));
+        }
         $this->table = $class->getTableName();
         $this->primary_key = $class->getPrimaryKey();
     }

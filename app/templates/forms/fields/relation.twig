@@ -33,7 +33,7 @@
         </div>
     {% endfor %}
     <div>
-        <a href="#{{ class }}{{ entry.id }}Modal{{ key }}" class="btn btn-default" data-toggle="modal" ng-click="getRelation('{{ key }}')">Add Relation</a>
+        <a href="#{{ class }}{{ entry.id }}Modal{{ key }}" class="btn btn-default" data-toggle="modal" ng-click="getRelation(attributes['{{ key }}']['relatedTo']['model'], '{{ key }}')">Add Relation</a>
     </div>
     {% include "/forms/modal.twig" %}
 </div>

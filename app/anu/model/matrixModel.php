@@ -15,9 +15,11 @@ class matrixModel extends baseModel
     {
         return array(
             'position'          => array(AttributeType::Number, "relatedField" => 'page_id'),
-            'content'           => array(AttributeType::Text),
+            'content'           => array(AttributeType::JSON),
+            'type'              => array(AttributeType::Text),
             'createDate'        => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp),
             'updateDate'        => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp),
+            'enabled'           => array(AttributeType::Bool, 'default' => '1', 'title' => Anu::t('Aktiv'))
         );
     }
 

@@ -7,6 +7,12 @@ String.prototype.setTime = function(time){
     alert(target);
 };
 
+Array.prototype.removeElementByValue = function(value){
+    var index = this.indexOf(value);
+    if (index >= 0) {
+        this.splice( index, 1 );
+    }
+};
 
 String.prototype.replaceAll = function(search, replacement) {
     var target = this;

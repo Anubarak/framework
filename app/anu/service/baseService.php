@@ -40,9 +40,12 @@ class baseService implements \JsonSerializable
     }
 
 
-
     /**
-     * @param $entry            entryModel
+     * Define default values for $entry
+     * define timestamps and defaults declared in
+     * defineAttributes
+     *
+     * @param $entry baseModel|entryModel
      */
     protected function defineDefaultValues($entry){
         $defaults = $entry->defineAttributes();
@@ -122,6 +125,14 @@ class baseService implements \JsonSerializable
         return false;
     }
 
+
+    /**
+     * TODO need more validators....
+     *
+     * @param $rules
+     * @return string
+     * @throws \Exception
+     */
     public function getValidatorList($rules){
         if(!isset($rules[0])){
             throw new \Exception('invalid model, no datatype given');
@@ -157,7 +168,7 @@ class baseService implements \JsonSerializable
     /**
      * Populate the entryModel, add relations
      *
-     * @param $data
+     * @param $data         array
      * @param $model        baseModel|entryModel
      * @return mixed
      * @throws \Exception
@@ -166,29 +177,33 @@ class baseService implements \JsonSerializable
         if($model->setData($data)){
             $attributes = $model->defineAttributes();
             foreach ($attributes as $k => $v){
-                if($v[0] == AttributeType::Relation && isset($v['relatedTo'])){
-                    if($relation = $v['relatedTo']){
-                        /*if(!is_array($data[$k])){
-                            $data[$k] = explode(",", $data[$k]);
+                switch ($v[0]){
+                    case AttributeType::Relation:
+                        if(isset($v['relatedTo']) && $relation = $v['relatedTo']){
+                            $class = $relation['model'];
+                            $model->$k = $this->getBaseCriteriaModelForPopulatedEntry($model, $data, $class, $k);
                         }
-                        $data[$k] = array_unique($data[$k]);*/
-                        $class = $relation['model'];
-                        $criteriaModel = new elementCriteriaModel(anu()->$class);
-                        $id = isset($model->id) ? $model->id : null;
-                        $criteriaModel->relatedTo  = array(
-                            'field' => $k,
-                            'id'    => $id,
-                            'model' => Anu::getClassName($this)
-                        );
-                        $ids = $criteriaModel->ids();
-                        $criteriaModel->storeIds($ids);
-                        $model->$k = $criteriaModel;
-                    }
-                }
-                if($v[0] == AttributeType::DateTime){
-                    $UTC = new \DateTimeZone("UTC");
-                    $date = new \DateTime( $data[$k], $UTC );
-                    $model->$k = $date->format('Y-m-d H:i:s');
+                        break;
+                    case AttributeType::Matrix:
+                        $class = 'matrix';
+                        $model->$k = $this->getBaseCriteriaModelForPopulatedEntry($model, $data, $class, $k);
+                        break;
+                    case AttributeType::DateTime:
+                        $UTC = new \DateTimeZone("UTC");
+                        $date = new \DateTime( $data[$k], $UTC );
+                        $model->$k = $date->format('Y-m-d H:i:s');
+                        break;
+                    case AttributeType::JSON:
+                        $jsonData = json_decode($data[$k], true);
+                        if(is_array($jsonData) && count($jsonData)){
+                            foreach ($jsonData as $jsonKey => $json){
+                                if(property_exists($model, $jsonKey)){
+                                    throw new \Exception($jsonKey . ' is a reserved key an must not be used as an index for matrixcontent');
+                                }
+                                $model->$jsonKey = $json;
+                            }
+                        }
+                        break;
                 }
             }
             return $model;
@@ -196,9 +211,72 @@ class baseService implements \JsonSerializable
         throw new \Exception('Could not populate Model');
     }
 
+    /**
+     * Create Criteria Model to find related Entries for $entry
+     *
+     * @param $entry                baseModel|entryModel        Plain Model of the entry
+     * @param $data                 array                       array with the data of the field
+     * @param $class                string                      className of the related Entry -> matrix|class eg page, answer...
+     * @param $field                string                      the field in the data
+     * @return elementCriteriaModel
+     */
+    private function getBaseCriteriaModelForPopulatedEntry($entry, $data, $class, $field){
+        $criteriaModel = new elementCriteriaModel(anu()->$class);
+        $id = isset($entry->id) ? $entry->id : null;
+        //new empty entry at all.... with no id an nothing
+        if($data === null || !array_key_exists($field, $data) || $data[$field] === null){
+            $criteriaModel->relatedTo  = array(
+                'field' => $field,
+                'id'    => $id,
+                'model' => Anu::getClassName($this)
+            );
+        }else{
+            if(array_key_exists($field, $data) && is_array($data[$field])) {
+                if (count($data[$field]) && array_key_exists(0, $data[$field]) && !is_array($data[$field][0])) {
+                    // user gave an array with all ids
+                    $attributes = $entry->defineAttributes();
+                    $primary_key = $attributes[$field]['relatedTo']['field'];
+                    $criteriaModel->$primary_key = $data[$field];
+                    $criteriaModel->storeIds($data[$field]);
+                }elseif(array_key_exists('ids', $data[$field])){
+                    //user did not change anything and just returned the origianl CriteriaModel of the entry
+                    $criteriaModel->relatedTo  = array(
+                        'field' => $field,
+                        'id'    => $id,
+                        'model' => Anu::getClassName($this)
+                    );
+                    $criteriaModel->storeIds($data[$field]['ids']);
+                }else{
+                    //user inserted an array of objects eg matrix elements that contains elements with an id
+                    $ids = array();
+                    foreach ($data[$field] as $populateField){
+                        $ids[] = $populateField['id'];
+                    }
+                    if($ids){
+                        $primary_key = anu()->matrix->getPrimaryKey();
+                        $criteriaModel->$primary_key = $ids;
+                        $criteriaModel->storeIds($ids);
+                    }
+                }
+            }else{
+                //no data from user -> just search the original relations from database
+                $criteriaModel->relatedTo  = array(
+                    'field' => $field,
+                    'id'    => $id,
+                    'model' => Anu::getClassName($this)
+                );
+                $ids = $criteriaModel->ids();
+                $criteriaModel->storeIds($ids);
+            }
+        }
+
+        return $criteriaModel;
+    }
+
 
     /**
      * Generate Model from by Post variables
+     * only for normal not ajax Post request... a little bit depricated since I always use angular
      *
      * @return baseModel|baseService|entryModel|entryService|bool|null|string
      */
@@ -215,6 +293,8 @@ class baseService implements \JsonSerializable
     }
 
     /**
+     * loop through all attributes to create the select command for the db
+     *
      * @param $attributes
      * @return array
      */
@@ -236,6 +316,8 @@ class baseService implements \JsonSerializable
 
 
     /**
+     * Get an element based on its ID
+     *
      * @param $userId
      * @return baseModel|null
      */
@@ -266,6 +348,8 @@ class baseService implements \JsonSerializable
     }
 
     /**
+     * TODO update this.... I only worked with entryService saveElement for a loooong time <.<
+     *
      * @param $element            baseModel
      * @return bool|int
      */
@@ -454,6 +538,21 @@ class baseService implements \JsonSerializable
 
             if($v[0] == AttributeType::Position){
                 $entry->$k = null;
+            }
+            if($v[0] == AttributeType::Matrix){
+                $matrixAttributes = anu()->matrix->getMatrixByName($v[1])->defineAttributes();
+                $matrixArray = array();
+                $index = 0;
+                foreach ($entry->$k as $matrix){
+                    $matrixArray[$index] = json_decode($matrix->content, true);
+                    $matrixArray[$index]['type'] = $matrix->type;
+                    $matrixArray[$index]['title'] = $matrix->type;
+                    $matrixArray[$index]['attributes'] = $matrixAttributes[$matrix->type];
+                    $matrixArray[$index]['matrixId']    = $v[1];
+                    $matrixArray[$index]['id']    = $matrix->id;
+                    $index++;
+                }
+                $entry->$k = $matrixArray;
             }
         }
 

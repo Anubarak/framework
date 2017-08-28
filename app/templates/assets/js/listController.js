@@ -26,19 +26,23 @@ if(typeof scopes === 'undefined'){
 }
 
 var container = $('.listController');
+var test = null;
 $.each(container, function(index, item){
     var list = $(item).data('list');
     myApp.controller('listController'+list, ['$scope','$http', function($scope,$http) {
         $scope.init = function(){
             $scope.hasChildren = false;
             $scope.entries = [];
+            $scope.parentFieldId = '';
             if(typeof entries[list] !== undefined){
                 var myEntries = [];
                 //create object with id => entryId
                 var parentKey = '';
                 angular.forEach(attributes[list], function(attribute){
                     if(attribute[0] === 'position' && 'relatedField' in attribute){
+                        console.log(attribute);
                         parentKey = attribute['relatedField'];
+                        $scope.parentFieldId = parentKey;
                     }
                 });
                 if(parentKey){
@@ -56,12 +60,23 @@ $.each(container, function(index, item){
         };
 
         $scope.send = function(data, model){
+            var form = new FormData();
+            console.log(data);
+            console.log(model);
+            var model = angular.copy(model);
+            if($scope.parentFieldId){
+                model[$scope.parentFieldId] = [data.parentId];
+            }
+            delete model.children;
+            form.append("entry", JSON.stringify(model));
+            form.append("data", JSON.stringify(data));
+            form.append('action', "entry/saveTree");
             $http({
                 method: 'POST',
                 url: '',
-                data: {
-                    action: "entry/saveTree", entry: model, data: data
-                }
+                data: form,
+                headers: { 'Content-Type': undefined},
+                transformRequest: angular.identity
             }).then(function successCallback(response) {
                 console.log(response.data);
                 if(response.data === "true"){

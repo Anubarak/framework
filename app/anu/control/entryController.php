@@ -30,9 +30,11 @@ class entryController extends baseController
      *
      */
     public function saveTree(){
-        $entry = anu()->request->getValue('entry');
+        $entryData = anu()->request->getValue('entry');
         $data = (array)anu()->request->getValue('data');
-
+        $class = $entryData['class'];
+        $entry = Anu::getClassByName($class, 'Model', true);
+        anu()->$class->populateModel($entryData, $entry);
         $parentId = $data['parentId'];
         $position = $data['position'];
         $oldPosition = $data['oldPosition'];
@@ -65,21 +67,35 @@ class entryController extends baseController
             $className = $data['class'];
             $entry = Anu::getClassByName($className, 'Model', true);
             anu()->$className->populateModel($data, $entry);
+
             $matrix = anu()->request->postVar('matrix', null);
             $matrixArray = array();
-            if($matrix && is_array($matrix)){
+            if($matrix && is_array($matrix) && count($matrix)){
                 foreach ($matrix as $matrixKey => $matrixType){
                     foreach ($matrixType as $matrixElement){
-                        $singleMatrix = new matrixModel();
-                        $matrixAttributes = anu()->matrix->getMatrixByName('testMatrix')->defineAttributes()[$matrixElement['title']];
+                        if($matrixElement['id']){
+                            $singleMatrix = anu()->matrix->getMatrixById($matrixElement['id']);
+                        }else{
+                            $singleMatrix = new matrixModel();
+                        }
+                        $matrixAttributes = anu()->matrix->getMatrixByName($matrixElement['matrixId'])->defineAttributes()[$matrixElement['type']];
                         $content = array();
                         foreach ($matrixAttributes as $k => $v){
                             if(array_key_exists($k, $matrixElement)){
-                                $content[$k] = $matrixElement[$k];
+                                switch ($v[0]){
+                                    case AttributeType::Relation:
+                                        $singleMatrix->$k = $matrixElement[$k];
+                                        break;
+                                    default:
+                                        $content[$k] = $matrixElement[$k];
+                                        break;
+                                }
+                            }else{
+                                $content[$k] = "";
                             }
                         }
+                        $singleMatrix->type = $matrixElement['type'];
                         $singleMatrix->content = json_encode($content);
-                        $singleMatrix->id = 1;
                         $matrixArray[] = $singleMatrix;
                     }
                     $entry->$matrixKey = $matrixArray;
@@ -139,26 +155,11 @@ class entryController extends baseController
         $entryModel = Anu::getClassByName(anu()->request->getValue('entryType'), 'Model', true);
         $matrixKey = anu()->request->getValue('matrixKey');
         $attributeKey = anu()->request->getValue('attributeKey');
-        $index = anu()->request->getValue('index');
         $atributes = $entryModel->defineAttributes();
         $matrixModel = anu()->matrix->getMatrixByName($atributes[$attributeKey][1]);
         $matrixAttributes = $matrixModel->defineAttributes();
 
-        $html = '';
-        foreach ($matrixAttributes[$matrixKey] as $k => $v){
-            $variables = array(
-                'index'         => $index,
-                'key'           => $k,
-                'attribute'     => $v,
-                'entry'         => $matrixModel,
-                'class'         => Anu::getClassName($this)
-            );
-
-            $html .= anu()->template->render('forms/matrix/' . $v[0] . '.twig', $variables, true);
-        }
-
         $this->returnJson(array(
-            "html" => $html,
             'attributes'    => $matrixAttributes[$matrixKey]
         ));
     }

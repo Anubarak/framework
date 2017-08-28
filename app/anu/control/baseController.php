@@ -47,6 +47,7 @@ class baseController
                 echo "</pre>";
                 die();
         */
+        anu()->record->installRecord('testMatrix');
         anu()->user->login("", "anubarak1993@gmail.com", 'Warpten5000');
 
         //anu()->user->login("blub", "Friedl@Uwe.de");

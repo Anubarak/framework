@@ -97,6 +97,12 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                 $id = null;
                 $field = null;
                 $model = null;
+                if($debug){
+                    echo "<pre>";
+                    var_dump($relations);
+                    echo "</pre>";
+                    die();
+                }
                 if(is_object($relations)){
                     $id = $relations->id;
                     $model = Anu::getClassName($relations);
@@ -127,6 +133,12 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
 
 
                     if($className == $model ){
+                        if($debug){
+                            echo "<pre>";
+                            var_dump($id);
+                            echo "</pre>";
+                            die();
+                        }
                         $where[anu()->$className->getTable() . '.' . anu()->$className->getPrimaryKey() . '[!]'] = $id;
                     }
 
@@ -184,11 +196,23 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
             if($this->order !== null){
                 $where['ORDER'] = $this->order;
             }
-
+            if($debug){
+                echo "<pre>";
+                var_dump($where);
+                echo "</pre>";
+                die();
+            }
             if($join){
                 $rows = anu()->database->select(anu()->$className->getTable(), $join, $select , $where);
             }else{
                 $rows = anu()->database->select(anu()->$className->getTable(), $select , $where);
+            }
+            if($debug){
+                echo "<pre>";
+                var_dump($where);
+                var_dump(anu()->database->last());
+                echo "</pre>";
+                die();
             }
             $rows = array_unique($rows,SORT_REGULAR);
 

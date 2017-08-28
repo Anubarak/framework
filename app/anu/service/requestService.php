@@ -124,7 +124,9 @@ class requestService
                 $class = new $className();
                 if(count($arrRoute) >= 3){
                     $parameter = array_slice($arrRoute, 2, count($arrRoute)-1);
-                    $class->$function($parameter);
+                    if(method_exists($class, $function)){
+                        $class->$function($parameter);
+                    }
                 }else{
                     $class->$function();
                 }
