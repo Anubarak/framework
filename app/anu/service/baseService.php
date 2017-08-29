@@ -521,7 +521,7 @@ class baseService implements \JsonSerializable
     /**
      * @param $entry baseModel
      */
-    public function renderForm($entry = null, $template = 'forms/index.twig'){
+    public function renderForm($entry = null, $template = 'admin/forms/index.twig'){
         if(!$entry){
             $entry = Anu::getClassByName($this, "Model", true);
             //just to add relationModels
@@ -534,8 +534,8 @@ class baseService implements \JsonSerializable
                 $entry->$k->storeTitles();
             }
 
-            if($v[0] == AttributeType::Bool && $entry->$k){
-                $entry->$k = (bool)$entry->$k;
+            if($v[0] == AttributeType::Bool){
+                $entry->$k = property_exists($entry, $k)? (bool)$entry->$k : false;
             }
 
             if($v[0] == AttributeType::Position){
@@ -596,7 +596,7 @@ class baseService implements \JsonSerializable
             }
             attributes["' . $className .  '"] = ' . json_encode($attributes) . ';
         ');
-        return anu()->template->render('lists/index.twig', array(
+        return anu()->template->render('admin/lists/index.twig', array(
             'entries'       => $entries,
             'attributes'    => $attributes,
             'list'          => $className

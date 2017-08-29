@@ -91,6 +91,9 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
             $className = $record['name'];
             //check for relations...
             $select = array();
+            if(!property_exists(anu(), $className)){
+                throw new \Exception("Error: Class $className not found. Please create $className Service");
+            }
             $select[] = anu()->$className->getPrimaryKey() . '(id)';
             if($relations){
 

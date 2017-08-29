@@ -11,6 +11,20 @@ namespace Anu;
 
 class baseRecord
 {
+    public $name = '';
+    public $tableName = '';
+
+    /**
+     * Define aliases for javascript and such
+     *
+     * baseRecord constructor.
+     */
+    public function __construct(){
+        $this->name = $this->getRecordName();
+        $this->tableName = $this->getTableName();
+        $this->installed = $this->isInstalled();
+    }
+
     /**
      * @return string
      */
@@ -48,5 +62,13 @@ class baseRecord
                 return $k;
             }
         }
+    }
+
+    public function getRecordName(){
+        return '';
+    }
+
+    public function isInstalled(){
+        return anu()->record->isRecordInstalled($this);
     }
 }

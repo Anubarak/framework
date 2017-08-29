@@ -1,0 +1,11 @@
+{% extends 'layout/site.twig' %}
+
+{% block content %}
+    {% set class = attribute(anu, form) %}
+
+    {% set form = class.renderForm(entry) %}
+    {{ form|raw }}
+
+{% endblock %}
+
+{% includeJsFile 'entryController.js'%}

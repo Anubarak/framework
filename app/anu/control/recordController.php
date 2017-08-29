@@ -13,13 +13,10 @@ class recordController extends baseController
 {
     public function getContent(){
         $records = anu()->record->loadAllRecords();
-        //$record = craft()->record->getRecordByName('page');
-        //anu()->record->installRecord('page');
 
-        /*foreach ($records as $record){
-            $record->installRecord();
-        }*/
-        anu()->template->render('home.twig', array(
+        anu()->template->addAnuJsObject($records, 'records');
+
+        anu()->template->render('admin/record/index.twig', array(
             'records' => $records
         ));
     }
@@ -28,11 +25,23 @@ class recordController extends baseController
     /**
      * @param $recordId
      */
-    public function installRecord(){
-        $recordId = anu()->request->getValue('recordId');
-        $this->requireAjaxRequest();
-        if($recordId){
-
+    public function toggleInstallation(){
+        $recordName = anu()->request->getValue('record');
+        $response = array();
+        if($recordName){
+            if(anu()->record->isRecordInstalled($recordName)){
+                //deinstall
+                $response['installed'] = false;
+                $response['success'] = anu()->record->deleteRecord($recordName);
+            }else{
+                //install
+                $response['success'] = anu()->record->installRecord($recordName);
+                $response['installed'] = true;
+            }
+        }else{
+            $response['success'] = false;
         }
+
+        $this->returnJson($response);
     }
 }

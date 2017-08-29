@@ -15,6 +15,7 @@
 
     {#<link  href="{{ assetPathCSS }}jquery-ui-git.css" rel="stylesheet">#}
     <link  href="{{ assetPathCSS }}bootstrap.css" rel="stylesheet">
+    <link  href="{{ assetPathCSS }}vendor/toggleButton.css" rel="stylesheet">
     <link  href="{{ assetPathCSS }}vendor/bs.sm.min.css" rel="stylesheet">
     <link  href="{{ assetPathCSS }}vendor/jquery.timepicker.css" rel="stylesheet">
     <link  href="{{ assetPathCSS }}vendor/bootstrap-datepicker.css" rel="stylesheet">
@@ -53,8 +54,8 @@
             moment.tz.add('Europe/London|GMT BST BDST|0 -10 -20|0101010101010101010101010101010101010101010101010121212121210101210101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010|-2axa0 Rc0 1fA0 14M0 1fc0 1g00 1co0 1dc0 1co0 1oo0 1400 1dc0 19A0 1io0 1io0 WM0 1o00 14o0 1o00 17c0 1io0 17c0 1fA0 1a00 1lc0 17c0 1io0 17c0 1fA0 1a00 1io0 17c0 1io0 17c0 1fA0 1cM0 1io0 17c0 1fA0 1a00 1io0 17c0 1io0 17c0 1fA0 1a00 1io0 1qM0 Dc0 2Rz0 Dc0 1zc0 Oo0 1zc0 Rc0 1wo0 17c0 1iM0 FA0 xB0 1fA0 1a00 14o0 bb0 LA0 xB0 Rc0 1wo0 11A0 1o00 17c0 1fA0 1a00 1fA0 1cM0 1fA0 1a00 17c0 1fA0 1a00 1io0 17c0 1lc0 17c0 1fA0 1a00 1io0 17c0 1io0 17c0 1fA0 1a00 1a00 1qM0 WM0 1qM0 11A0 1o00 WM0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1tA0 IM0 90o0 U00 1tA0 U00 1tA0 U00 1tA0 U00 1tA0 WM0 1qM0 WM0 1qM0 WM0 1tA0 U00 1tA0 U00 1tA0 11z0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1o00 14o0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00 11A0 1qM0 WM0 1qM0 WM0 1qM0 WM0 1qM0 11A0 1o00 11A0 1o00|10e6');
         </script>
 
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        <script src="{{ assetPathJS }}vendor/jquery.min.js"></script>
+        <script src="{{ assetPathJS }}vendor/jquery.ui.min.js"></script>
         <script src="{{ assetPathJS }}bootstrap.min.js"></script>
         <script src="{{ assetPathJS }}vendor/bs.sm.min.js"></script>
         <script src="{{ assetPathJS }}vendor/jquery.timepicker.js"></script>
@@ -62,7 +63,6 @@
         <script src="{{ assetPathJS }}vendor/quill.js"></script>
         <script src="{{ assetPathJS }}vendor/image-resize.min.js"></script>
         <script src="{{ assetPathJS }}vendor/image-drop.min.js"></script>
-        <script src="{{ assetPathJS }}test.js"></script>
 
         <script src="{{ assetPathJS }}angular.min.js"></script>
         <script src="{{ assetPathJS }}vendor/tg.dynamic.directive.js"></script>
@@ -126,11 +126,6 @@
 
 
         <script src="{{ assetPathJS }}java.js"></script>
-        <script src="{{ assetPathJS }}entryController.js"></script>
-        <script src="{{ assetPathJS }}listController.js"></script>
-        <script src="{{ assetPathJS }}loginController.js"></script>
-
-
         <script src="{{ assetPathJS }}editor.js"></script>
 
         {% set cssFiles = anu.template.getCssFile() %}
@@ -140,7 +135,7 @@
 
         {% set jsFiles = anu.template.getJsFile() %}
         {% for file in jsFiles %}
-            <script src="{{ file }}" type="text/javascript"></script>
+            <script src="{{ assetPathJS }}{{ file }}" type="text/javascript"></script>
         {% endfor %}
 
         {% set jsCode = anu.template.getJsCode() %}

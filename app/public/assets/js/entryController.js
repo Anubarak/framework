@@ -93,6 +93,7 @@ $.each(container, function(index, item){
                 $scope.matrixElements[index] = item;
             }
         });
+        console.log($scope.data);
 
         /**
          * Slug handling

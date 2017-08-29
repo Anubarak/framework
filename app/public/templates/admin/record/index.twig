@@ -1,0 +1,23 @@
+{% extends 'layout/site.twig' %}
+
+{% block content %}
+    <ul class="list-group" ng-controller="recordController">
+        <li class="list-group-item" ng-repeat="record in data.records">
+            {[{ record.name }]}
+            <div class="right">
+                <button type="button"
+                        ng-model="record"
+                        class="btn btn-lg btn-toggle"
+                        autocomplete="off"
+                        ng-class="{active: record.installed}"
+                        ng-click="toggleInstall(record);"
+                >
+                    <div class="handle"></div>
+                </button>
+                {[{ record.installed }]}
+            </div>
+        </li>
+    </ul>
+{% endblock %}
+
+{% includeJsFile 'recordController.js'%}

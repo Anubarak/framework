@@ -36,4 +36,7 @@ class pageRecord extends entryRecord
         return 'page';
     }
 
+    public function getRecordName(){
+        return "Seiten";
+    }
 }

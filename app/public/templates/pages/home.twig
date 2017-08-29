@@ -13,6 +13,10 @@
     {% set form = anu.question.renderList() %}
     {{ form|raw }}
 
+    <br><br><br>
+    {% set form = anu.comic.renderList() %}
+    {{ form|raw }}
+
     <br><br><br><br>
     <br><br><br><br>
     <br><br><br><br>
@@ -136,9 +140,10 @@
     <img src="{{ asset.getUrl() }}">
 
     </div>
+    {#
     {% includeJsFile 't'%}
     {% includeJsFile 't2'%}
     {% includeJsFile 't23'%}
     {% includeCssFile 't23'%}
-    {% includeCssFile 't23'%}
+    {% includeCssFile 't23'%}#}
 {% endblock %}

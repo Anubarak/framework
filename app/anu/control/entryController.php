@@ -123,7 +123,7 @@ class entryController extends baseController
      * @param $parameter array
      */
     public function add($parameter){
-        anu()->template->render('forms/edit.twig', array(
+        anu()->template->render('admin/forms/edit.twig', array(
             'form' => $parameter[0],
             'entry' => null,
         ));
@@ -143,7 +143,7 @@ class entryController extends baseController
         }
         $class = $parameter[0];
         if($entry = anu()->$class->getEntryById($parameter[1])){
-            anu()->template->render('forms/edit.twig', array(
+            anu()->template->render('admin/forms/edit.twig', array(
                 'form' => $parameter[0],
                 'entry' => $entry,
                 'class' => $class

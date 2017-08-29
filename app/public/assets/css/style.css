@@ -172,7 +172,7 @@ html, body, #content {
 }
 
 body > #content {
-	height: auto; min-height: 100%;
+	height: auto; min-height: 100%;    padding-top: 100px;
 }
 
 header #imageContainer{

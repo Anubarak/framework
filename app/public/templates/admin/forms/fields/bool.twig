@@ -1,0 +1,18 @@
+
+<div class="form-check">
+    <label for="{{ class }}{{ entry.id }}{{ key }}" class="form-check-label">
+        {{ title(attribute, key) }}
+    </label><br>
+    <button type="button"
+            ng-model="data['{{ key }}']"
+            id="{{ class }}{{ entry.id }}{{ key }}"
+            class="btn btn-lg btn-toggle {% if attribute(entry, key) %}active{% endif %}"
+            data-toggle="button"
+            aria-pressed="true"
+            autocomplete="off"
+            name="data[{{ key }}]"
+            ng-click="data['{{ key }}'] = !data['{{ key }}']"
+    >
+        <div class="handle"></div>
+    </button>
+</div>

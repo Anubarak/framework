@@ -36,4 +36,8 @@ class answerRecord extends entryRecord
         return 'answer';
     }
 
+    public function getRecordName(){
+        return "Antworten";
+    }
+
 }

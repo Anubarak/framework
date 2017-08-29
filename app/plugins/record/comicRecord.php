@@ -9,7 +9,7 @@
 namespace Anu;
 
 
-class questionRecord extends entryRecord
+class comicRecord extends entryRecord
 {
 
     /**
@@ -17,18 +17,14 @@ class questionRecord extends entryRecord
      */
     public function defineAttributes(){
         return array_merge(array(
-            'question_id'   => array(AttributeType::Number, ),
+            'comic_id'   => array(AttributeType::Number, ),
             'text'          => array(AttributeType::Mixed),
-            'correctAnswer' => array(AttributeType::Number),
-            'pointsPlus'    => array(AttributeType::Number),
-            'pointsMinus'   => array(AttributeType::Number),
-            'position'  => array(AttributeType::Number),
         ), parent::defineAttributes());
     }
 
     public function defineIndex(){
         return array_merge(array(
-            'question_id'   => array(DBIndex::Primary)
+            'comic_id'   => array(DBIndex::Primary)
         ), parent::defineIndex());
     }
 
@@ -36,11 +32,11 @@ class questionRecord extends entryRecord
      * @return string
      */
     public function getTableName(){
-        return 'question';
+        return 'comic';
     }
 
     public function getRecordName(){
-        return "Fragen";
+        return "Comics";
     }
 
 }

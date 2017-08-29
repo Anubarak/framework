@@ -1,9 +1,8 @@
 {% extends 'layout/site.twig' %}
 
 {% block content %}
-    {% set class = attribute(anu, form) %}
 
-    {% set form = class.renderForm(entry) %}
+    {% set form = anu.comic.renderForm(entry) %}
     {{ form|raw }}
 
 {% endblock %}

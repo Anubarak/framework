@@ -27,7 +27,7 @@ class templateService
     private $css_files   = array();
     private $js_code    =  array();
     private $notice = array();
-
+    private $objectDefined = false;
 
     public function init(){
         $path = anu()->config->get('paths');
@@ -72,6 +72,13 @@ class templateService
      */
     public function getCssFile(){
         return $this->css_files;
+    }
+
+    /**
+     * @return array
+     */
+    public function getJsFile(){
+        return $this->js_files;
     }
 
     /**
@@ -141,6 +148,25 @@ class templateService
         }else{
             return $html;
         }
+    }
+
+    /**
+     * Add an element to the anu js object
+     *
+     * @param $object
+     * @param $index
+     */
+    public function addAnuJsObject($object, $index){
+        if($this->objectDefined){
+            $this->addJsCode('
+                var anu = {};
+            ');
+            $this->objectDefined = true;
+        }
+
+        $this->addJsCode('
+            anu["' . $index.  '"] = ' . json_encode($object) . ';
+        ');
     }
 }
 

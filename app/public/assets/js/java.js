@@ -154,7 +154,7 @@ myApp.directive('thinDirective', function($compile,$templateRequest, configServi
         scope: false,
         compile: function (element, attrs) {
             return function (scope, element, attrs) {
-                $templateRequest(configService.angularTemplatePath + 'forms/test/' + attrs.thinDirective + ".twig").then(function (html) {
+                $templateRequest(configService.angularTemplatePath + 'admin/forms/matrix/' + attrs.thinDirective + ".twig").then(function (html) {
                     //var template = angular.element(html);
                     //console.log(html);
                     element.append($compile(html)(scope));

@@ -215,7 +215,10 @@ class entryService extends baseService
                                 }
                                 //$matrix = anu()->matrix->getMatrixByName($value[1]);
                                 //array of matrixes...
-                                $oldIds = $oldEntry->$key->ids();
+                                $oldIds = array();
+                                if($oldEntry && property_exists($oldEntry, $key)){
+                                    $oldIds = $oldEntry->$key->ids();
+                                }
                                 $matrixIds = array();
                                 $i = 0;
                                 if(is_array($entry->$key) && count($entry->$key)){
