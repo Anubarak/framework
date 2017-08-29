@@ -57,71 +57,22 @@
         <script src="{{ assetPathJS }}vendor/jquery.min.js"></script>
         <script src="{{ assetPathJS }}vendor/jquery.ui.min.js"></script>
         <script src="{{ assetPathJS }}bootstrap.min.js"></script>
-        <script src="{{ assetPathJS }}vendor/bs.sm.min.js"></script>
-        <script src="{{ assetPathJS }}vendor/jquery.timepicker.js"></script>
-        <script src="{{ assetPathJS }}vendor/bootstrap-datepicker.js"></script>
-        <script src="{{ assetPathJS }}vendor/quill.js"></script>
-        <script src="{{ assetPathJS }}vendor/image-resize.min.js"></script>
-        <script src="{{ assetPathJS }}vendor/image-drop.min.js"></script>
+        {% if isCpRequest %}
+            <script src="{{ assetPathJS }}vendor/bs.sm.min.js"></script>
+            <script src="{{ assetPathJS }}vendor/jquery.timepicker.js"></script>
+            <script src="{{ assetPathJS }}vendor/bootstrap-datepicker.js"></script>
+            <script src="{{ assetPathJS }}vendor/quill.js"></script>
+            <script src="{{ assetPathJS }}vendor/image-resize.min.js"></script>
+            <script src="{{ assetPathJS }}vendor/image-drop.min.js"></script>
+        {% endif %}
+
 
         <script src="{{ assetPathJS }}angular.min.js"></script>
         <script src="{{ assetPathJS }}vendor/tg.dynamic.directive.js"></script>
         <script src="{{ assetPathJS }}vendor/angular-moment.js"></script>
         <script src="{{ assetPathJS }}vendor/sortable.js"></script>
-        <script type="text/javascript">
-            function getApp(){
-                return myApp;
-            }
+        <script src="{{ assetPathJS }}app.js"></script>
 
-            const myApp = angular.module('myApp',['tg.dynamicDirective', 'ui.sortable', 'ngQuill']).config(function($interpolateProvider, $httpProvider){
-
-                $interpolateProvider.startSymbol('{[{').endSymbol('}]}');
-                // Use x-www-form-urlencoded Content-Type
-                $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
-                /**
-                 * The workhorse; converts an object to x-www-form-urlencoded serialization.
-                 * @param {Object} obj
-                 * @return {String}
-                 */
-                var param = function(obj) {
-                    var query = '', name, value, fullSubName, subName, subValue, innerObj, i;
-
-                    for(name in obj) {
-                        value = obj[name];
-
-                        if(value instanceof Array) {
-                            for(i=0; i<value.length; ++i) {
-                                subValue = value[i];
-                                fullSubName = name + '[' + i + ']';
-                                innerObj = {};
-                                innerObj[fullSubName] = subValue;
-                                query += param(innerObj) + '&';
-                            }
-                        }
-                        else if(value instanceof Object) {
-                            for(subName in value) {
-                                subValue = value[subName];
-                                fullSubName = name + '[' + subName + ']';
-                                innerObj = {};
-                                innerObj[fullSubName] = subValue;
-                                query += param(innerObj) + '&';
-                            }
-                        }
-                        else if(value !== undefined && value !== null)
-                            query += encodeURIComponent(name) + '=' + encodeURIComponent(value) + '&';
-                    }
-
-                    return query.length ? query.substr(0, query.length - 1) : query;
-                };
-
-                // Override $http service's default transformRequest
-                $httpProvider.defaults.transformRequest = [function(data) {
-                    return angular.isObject(data) && String(data) !== '[object File]' ? param(data) : data;
-                }];
-            });
-
-            myApp.constant("moment", moment);
-        </script>
         <script src="{{ assetPathJS }}vendor/ng-quill.js"></script>
 
 

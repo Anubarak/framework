@@ -276,6 +276,9 @@ $.each(container, function(index, item){
                     type: matrixKey,
                     tmpId: $scope.matrixTempIdCounter
                 };
+                angular.forEach(response.data.attributes, function(item, index){
+                    matrixAttributes[index] = null;
+                });
                 $scope.matrixTempIdCounter++;
                 $scope.matrixElements[attributeKey].push(matrixAttributes);
                 /*
@@ -309,9 +312,6 @@ $.each(container, function(index, item){
          * @param relation
          */
         $scope.addRelation = function ($id, relation) {
-            alert($id);
-            alert(relation);
-            return;
             var rows = $("#" + $id).find('.selected');
             var newRelations = [];
             var arrIds = [];

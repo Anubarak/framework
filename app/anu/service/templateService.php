@@ -51,20 +51,25 @@ class templateService
         $this->twig->addGlobal('assetPathCSS', BASE_URL . $path['assetPath'] . '/css/');
         $this->twig->addGlobal('assetPathJS', BASE_URL . $path['assetPath'] . '/js/');
         $this->twig->addGlobal('baseUrl', BASE_URL);
+        $this->twig->addGlobal('isCpRequest', true);
     }
 
     /**
      * @param $fileName
      */
     public function includeJsFile($fileName){
-        $this->js_files[] = $fileName;
+        if(!in_array($fileName, $this->js_files)){
+            $this->js_files[] = $fileName;
+        }
     }
 
     /**
      * @param $fileName
      */
     public function includeCssFile($fileName){
-        $this->css_files[] = $fileName;
+        if(!in_array($fileName, $this->css_files)){
+            $this->css_files[] = $fileName;
+        }
     }
 
     /**
@@ -85,7 +90,9 @@ class templateService
      * @param $code
      */
     public function addJsCode($code){
-        $this->js_code[] = $code;
+        if(!in_array($code, $this->js_code)){
+            $this->js_code[] = $code;
+        }
     }
 
     /**

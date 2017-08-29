@@ -95,7 +95,6 @@ class matrixService extends entryService
                     anu()->database->insert('relation', $relation);
                 }
             }
-            echo $id;
             return $id;
         }
         $data = $entry->getData();

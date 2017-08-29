@@ -6,4 +6,4 @@ RewriteRule    ^action/([A-Za-z0-9-/]+)/?$                             index.php
 
 
 RewriteRule    ^([A-Za-z0-9-]+)/?$                                     index.php?e=$1                 [NC,L]    # entry
-RewriteRule    ^([A-Za-z0-9-]+)/([A-Za-z0-9-]+)/?$                     index.php?e=$1&slug=$2         [NC,L]    # Process product requests
+RewriteRule    ^([A-Za-z0-9-]+)/([A-Za-z0-9-öüäÖÄÜ]+)/?$                     index.php?e=$1&slug=$2         [NC,L]    # Process product requests

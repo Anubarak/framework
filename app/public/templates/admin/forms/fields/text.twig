@@ -11,7 +11,7 @@
             >
         {{ entry[key] }}
     </ng-quill-editor>
-    <ul class="errors">
+    <ul class="errors" ng-cloak>
         <li ng-show="{{ class }}{{ entry.id }}Form.$error.{{ key }}">
             {[{ errorMessages['{{ key }}'] }]}
         </li>

@@ -10,7 +10,7 @@ class comicModel extends entryModel
     {
         return array_merge(parent::defineAttributes(), array(
             'comic_id'     => array(AttributeType::Hidden, 'index' => AttributeType::PrimaryKey),
-            'text'          => array(AttributeType::Mixed),
+            'text'          => array(AttributeType::Text),
         ));
     }
 

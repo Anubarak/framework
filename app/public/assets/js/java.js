@@ -85,6 +85,7 @@ myApp.directive('datepicker', function () {
                 $scope.data[key].set('date', value.substr(0,2));
                 $scope.data[key].set('month', value.substr(3,2)-1);
                 $scope.data[key].set('year', value.substr(6,4));
+                $scope.$apply();
             });
 
             element.datepicker('update', $scope.data[key].format('DD.MM.YYYY'));
@@ -106,6 +107,7 @@ myApp.directive('timepicker', function () {
                 $scope.data[key].set('hour', value.substr(0,2));
                 $scope.data[key].set('minute', value.substr(3,2));
                 $scope.data[key].set('second', value.substr(6,2));
+                $scope.$apply();
             });
         }
     };

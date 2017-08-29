@@ -20,7 +20,7 @@
 
 
 
-    <ul class="errors">
+    <ul class="errors" ng-cloak>
         <li ng-show="{{ class }}{{ entry.id }}Form.{{ key }}.$error.required && {{ class }}{{ entry.id }}Form.{{ key }}.$dirty">
             the {{ key }} is required
         </li>

@@ -1,0 +1,16 @@
+
+<div class="form-check">
+    <label for="matrix{[{ matrixTempIdCounter }]}{[{ index }]}" class="form-check-label">
+        {[{ index }]}
+    </label><br>
+    <button type="button"
+            id="matrix{[{ matrixTempIdCounter }]}{[{ index }]}"
+            ng-model="item[index]"
+            class="btn btn-lg btn-toggle"
+            autocomplete="off"
+            ng-class="{active: item[index]}"
+            ng-click="item[index] = !item[index];"
+    >
+        <div class="handle"></div>
+    </button>
+</div>

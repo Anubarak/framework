@@ -25,6 +25,10 @@ class testMatrixModel extends baseModel
                     'field' => 'answer_id',
                     'model' => 'answer'
                 )),
+            ),
+            'boolean'   => array(
+                'headline'  => array(AttributeType::Mixed),
+                'checkbox'  => array(AttributeType::Bool),
             )
         );
     }
