@@ -1,15 +1,13 @@
 <div class="form-group">
     <label for="{[{htmlPrefix}]}{[{ index }]}">{[{ $root.$$childTail.getFieldTitle(attributes, index) }]}</label>
-    <input type="text"
+    <input type="number"
            id="{[{htmlPrefix}]}{[{ index }]}"
            ng-model="datasource"
            name="{[{htmlPrefix}]}{[{ index }]}"
            class="form-control"
-           unique="{[{index}]}"
+           string-to-number
+           ng-blur="$root.$$childTail.resetError(index)"
+           ng-required="true"
+           required
     >
-    <ul class="errors" ng-cloak>
-        <li ng-show="$root.$$childTrail[$root.$$childTrail.form][index].$error.slug">
-            Dieser Slug ist bereits vergeben
-        </li>
-    </ul>
 </div>

@@ -1,14 +1,15 @@
 <div class="form-group">
-    <label for="matrix{[{ matrixTempIdCounter }]}{[{ index }]}">{[{ index }]}</label>
+    <label for="{[{ index }]}">{[{ index }]}</label>
     <ng-quill-editor
             theme="snow"
-            id="matrix{[{ matrixTempIdCounter }]}{[{ index }]}"
-            ng-model="item[index]"
-            name="matrix{[{ matrixTempIdCounter }]}{[{index}]}"
+            id="{[{ index }]}"
+            ng-model="datasource"
+            name={[{index}]}"
             ng-blur=""
             on-content-changed="myCallback(editor)"
-            on-editor-created="editorCreated(editor, '{{ key }}')"
+            on-editor-created="$root.$$childTail.editorCreated(editor, '{[{index}]}')"
     >
-        {[{ item[index] }]}
+
     </ng-quill-editor>
+
 </div>

@@ -529,9 +529,10 @@ class baseService implements \JsonSerializable
         }
 
         //store titles for modules...
+        $attributes = $entry->defineAttributes();
         foreach ($entry->defineAttributes() as $k => $v){
             if($v[0] == AttributeType::Relation && $entry->$k){
-                $entry->$k->storeTitles();
+                $entry->$k = $entry->$k->find(null, true);
             }
 
             if($v[0] == AttributeType::Bool){
@@ -543,6 +544,7 @@ class baseService implements \JsonSerializable
             }
             if($v[0] == AttributeType::Matrix){
                 $matrixAttributes = anu()->matrix->getMatrixByName($v[1])->defineAttributes();
+                $attributes[$k]['attributes'] = $matrixAttributes;
                 $matrixArray = array();
                 $index = 0;
                 foreach ($entry->$k as $matrix){
@@ -557,6 +559,9 @@ class baseService implements \JsonSerializable
                 $entry->$k = $matrixArray;
             }
         }
+
+        $entry->attributes = $attributes;
+        anu()->template->addAnuJsObject($entry, 'entry');
 
         anu()->template->addJsCode('
             var entry = ' . json_encode($entry) . ';

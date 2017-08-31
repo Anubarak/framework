@@ -1,13 +1,23 @@
 {% set class = class(entry) %}
 <div ng-controller="entryController{{ entry.id }}" class="entryController" data-id="{{ entry.id }}" data-class="{{ class }}">
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="{{ class }}{{ entry.id }}Form">
-        {% for key, attribute in attributes %}
+        {#{% for key, attribute in attributes %}
             {% set currentTimestamp = 'currentTimestamp' %}
             {% include 'admin/forms/fields/'~attribute[0] ~ '.twig' with {
                 'key': key,
                 'attribute': attribute
             }%}
-        {% endfor %}
+        {% endfor %}#}
+        <pre>
+  {[{data | json}]}
+</pre>
+        <pre>
+        {[{matrixElements | json}]}
+        </pre>
+        <div ng-repeat="(index, item) in attributes">
+            <div thin-directive="{[{item[0]}]}" item-info="data" datasource="data[index]" index="index" prefix="''" attributes="item"> </div>
+        </div>
+
         <input type="hidden" name="action" value="action/entry/save">
         <input type="hidden" name="class" value="{{ entry.class }}">
         <input type="button" class="btn btn-default pull-right" ng-click="send()" value="senden">

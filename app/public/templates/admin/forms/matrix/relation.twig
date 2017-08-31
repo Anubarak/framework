@@ -1,15 +1,15 @@
 <div class="form-group">
-    <label for="matrix">{[{ index }]}</label>
-    <ul class="list-group" ui-sortable="sortableOptions" ng-model="item[index]" >
-        <li class="list-group-item" ng-repeat="x in item[index]">
-            <module-relations x="x" item="item" index="index" relations="allRelations" model="item['attributes'][index]['relatedTo']['model']"></module-relations>
+    <label for="matrix">{[{ $root.$$childTail.getFieldTitle(attributes, index) }]}</label>
+    <ul class="list-group" ui-sortable="sortableOptions" ng-model="datasource">
+        <li class="list-group-item" ng-repeat="x in datasource">
+            <module-relations x="x" item="datasource" index="index" model="attributes['relatedTo']['model']"></module-relations>
         </li>
     </ul>
-    <a href="#{[{form}]}MatrixModal{[{item.tmpId}]}" class="btn btn-default" data-toggle="modal" ng-click="getRelation(item['attributes'][index]['relatedTo']['model'], index)">Add Relation</a>
+    <a href="#{[{ htmlPrefix }]}{[{index}]}" class="btn btn-default" data-toggle="modal" ng-click="$root.$$childTail.cacheRelations(datasource);" >Add Relation</a>
 </div>
 
 
-<div class="modal fade" id="{[{form}]}MatrixModal{[{item.tmpId}]}">
+<div class="modal fade" id="{[{ htmlPrefix }]}{[{index}]}">
     <div class="modal-dialog">
         <div class="modal-content">
 
@@ -25,18 +25,18 @@
                 <form class="form-horizontal">
                     <div class="form-group">
                         <div class="col-sm">
-                            <table id="{[{form}]}Table{[{item.tmpId}]}" class="table selectable table-striped">
+                            <table class="table selectable table-striped">
                                 <thead>
                                 <tr>
                                     <td>Title</td>
                                     <td>Eintragsdatum</td>
                                 </tr>
                                 </thead>
-                                <tbody ng-repeat="relation in allRelations[item['attributes'][index]['relatedTo']['model']]">
-                                <tr ng-class="{selected: inArray(item[index], relation.id)}"
+                                <tbody ng-repeat="relation in $root.$$childTail.allRelations[attributes['relatedTo']['model']]">
+                                <tr ng-class="{selected: $root.$$childTail.inArray(datasource, relation.id)}"
                                     data-title="{[{ relation.title }]}"
                                     data-id="{[{ relation.id }]}"
-                                    ng-click="relationTableToggleSelected(index, relation.id, item)"
+                                    ng-click="$root.$$childTail.relationTableToggleSelected(datasource, relation.id)"
                                 >
                                     <td>
                                         <a href="" >{[{ relation.title }]}</a>
@@ -55,7 +55,7 @@
             </div> <!-- /.modal-body -->
             <div class="modal-footer">
                 <button class="btn btn-default"data-dismiss="modal" aria-hidden="true">Add</button>
-                <button class="btn btn-danger" data-dismiss="modal" ng-click="removeRelations(item, index)">Cancel</button>
+                <button class="btn btn-danger" data-dismiss="modal" ng-click="datasource = $root.$$childTail.restoreCache(datasource);">Cancel</button>
             </div>
         </div>
     </div>

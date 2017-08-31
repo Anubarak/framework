@@ -1,0 +1,24 @@
+<label>{[{ $root.$$childTail.getFieldTitle(attributes, index) }]}</label><br>
+<div ng-repeat="(key, matrixOptions) in attributes.attributes" class="left">
+    <button class="btn btn-default" ng-click="$root.$$childTail.addMatrixElement(key, index)">{[{ key }]}</button>
+</div>
+<div class="clearfix"></div>
+<ul ui-sortable="$parent.sortableMatrix" ng-model="$parent.matrixElements[index]" class="panel-group" style="padding-left: 0px; border: 1px solid #cccccc; border-radius: 4px;">
+
+    <li ng-repeat="item in $root.$$childTail.matrixElements[index]" class="panel panel-default">
+        <div class="panel-heading">
+            <i class="fa fa-arrows move" aria-hidden="true"></i>
+            <span>
+                <b>{[{ item.title }]}</b>
+            </span>
+
+            <a href=""  ng-click="$root.$$childTail.removeMatrixElement(item, index)">
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </a>
+        </div>
+
+        <div class="panel-body" ng-repeat="(matrixIndex, key) in item.attributes">
+            <div thin-directive="{[{key[0]}]}" datasource="item[matrixIndex]" index="matrixIndex" prefix="'matrix'+$root.$$childTail.matrixTempIdCounter" attributes="item.attributes[matrixIndex]"> </div>
+        </div>
+    </li>
+</ul>

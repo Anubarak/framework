@@ -1,15 +1,16 @@
 
 <div class="form-check">
-    <label for="matrix{[{ matrixTempIdCounter }]}{[{ index }]}" class="form-check-label">
-        {[{ index }]}
+    <label for="{[{htmlPrefix}]}{[{ index }]}" class="form-check-label">
+        {[{ $root.$$childTail.getFieldTitle(attributes, index) }]}
     </label><br>
     <button type="button"
-            id="matrix{[{ matrixTempIdCounter }]}{[{ index }]}"
-            ng-model="item[index]"
+            id="{[{htmlPrefix}]}{[{ index }]}"
+            ng-model="datasource"
+            name="{[{htmlPrefix}]}{[{index}]}"
             class="btn btn-lg btn-toggle"
             autocomplete="off"
-            ng-class="{active: item[index]}"
-            ng-click="item[index] = !item[index];"
+            ng-class="{active: datasource}"
+            ng-click="datasource = !datasource;"
     >
         <div class="handle"></div>
     </button>

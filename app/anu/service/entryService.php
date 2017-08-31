@@ -38,6 +38,10 @@ class entryService extends baseService
         if(!$this->validate($entry) || !$this->checkSavePermission($entry)){
             return false;
         }
+        echo "<pre>";
+        var_dump("validation true <.<");
+        echo "</pre>";
+        die();
         if(!$this->table || !$this->primary_key){
             $className = Anu::getClassName($entry);
             $this->table = anu()->$className->table;
@@ -163,7 +167,9 @@ class entryService extends baseService
 
                                 $relation = $value['relatedTo'];
                                 $relations = $this->getRelationsFromEntryByKey($entry, $key);
-                                $this->updateRelations($entry, $key, $relation, $relations);
+                                if($relations){
+                                    $this->updateRelations($entry, $key, $relation, $relations);
+                                }
                             }
                             break;
                         case AttributeType::Position:
@@ -554,7 +560,6 @@ class entryService extends baseService
             'model_1'   => $className,
             'id_1'      => $entry->id
         ));
-
         foreach ($relationIds as $rel){
             if($rel){
                 anu()->database->insert('relation', $this->getRelationData($relationInformation, $field, $rel, $entry->id));

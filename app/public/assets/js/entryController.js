@@ -7,16 +7,17 @@ $.each(container, function(index, item){
     var id = $(item).data('id');
     var className = $(item).data('class');
     myApp.controller('entryController'+id, ['$scope', '$http', '$timeout', '$compile', 'configService', 'RelationService', function ($scope, $http, $timeout, $compile, configService, RelationService) {
-        $scope.data = {};
-        $scope.relations = [];
-        $scope.classes = {};
-        $scope.alpha = false;
+        $scope.data = {
+            id: anu.entry.id
+        };
         $scope.form = className + id +  'Form';
         $scope.slugEmpty = true;
         $scope.allRelations = {};
         $scope.errorMessages = {};
         $scope.editors = {};
-        $scope.attributes = attributes;
+        $scope.attributes = anu.entry.attributes;
+        // class/type of entry... not really used but we need to store it
+        $scope.entryClass = anu.entry.class;
 
         /**
          * Contentmatrix build
@@ -56,42 +57,26 @@ $.each(container, function(index, item){
         /**
          * init scope
          */
-        $.each(entry, function (index, item) {
-            if (typeof item === "object" && item) {
-                if ("class" in item && item.class === "elementCriteria") {
-                    $scope.relations[index] = [];
-                    var relationTitles = item.titles;
-                    var relationIds = item.ids;
-                    $scope.classes[index] = {};
-                    for (var i = 0; i < relationTitles.length; i++) {
-                        var relation = {
-                            index: relationIds[i],
-                            title: relationTitles[i]
-                        };
-                        $scope.relations[index].push(relation);
-                        $scope.classes[index][relationIds[i]] = true;
-                    }
-                }
-            }
-
-            if (index in attributes && attributes[index][0] === 'datetime') {
+        $.each(anu.entry, function (index, item) {
+            if(index === "attributes" || !(index in $scope.attributes)) return true;
+            if(index in $scope.attributes && $scope.attributes[index][0] === 'datetime') {
                 var dateTime = entry[index];
                 var zone = 'Europe/London';
                 var format = 'YYYY-MM-DD HH:mm:ss ZZ';
-                var d = new Date()
+                var d = new Date();
                 var n = d.getTimezoneOffset() * -1;
                 $scope.data[index] = moment(dateTime, format).utcOffset(0).add(n, 'minute');
-            } else {
-                $scope.data[index] = item;
-            }
-
-            if (index in attributes && attributes[index][0] === 'matrix') {
+            } else if (index in $scope.attributes && $scope.attributes[index][0] === 'matrix') {
                 angular.forEach(item, function(i){
                     i.tmpId = $scope.matrixTempIdCounter;
                     $scope.matrixTempIdCounter++;
                 });
                 $scope.matrixElements[index] = item;
+            } else {
+                $scope.data[index] = item;
             }
+
+
         });
         console.log($scope.data);
 
@@ -126,37 +111,24 @@ $.each(container, function(index, item){
 
         /**
          * Toggle selection for Relation Modal
-         * @param key
+         * @param item
          * @param id
          */
-        $scope.relationTableToggleSelected = function (key, id, item) {
+        $scope.relationTableToggleSelected = function (item, id) {
             if(typeof item !== 'undefined'){
-                if(typeof item[key] === 'undefined'){
-                    item[key] = [];
-                }
-                var index = item[key].indexOf(id);
+                var index = item.indexOf(id);
                 if(index === -1){
                     //add element
-                    item[key].push(id);
+                    item.push(id);
                 }else{
-                    item[key].splice( index, 1 );
+                    item.splice( index, 1 );
                 }
-            }else{
-                console.log(key);
-                console.log(id);
-                console.log($scope.classes[key][id]);
-                if (typeof $scope.classes[key][id] === "undefined") {
-                    $scope.classes[key][id] = false;
-                    console.log("crash");
-                }
-                $scope.classes[key][id] = !$scope.classes[key][id];
             }
         };
 
         /**
          * Get all possible active elements, that can be related
          * @param relationModel
-         * @param key
          */
         $scope.getRelation = function (relationModel) {
             RelationService.getElements(relationModel).then(function(element){
@@ -164,20 +136,9 @@ $.each(container, function(index, item){
             });
         };
 
-        /**
-         * Remove relation from Entry
-         * @param element
-         * @param key
-         */
-        $scope.removeRelation = function (element, key) {
-            var id = element.index;
-            $scope.relations[key] = $scope.relations[key].filter(function (el) {
-                return el.index !== id;
-            });
-        };
-
         $scope.removeRelations = function(item, key, id){
-            console.log("test");
+            console.log("=====removeRelations=====");
+            console.log(item);
             if(typeof id === 'undefined'){
                 alert("remove all");
                 item[key] = [];
@@ -204,17 +165,10 @@ $.each(container, function(index, item){
          * Save entry -> upload to server
          */
         $scope.send = function () {
-            var key;
-            $scope.reset();
-            for (key in $scope.relations) {
-                var relations = [];
-                angular.forEach($scope.relations[key], function (item, index) {
-                    relations.push(item.index);
-                });
-                $scope.data[key] = relations;
-            }
+            //$scope.reset();
             var form = new FormData();
             var data = angular.copy($scope.data);
+            data.class = $scope.entryClass;
             var matrix = angular.copy($scope.matrixElements);
             form.append("entry", JSON.stringify(data));
             form.append("matrix", JSON.stringify(matrix));
@@ -259,15 +213,15 @@ $.each(container, function(index, item){
          * @param attributeKey
          */
         $scope.addMatrixElement = function(matrixKey, attributeKey){
+            var lenght = (attributeKey in $scope.matrixElements)? $scope.matrixElements[attributeKey].length : 0;
             $http({
                 method: 'POST',
                 url: '',
                 data: {
-                    action: "entry/getMatrixHtml", matrixKey: matrixKey, entryType: className, attributeKey: attributeKey, index: $scope.matrixElements[attributeKey].length
+                    action: "entry/getMatrixHtml", matrixKey: matrixKey, entryType: className, attributeKey: attributeKey, index: lenght
                 }
             }).then(function successCallback(response) {
                 console.log(response);
-                //console.log(response.data.html);
                 var matrixAttributes = {
                     title: matrixKey,
                     attributes: response.data.attributes,
@@ -277,54 +231,38 @@ $.each(container, function(index, item){
                     tmpId: $scope.matrixTempIdCounter
                 };
                 angular.forEach(response.data.attributes, function(item, index){
-                    matrixAttributes[index] = null;
+                    if(response.data.attributes[index][0] === 'relation'){
+                        matrixAttributes[index] = [];
+                    }else{
+                        matrixAttributes[index] = null;
+                    }
                 });
                 $scope.matrixTempIdCounter++;
                 $scope.matrixElements[attributeKey].push(matrixAttributes);
-                /*
-                $scope.data[attributeKey].push({});
-                if("attributes" in response.data){
-                    var newMatrixAttributes = {};
-                    angular.forEach(response.data.attributes, function(item, index){
-                        newMatrixAttributes[index] = '';
-                    });
-                    $scope.data[attributeKey].push(newMatrixAttributes);
-                }
-
-                $('#'+className+id+attributeKey).append($compile('<li>' + response.data.html + '</li>')($scope));*/
-                //$scope.apply();
             }, function errorCallback(response) {
                 console.log(response);
             });
             //$scope.matrix
         };
 
-        $scope.removeMatrixElement = function(item, key){
-            console.log(item);
-            console.log(key);
-            $scope.matrixElements[key].removeElementByValue(item);
-        };
-
 
         /**
-         * Add Relations
-         * @param $id
-         * @param relation
+         * Cache relations when opening new window to be able to restore state before
+         * @param relations
          */
-        $scope.addRelation = function ($id, relation) {
-            var rows = $("#" + $id).find('.selected');
-            var newRelations = [];
-            var arrIds = [];
-            $.each(rows, function (k, v) {
-                var i = $(v);
-                arrIds.push(i.data('id'));
-                newRelations.push({
-                    index: i.data('id'),
-                    title: i.data('title')
-                })
-            });
-            $scope.data[relation] = arrIds;
-            $scope.relations[relation] = newRelations;
+        $scope.cacheRelations = function(relations){
+            $scope.relationCache = angular.copy(relations);
+        };
+
+        /**
+         * restore cached relations
+         *
+         * @param relations
+         * @returns {XML|XMLList|*}
+         */
+        $scope.restoreCache = function (relations) {
+            relations = angular.copy($scope.relationCache);
+            return relations;
         };
 
         /**
@@ -342,10 +280,10 @@ $.each(container, function(index, item){
          * @param key
          */
         $scope.editorCreated = function (editor, key) {
-            $scope.editors[key] = editor;
+            //$scope.editors[key] = editor;
             editor.on('selection-change', function(range, oldRange, source) {
                 if (range) {
-                    var toolbar = $scope.editors[key].getModule('toolbar');
+                    var toolbar = editor.getModule('toolbar');
                     var container = $(toolbar.container);
                     container.show();
                     if (range.length === 0) {
@@ -355,13 +293,18 @@ $.each(container, function(index, item){
                         //console.log('User has highlighted', text);
                     }
                 } else {
-                    $scope[$scope.form].$setValidity(key, true);
-                    var toolbar = $scope.editors[key].getModule('toolbar');
+                    //$scope[$scope.form].$setValidity(key, true);
+                    var toolbar = editor.getModule('toolbar');
                     var container = $(toolbar.container);
                     container.hide();
                     //console.log('Cursor not in the editor');
                 }
             });
+        };
+
+        $scope.getFieldTitle = function(attributes, index){
+            return ('title' in attributes)? attributes['title'] : index;
+
         };
 
         /**
@@ -374,6 +317,10 @@ $.each(container, function(index, item){
                 //$scope[$scope.form][index].$error = {};
                 $scope[$scope.form].$setValidity(index, true);
             });
+        };
+
+        $scope.alert = function(test){
+            alert(test);
         };
 
         $scope.inArray =  function(array, index){

@@ -67,7 +67,6 @@ class entryController extends baseController
             $className = $data['class'];
             $entry = Anu::getClassByName($className, 'Model', true);
             anu()->$className->populateModel($data, $entry);
-
             $matrix = anu()->request->postVar('matrix', null);
             $matrixArray = array();
             if($matrix && is_array($matrix) && count($matrix)){
@@ -111,7 +110,6 @@ class entryController extends baseController
                 $response['success'] = true;
                 $response['id']     = $id;
             }
-
 
             $this->returnJson($response);
 

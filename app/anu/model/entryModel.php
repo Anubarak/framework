@@ -16,7 +16,7 @@ class entryModel extends baseModel
     {
         return array(
             'title'         => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Titel')),
-            'slug'          => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Slug')),
+            'slug'          => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Slug'), DBIndex::Unique => true),
             'createDate'    => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp, 'title' => Anu::t('Erstellungsdatum')),
             'updateDate'    => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp, 'title' => Anu::t('Bearbeitungsdatum')),
             'enabled'       => array(AttributeType::Bool, 'default' => '1', 'title' => Anu::t('Aktiv')),
