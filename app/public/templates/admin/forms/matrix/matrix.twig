@@ -18,7 +18,7 @@
         </div>
 
         <div class="panel-body" ng-repeat="(matrixIndex, key) in item.attributes">
-            <div thin-directive="{[{key[0]}]}" datasource="item[matrixIndex]" index="matrixIndex" prefix="'matrix'+$root.$$childTail.matrixTempIdCounter" attributes="item.attributes[matrixIndex]"> </div>
+            <div thin-directive="{[{key[0]}]}" datasource="item[matrixIndex]" index="matrixIndex" prefix="matrix{[{$root.$$childTail.matrixTempIdCounter}]}" attributes="item.attributes[matrixIndex]"> </div>
         </div>
     </li>
 </ul>

@@ -67,14 +67,21 @@ myApp.controller('loginController', ['$scope','$http', function($scope,$http) {
         //$scope[$scope.data + "Form"].$setPristine();
         //$scope[$scope.data + "Form"].$setValidity();
         $scope.reset();
-        $http({
-            method: 'POST',
-            url: '',
-            data: {
-                action: "user/"+$scope.data, user: $scope[$scope.data]
-            }
+        var user = angular.copy($scope[$scope.data]);
+        var form = new FormData();
+        form.append("user", JSON.stringify(user));
+        form.append('action', "user/"+$scope.data);
+        return $http({
+                method: 'POST',
+                url: '',
+                data: form,
+                headers: { 'Content-Type': undefined},
+                transformRequest: angular.identity
         }).then(function successCallback(response) {
             if ('success' in response.data && response.data['success'] === true) {
+                if('user' in response.data){
+                    $scope.user = response.data.user;
+                }
                 showNotification(response.data['message'], 'notice');
                 $('#loginPanel').modal('hide');
             } else {
@@ -100,4 +107,22 @@ myApp.controller('loginController', ['$scope','$http', function($scope,$http) {
             // or server returns response with an error status.
         });
     };
+
+    $scope.logout = function(){
+        var action = 'ajax/user/logout';
+        $http({
+            method: 'POST',
+            url: '',
+            data: {
+                action: action
+            }
+        }).then(function successCallback(response) {
+            $scope.user = null;
+
+        }, function errorCallback(response) {
+            console.log(response);
+        });
+    }
+
+    $scope.user = anu.user;
 }]);

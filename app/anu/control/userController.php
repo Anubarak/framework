@@ -19,6 +19,7 @@ class userController extends baseController
         if($user === true){
             $response['success']    = true;
             $response['message']    = 'Erfolgreich eingeloggt';
+            $response['user']       = anu()->user->getCurrentUser();
         }else{
             $response['success'] = false;
             $response['errors'] = $user;
@@ -52,6 +53,7 @@ class userController extends baseController
         if(anu()->user->saveUser($user)){
             $response['success']    = true;
             $response['message']    = 'Erfolgreich Registriert';
+            $response['user']       = anu()->user->getCurrentUser();
         }else{
             $response['success'] = false;
             $response['errors'] = $user->getErrors();

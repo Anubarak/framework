@@ -1,4 +1,4 @@
-<div class="form-group">
+<div class="form-group" ng-class="{error: $root.$$childTail[$root.$$childTail.form][htmlPrefix + index].$invalid}">
     <label for="{[{htmlPrefix}]}{[{ index }]}">{[{ $root.$$childTail.getFieldTitle(attributes, index) }]}</label>
     <input type="number"
            id="{[{htmlPrefix}]}{[{ index }]}"

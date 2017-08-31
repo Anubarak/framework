@@ -41,7 +41,6 @@ myApp.directive('unique', function($http) {
         link: function(scope, element, attr, ngModel) {
             if('unique' in scope.attributes){
                 ngModel.$asyncValidators.slug = function(value) {
-                    console.log(ngModel);
                     c = ngModel;
                     var entryId = scope.$root.$$childTail.data.id;
                     var entryClass = scope.$root.$$childTail.entryClass;
@@ -57,20 +56,16 @@ myApp.directive('unique', function($http) {
                         headers: { 'Content-Type': undefined},
                         transformRequest: angular.identity
                     }).then(function resolved(data) {
-                        console.log(data);
-                        console.log(!data.data.isValid);
                         if(!data.data.isValid){
                             b = scope;
-                            console.log(scope.$root.$$childTail[scope.$root.$$childTail.form]);
-                            scope.$root.$$childTail[scope.$root.$$childTail.form].$setValidity('unique', false);
+                            console.log("rootScope", scope.$root.$$childTail[scope.$root.$$childTail.form]);
+                            scope.$root.$$childTail[scope.$root.$$childTail.form][scope.htmlPrefix + scope.index].$setValidity('unique', false);
                             //scope.$root.$$childTail[scope.$root.$$childTail.form]['slug'].$setValidity('unique', false);
                             //alert("the fuck trigger");
-                            return false;
-                            return $q.reject("slug");
                         }else{
-                            scope.$root.$$childTail[scope.$root.$$childTail.form].$setValidity('unique', true);
+                            scope.$root.$$childTail[scope.$root.$$childTail.form][scope.htmlPrefix + scope.index].$setValidity('unique', true);
                         }
-                        return true;
+                        return value;
                     }, function rejected(data) {
                         //username does not exist, therefore this validation passes
                         return true;
@@ -179,13 +174,16 @@ myApp.directive('thinDirective', function($compile,$templateRequest, configServi
             datasource: "=",
             attributes:"=",
             index: "=",
-            prefix: "="
         },
         compile: function (element, attrs) {
             return function (scope, element, attrs) {
-                scope.htmlPrefix = angular.copy(scope.prefix);
+                scope.htmlPrefix = attrs['prefix'];
+                console.log(scope.htmlPrefix);
                 $templateRequest(configService.angularTemplatePath + 'admin/forms/matrix/' + attrs.thinDirective + ".twig").then(function (html) {
-                    element.append($compile(html)(scope));
+                    //element.append($compile(html)(scope));
+                    var template = angular.element(html);
+                    element.append(template);
+                    $compile(template)(scope);
                 });
             }
         },

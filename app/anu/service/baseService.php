@@ -104,7 +104,8 @@ class baseService implements \JsonSerializable
                 //check for unique
                 if(array_key_exists('unique', $v)){
                     $exists = anu()->database->has($this->getTable(), array(
-                       $k => $entry->$k
+                        $k => $entry->$k,
+                        $this->primary_key."[!]" => $entry->id
                     ));
 
                     if($exists){

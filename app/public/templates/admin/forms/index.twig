@@ -8,14 +8,8 @@
                 'attribute': attribute
             }%}
         {% endfor %}#}
-        <pre>
-  {[{data | json}]}
-</pre>
-        <pre>
-        {[{matrixElements | json}]}
-        </pre>
         <div ng-repeat="(index, item) in attributes">
-            <div thin-directive="{[{item[0]}]}" item-info="data" datasource="data[index]" index="index" prefix="''" attributes="item"> </div>
+            <div thin-directive="{[{item[0]}]}" item-info="data" datasource="data[index]" index="index" prefix="" attributes="item"> </div>
         </div>
 
         <input type="hidden" name="action" value="action/entry/save">

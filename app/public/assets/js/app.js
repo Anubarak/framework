@@ -10,6 +10,7 @@ const myApp = angular.module('myApp',['tg.dynamicDirective', 'ui.sortable', 'ngQ
     $interpolateProvider.startSymbol('{[{').endSymbol('}]}');
     // Use x-www-form-urlencoded Content-Type
     $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
+    $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
     /**
      * The workhorse; converts an object to x-www-form-urlencoded serialization.
      * @param {Object} obj

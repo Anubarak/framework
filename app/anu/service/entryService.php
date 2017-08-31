@@ -38,10 +38,7 @@ class entryService extends baseService
         if(!$this->validate($entry) || !$this->checkSavePermission($entry)){
             return false;
         }
-        echo "<pre>";
-        var_dump("validation true <.<");
-        echo "</pre>";
-        die();
+
         if(!$this->table || !$this->primary_key){
             $className = Anu::getClassName($entry);
             $this->table = anu()->$className->table;

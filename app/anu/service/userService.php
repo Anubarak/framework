@@ -26,6 +26,7 @@ class userService extends baseService
         if($userId = anu()->session->get('user_id', null)){
             $this->currentUser = $this->getUserById($userId);
         }
+        anu()->template->addAnuJsObject($this->currentUser, 'user');
     }
 
 
@@ -75,6 +76,7 @@ class userService extends baseService
     public function logout(){
         $this->currentUser = null;
         anu()->session->set('user_id', null);
+        return null;
     }
 
 
