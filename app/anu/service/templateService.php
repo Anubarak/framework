@@ -50,6 +50,8 @@ class templateService
         $this->twig->addGlobal('anu', anu());
         $this->twig->addGlobal('assetPathCSS', BASE_URL . $path['assetPath'] . '/css/');
         $this->twig->addGlobal('assetPathJS', BASE_URL . $path['assetPath'] . '/js/');
+        $this->twig->addGlobal('internalAssetPathJS', BASE_URL . $path['internalAssets'] . '/js/');
+        $this->twig->addGlobal('internalAssetPathCSS', BASE_URL . $path['internalAssets'] . '/css/');
         $this->twig->addGlobal('baseUrl', BASE_URL);
         $this->twig->addGlobal('isCpRequest', true);
     }

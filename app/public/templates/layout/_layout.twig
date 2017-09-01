@@ -1,19 +1,9 @@
 <!doctype html>
 <html>
 <head>
-    <title>{{ entry.title }}</title>
+    <title>{{ entry.title? entry.title : "Framework" }}</title>
     <link href="{{ assetPathCSS }}style.css" rel="stylesheet" type="text/css">
 
-    <!--
-    <link  href="http://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
-    <script src="http://code.jquery.com/jquery-git.js"></script>
-    <script src="http://code.jquery.com/ui/jquery-ui-git.js"></script>
-    -->
-
-
-
-
-    {#<link  href="{{ assetPathCSS }}jquery-ui-git.css" rel="stylesheet">#}
     <link  href="{{ assetPathCSS }}bootstrap.css" rel="stylesheet">
     <link  href="{{ assetPathCSS }}vendor/toggleButton.css" rel="stylesheet">
     <link  href="{{ assetPathCSS }}vendor/bs.sm.min.css" rel="stylesheet">
@@ -22,7 +12,7 @@
     <link  href="{{ assetPathCSS }}vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <!-- Theme included stylesheets -->
     <link href="{{ assetPathCSS }}vendor/quill.snow.css" rel="stylesheet">
-    <!--<link href="{{ assetPathCSS }}vendor/quill.bubble.css" rel="stylesheet">-->
+    {#<link href="{{ assetPathCSS }}vendor/quill.bubble.css" rel="stylesheet">#}
 
 
 

@@ -24,6 +24,7 @@ $config = array(
         'adminTemplateDirectory'    => 'app\anu\templates\\',
         'assetPath'                 => 'app\public\assets',
         'imgPath'                   => 'app\public\assets\img',
+        'internalAssets'            => 'app/storage/internal/assets/',
         'namespace'                 => 'anu\\'
     ),
     'mode' => 'dev'

@@ -79,8 +79,25 @@ class app{
     }
 
     public function init(){
-        $this->database = new database(anu()->config->get('database'));
-
+        try{
+            $this->database = new database(anu()->config->get('database'));
+        }catch (\Exception $e){
+            $this->template->init();
+            $config = file_get_contents('config.php');
+            anu()->template->render('admin/install/index.twig', array(
+                'errorMessage'  => $e->getMessage(),
+                'config'        => $config
+            ));
+            die();
+        }
+        //TODO check if Table exists and create insaller
+        /*
+        $result = anu()->database->('SHOW TABLES LIKE `records`')->fetch();
+        echo "<pre>";
+        var_dump($result);
+        echo "</pre>";
+        die();
+        */
         foreach ($this->initServices as $service){
             $this->$service->init();
         }

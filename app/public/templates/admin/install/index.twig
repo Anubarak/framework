@@ -1,0 +1,38 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title>Anu - Install</title>
+    <meta name="description" content="Anu Installation">
+    <meta name="author" content="Anu">
+
+    <link rel="stylesheet" href="{{ internalAssetPathCSS }}/style.css">
+
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+    <![endif]-->
+</head>
+{% set paths = anu.config.get('paths') %}
+<body>
+<div id="container">
+    <div id="content" style="background-image: url('{{ paths['internalAssets'] }}img/installBackground.png');">
+        <div class="center">
+            {% if errorMessage is defined and errorMessage %}
+                <h3>An Error occoured</h3>
+                <p>{{ errorMessage }}</p>
+            {% endif %}
+            <p>
+                Maybe you have an error in your config file?
+            </p>
+            <p>
+                Otherwise you could install the frame if you like
+            </p>
+
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
