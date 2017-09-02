@@ -29,7 +29,7 @@ var showNotification = function (message, notificationClass) {
             })
         }, 2000);
     });
-}
+};
 
 
 var b = null;
@@ -42,8 +42,8 @@ myApp.directive('unique', function($http) {
             if('unique' in scope.attributes){
                 ngModel.$asyncValidators.slug = function(value) {
                     c = ngModel;
-                    var entryId = scope.$root.$$childTail.data.id;
-                    var entryClass = scope.$root.$$childTail.entryClass;
+                    var entryId = scope.rootScope.data.id;
+                    var entryClass = scope.rootScope.entryClass;
                     var form = new FormData();
                     form.append("class", entryClass);
                     form.append("slug", value);
@@ -58,12 +58,12 @@ myApp.directive('unique', function($http) {
                     }).then(function resolved(data) {
                         if(!data.data.isValid){
                             b = scope;
-                            console.log("rootScope", scope.$root.$$childTail[scope.$root.$$childTail.form]);
-                            scope.$root.$$childTail[scope.$root.$$childTail.form][scope.htmlPrefix + scope.index].$setValidity('unique', false);
+                            console.log("rootScope", scope.rootScope[scope.rootScope.form]);
+                            scope.rootScope[scope.rootScope.form][scope.htmlPrefix + scope.index].$setValidity('unique', false);
                             //scope.$root.$$childTail[scope.$root.$$childTail.form]['slug'].$setValidity('unique', false);
                             //alert("the fuck trigger");
                         }else{
-                            scope.$root.$$childTail[scope.$root.$$childTail.form][scope.htmlPrefix + scope.index].$setValidity('unique', true);
+                            scope.rootScope[scope.rootScope.form][scope.htmlPrefix + scope.index].$setValidity('unique', true);
                         }
                         return value;
                     }, function rejected(data) {
@@ -87,6 +87,22 @@ myApp.directive('stringToNumber', function() {
             ngModel.$formatters.push(function (value) {
                 return parseFloat(value);
             });
+        }
+    };
+});
+
+myApp.directive('setSlug', function() {
+    return {
+        require: 'ngModel',
+        scope: false,
+        link: function (scope, element, attrs, ngModel) {
+            if(attrs.setSlug === 'title'){
+                element.bind("keyup", function() {
+                    console.log('scope', scope);
+                    console.log('root', scope.rootScope);
+                    scope.rootScope.titleChange();
+                });
+            }
         }
     };
 });
@@ -174,16 +190,17 @@ myApp.directive('thinDirective', function($compile,$templateRequest, configServi
             datasource: "=",
             attributes:"=",
             index: "=",
+            rootScope: "="
         },
         compile: function (element, attrs) {
             return function (scope, element, attrs) {
                 scope.htmlPrefix = attrs['prefix'];
-                console.log(scope.htmlPrefix);
                 $templateRequest(configService.angularTemplatePath + 'admin/forms/matrix/' + attrs.thinDirective + ".twig").then(function (html) {
                     //element.append($compile(html)(scope));
                     var template = angular.element(html);
                     element.append(template);
                     $compile(template)(scope);
+                    $(":not(#modalFormContainer) > .modalForm").appendTo($('#modalFormContainer'));
                 });
             }
         },
@@ -219,6 +236,7 @@ angular.module("myApp").factory('RelationService', function($http) {
                     action: action
                 }
             }).then(function successCallback(response) {
+                console.log(response.data);
                 return response.data;
 
             }, function errorCallback(response) {

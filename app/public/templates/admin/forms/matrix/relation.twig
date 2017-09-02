@@ -1,14 +1,16 @@
 <div class="form-group">
-    <label for="matrix">{[{ $root.$$childTail.getFieldTitle(attributes, index) }]}</label>
+    <label for="matrix">{[{ rootScope.getFieldTitle(attributes, index) }]}</label>
     <ul class="list-group" ui-sortable="sortableOptions" ng-model="datasource">
         <li class="list-group-item" ng-repeat="x in datasource">
             <module-relations x="x" item="datasource" index="index" model="attributes['relatedTo']['model']"></module-relations>
         </li>
     </ul>
-    <a href="#{[{ htmlPrefix }]}{[{index}]}" class="btn btn-default" data-toggle="modal" ng-click="$root.$$childTail.cacheRelations(datasource);" >Add Relation</a>
+    <a href="#{[{ htmlPrefix }]}{[{index}]}" class="btn btn-default" data-toggle="modal" ng-click="rootScope.getRelation(attributes['relatedTo']['model']);rootScope.cacheRelations(datasource);" >Add Relation</a>
 </div>
 
-
+<pre>
+    {[{ rootScope.allRelations | json }]}
+</pre>
 <div class="modal fade" id="{[{ htmlPrefix }]}{[{index}]}">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -18,7 +20,7 @@
                     <span aria-hidden="true">&times;</span>
                     <span class="sr-only">Close</span>
                 </a>
-                <h4 class="modal-title">Relations for {[{ index }]}</h4>
+                <h4 class="modal-title">Relations for {[{ attributes['relatedTo']['model'] }]}</h4>
             </div>
 
             <div class="modal-body">
@@ -32,11 +34,11 @@
                                     <td>Eintragsdatum</td>
                                 </tr>
                                 </thead>
-                                <tbody ng-repeat="relation in $root.$$childTail.allRelations[attributes['relatedTo']['model']]">
-                                <tr ng-class="{selected: $root.$$childTail.inArray(datasource, relation.id)}"
+                                <tbody ng-repeat="relation in rootScope.allRelations[attributes['relatedTo']['model']]">
+                                <tr ng-class="{selected: rootScope.inArray(datasource, relation.id)}"
                                     data-title="{[{ relation.title }]}"
                                     data-id="{[{ relation.id }]}"
-                                    ng-click="$root.$$childTail.relationTableToggleSelected(datasource, relation.id)"
+                                    ng-click="rootScope.relationTableToggleSelected(datasource, relation.id)"
                                 >
                                     <td>
                                         <a href="" >{[{ relation.title }]}</a>
@@ -47,15 +49,34 @@
                                 </tr>
                                 </tbody>
                             </table>
-                            </ul>
                         </div>
                     </div>
                 </form>
 
             </div> <!-- /.modal-body -->
             <div class="modal-footer">
+
+                <button ng-click="rootScope.createSubForm(htmlPrefix+index+'ModalForm', attributes['relatedTo']['model']);" data-dismiss="modal" class="btn btn-alert left">Add {[{ attributes['relatedTo']['model'] }]}</button>
                 <button class="btn btn-default"data-dismiss="modal" aria-hidden="true">Add</button>
-                <button class="btn btn-danger" data-dismiss="modal" ng-click="datasource = $root.$$childTail.restoreCache(datasource);">Cancel</button>
+                <button class="btn btn-danger" data-dismiss="modal" ng-click="datasource = rootScope.restoreCache(datasource);">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modalForm" id="{[{ htmlPrefix }]}{[{index}]}ModalForm">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </a>
+                <h4 class="modal-title">Add {[{ attributes['relatedTo']['model'] }]}</h4>
+            </div>
+
+            <div class="subController">
             </div>
         </div>
     </div>

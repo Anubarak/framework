@@ -29,7 +29,15 @@ class testMatrixModel extends baseModel
             'boolean'   => array(
                 'headline'  => array(AttributeType::Mixed),
                 'checkbox'  => array(AttributeType::Bool),
-            )
+            ),
+            'comic'    => array(
+                'headline'  => array(AttributeType::Mixed),
+                'comic'   => array(AttributeType::Relation, 'title' => Anu::t('comic'), 'relatedTo' => array(
+                    'table' => 'comic',
+                    'field' => 'comic_id',
+                    'model' => 'comic'
+                )),
+            ),
         );
     }
 }

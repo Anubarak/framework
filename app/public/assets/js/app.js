@@ -1,10 +1,7 @@
 /**
  * Created by SECONDRED on 29.08.2017.
  */
-function getApp(){
-    return myApp;
-}
-
+console.log("test");
 const myApp = angular.module('myApp',['tg.dynamicDirective', 'ui.sortable', 'ngQuill']).config(function($interpolateProvider, $httpProvider){
 
     $interpolateProvider.startSymbol('{[{').endSymbol('}]}');
@@ -54,3 +51,9 @@ const myApp = angular.module('myApp',['tg.dynamicDirective', 'ui.sortable', 'ngQ
 });
 
 myApp.constant("moment", moment);
+
+myApp.controller("mainController", function($scope, $compile) {
+    $scope.activateView = function(ele) {
+        $compile(ele.contents())($scope);
+    };
+});

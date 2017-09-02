@@ -1,12 +1,12 @@
-<div class="form-group" ng-class="{error: $root.$$childTail[$root.$$childTail.form][htmlPrefix + index].$invalid}">
-    <label for="{[{htmlPrefix}]}{[{ index }]}">{[{ $root.$$childTail.getFieldTitle(attributes, index) }]}</label>
+<div class="form-group" ng-class="{error: rootScope[rootScope.form][htmlPrefix + index].$invalid}">
+    <label for="{[{htmlPrefix}]}{[{ index }]}">{[{ rootScope.getFieldTitle(attributes, index) }]}</label>
     <input type="number"
            id="{[{htmlPrefix}]}{[{ index }]}"
            ng-model="datasource"
            name="{[{htmlPrefix}]}{[{ index }]}"
            class="form-control"
            string-to-number
-           ng-blur="$root.$$childTail.resetError(index)"
+           ng-blur="rootScope.resetError(index)"
            ng-required="true"
            required
     >

@@ -20,6 +20,12 @@ class questionModel extends entryModel
                 'model' => 'page',
                 'limit' => 1
             )),
+            'comics' => array(AttributeType::Relation, 'title' => Anu::t('Comics'), 'relatedTo' => array(
+                'table' => 'comic',
+                'field' => 'comic_id',
+                'model' => 'comic',
+                'limit' => 1
+            )),
             'text'          => array(AttributeType::Text, 'min_len' => 5, 'max_len' => 16, 'title' => Anu::t('Text')),
             'correctAnswer' => array(AttributeType::Number),
             'pointsPlus'    => array(AttributeType::Number),

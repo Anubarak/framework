@@ -163,4 +163,58 @@ class entryController extends baseController
             'attributes'    => $matrixAttributes[$matrixKey]
         ));
     }
+
+
+    public function getForm(){
+        $class = anu()->request->getValue('class');
+        $entry = Anu::getClassByName($class, "Model", true);
+        //just to add relationModels
+        anu()->$class->populateModel(null, $entry);
+
+        //store titles for modules...
+        $attributes = $entry->defineAttributes();
+        foreach ($entry->defineAttributes() as $k => $v){
+            if($v[0] == AttributeType::Relation && $entry->$k){
+                $entry->$k = $entry->$k->find(null, true);
+            }
+
+            if($v[0] == AttributeType::Bool){
+                $entry->$k = property_exists($entry, $k)? (bool)$entry->$k : false;
+            }
+
+            if($v[0] == AttributeType::Position){
+                $entry->$k = null;
+            }
+            if($v[0] == AttributeType::Matrix){
+                $matrixAttributes = anu()->matrix->getMatrixByName($v[1])->defineAttributes();
+                $attributes[$k]['attributes'] = $matrixAttributes;
+                $matrixArray = array();
+                $index = 0;
+                foreach ($entry->$k as $matrix){
+                    $matrixArray[$index] = json_decode($matrix->content, true);
+                    $matrixArray[$index]['type'] = $matrix->type;
+                    $matrixArray[$index]['title'] = $matrix->type;
+                    $matrixArray[$index]['attributes'] = $matrixAttributes[$matrix->type];
+                    $matrixArray[$index]['matrixId']    = $v[1];
+                    $matrixArray[$index]['id']    = $matrix->id;
+                    $index++;
+                }
+                $entry->$k = $matrixArray;
+            }
+        }
+
+        $entry->attributes = $attributes;
+
+
+        $template = anu()->template->render('admin/forms/index.twig', array(
+            'entry' => $entry,
+            'attributes' => $entry->defineAttributes(),
+            'inModal' => true
+        ), true);
+
+        $this->returnJson(array(
+            'template'  => $template,
+            'entry'     => $entry
+        ));
+    }
 }

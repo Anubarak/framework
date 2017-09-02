@@ -1,21 +1,34 @@
 {% set class = class(entry) %}
-<div ng-controller="entryController{{ entry.id }}" class="entryController" data-id="{{ entry.id }}" data-class="{{ class }}">
-    <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="{{ class }}{{ entry.id }}Form">
-        {#{% for key, attribute in attributes %}
-            {% set currentTimestamp = 'currentTimestamp' %}
-            {% include 'admin/forms/fields/'~attribute[0] ~ '.twig' with {
-                'key': key,
-                'attribute': attribute
-            }%}
-        {% endfor %}#}
+
+
+<div ng-controller="entryController" class="entryController" data-id="{{ entry.id }}" data-class="{{ class }}">
+    {% if inModal is defined and inModal %}
+        <div class="modal-body">
+    {% endif %}
+    <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="{{ class }}Form">
+
         <div ng-repeat="(index, item) in attributes">
-            <div thin-directive="{[{item[0]}]}" item-info="data" datasource="data[index]" index="index" prefix="" attributes="item"> </div>
+            <div thin-directive="{[{item[0]}]}" root-scope="rootScope" datasource="data[index]" index="index"  prefix="" attributes="item"> </div>
         </div>
 
         <input type="hidden" name="action" value="action/entry/save">
-        <input type="hidden" name="class" value="{{ entry.class }}">
-        <input type="button" class="btn btn-default pull-right" ng-click="send()" value="senden">
+        <input type="hidden" name="class" ng-model="entryClass">
+        {% if inModal is not defined or not inModal %}
+            <input type="button" class="btn btn-default pull-right" ng-click="send()" value="senden">
+        {% endif %}
     </form>
+    {% if inModal is defined and inModal %}
+        </div> <!-- /.modal-body -->
+    <div class="modal-footer">
+        <input type="button" class="btn btn-default" ng-click="send()" value="senden">
+        <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
+    </div>
+    {% endif %}
 </div>
 
-{% includeJsFile 'entryController.js'%}
+
+{% if inModal is not defined or not inModal %}
+    <div id="modalFormContainer">
+
+    </div>
+{% endif %}

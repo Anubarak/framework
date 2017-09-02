@@ -20,15 +20,99 @@ class homeController extends baseController
         ));
     }
 
-    public function test(){
-        if($this->isAjaxRequest()){
-            $entry = anu()->request->postVar('entry');
-            if(!anu()->question->saveEntry($entry)){
-                $this->returnJson($entry->getErrors());
+    public function test($template = 'admin/forms/index.twig'){
+        $entry = anu()->question->getElementById(2);
+
+        //store titles for modules...
+        $attributes = $entry->defineAttributes();
+        foreach ($entry->defineAttributes() as $k => $v){
+            if($v[0] == AttributeType::Relation && $entry->$k){
+                $entry->$k = $entry->$k->find(null, true);
             }
 
-            $this->returnJson(true);
+            if($v[0] == AttributeType::Bool){
+                $entry->$k = property_exists($entry, $k)? (bool)$entry->$k : false;
+            }
+
+            if($v[0] == AttributeType::Position){
+                $entry->$k = null;
+            }
+            if($v[0] == AttributeType::Matrix){
+                $matrixAttributes = anu()->matrix->getMatrixByName($v[1])->defineAttributes();
+                $attributes[$k]['attributes'] = $matrixAttributes;
+                $matrixArray = array();
+                $index = 0;
+                foreach ($entry->$k as $matrix){
+                    $matrixArray[$index] = json_decode($matrix->content, true);
+                    $matrixArray[$index]['type'] = $matrix->type;
+                    $matrixArray[$index]['title'] = $matrix->type;
+                    $matrixArray[$index]['attributes'] = $matrixAttributes[$matrix->type];
+                    $matrixArray[$index]['matrixId']    = $v[1];
+                    $matrixArray[$index]['id']    = $matrix->id;
+                    $index++;
+                }
+                $entry->$k = $matrixArray;
+            }
         }
+
+        $entry->attributes = $attributes;
+
+
+        $template = anu()->template->render($template, array(
+            'entry' => $entry,
+            'attributes' => $entry->defineAttributes()
+        ));
+
+        $this->returnJson(array('template' => $template));
+    }
+
+    public function blub(){
+        $entry = anu()->question->getElementById(2);
+
+        //store titles for modules...
+        $attributes = $entry->defineAttributes();
+        foreach ($entry->defineAttributes() as $k => $v){
+            if($v[0] == AttributeType::Relation && $entry->$k){
+                $entry->$k = $entry->$k->find(null, true);
+            }
+
+            if($v[0] == AttributeType::Bool){
+                $entry->$k = property_exists($entry, $k)? (bool)$entry->$k : false;
+            }
+
+            if($v[0] == AttributeType::Position){
+                $entry->$k = null;
+            }
+            if($v[0] == AttributeType::Matrix){
+                $matrixAttributes = anu()->matrix->getMatrixByName($v[1])->defineAttributes();
+                $attributes[$k]['attributes'] = $matrixAttributes;
+                $matrixArray = array();
+                $index = 0;
+                foreach ($entry->$k as $matrix){
+                    $matrixArray[$index] = json_decode($matrix->content, true);
+                    $matrixArray[$index]['type'] = $matrix->type;
+                    $matrixArray[$index]['title'] = $matrix->type;
+                    $matrixArray[$index]['attributes'] = $matrixAttributes[$matrix->type];
+                    $matrixArray[$index]['matrixId']    = $v[1];
+                    $matrixArray[$index]['id']    = $matrix->id;
+                    $index++;
+                }
+                $entry->$k = $matrixArray;
+            }
+        }
+
+        $entry->attributes = $attributes;
+        anu()->template->addAnuJsObject($entry, 'entry');
+
+        anu()->template->addJsCode('
+            var entry = ' . json_encode($entry) . ';
+        ');
+        anu()->template->addJsCode('
+            var attributes = ' . json_encode($entry->defineAttributes()) . ';
+        ');
+
+        anu()->template->render('pages/test.twig', array());
+        die();
     }
 
     public function save(){
