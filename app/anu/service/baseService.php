@@ -179,17 +179,18 @@ class baseService implements \JsonSerializable
             if($attributes === null){
                 $attributes = $model->defineAttributes();
             }
+
             foreach ($attributes as $k => $v){
                 switch ($v[0]){
                     case AttributeType::Relation:
-                        if(isset($v['relatedTo']) && $relation = $v['relatedTo']){
-                            $class = $relation['model'];
-                            $model->$k = $this->getBaseCriteriaModelForPopulatedEntry($model, $data, $class, $k);
+                        if($field = anu()->field->getField($v[0])){
+                            $field->onPopulate($model, $v, $data, $k);
                         }
                         break;
                     case AttributeType::Matrix:
-                        $class = 'matrix';
-                        $model->$k = $this->getBaseCriteriaModelForPopulatedEntry($model, $data, $class, $k);
+                        if($field = anu()->field->getField($v[0])){
+                            $field->onPopulate($model, $v, $data, $k);
+                        }
                         break;
                     case AttributeType::DateTime:
                         $UTC = new \DateTimeZone("UTC");
@@ -209,71 +210,10 @@ class baseService implements \JsonSerializable
                         break;
                 }
             }
+
             return $model;
         }
         throw new \Exception('Could not populate Model');
-    }
-
-    /**
-     * Create Criteria Model to find related Entries for $entry
-     *
-     * @param $entry                baseModel|entryModel        Plain Model of the entry
-     * @param $data                 array                       array with the data of the field
-     * @param $class                string                      className of the related Entry -> matrix|class eg page, answer...
-     * @param $field                string                      the field in the data
-     * @return elementCriteriaModel
-     */
-    public function getBaseCriteriaModelForPopulatedEntry($entry, $data, $class, $field){
-        $criteriaModel = new elementCriteriaModel(anu()->$class);
-        $id = isset($entry->id) ? $entry->id : null;
-        //new empty entry at all.... with no id an nothing
-        if($data === null || !array_key_exists($field, $data) || $data[$field] === null){
-            $criteriaModel->relatedTo  = array(
-                'field' => $field,
-                'id'    => $id,
-                'model' => Anu::getClassName($this)
-            );
-        }else{
-            if(array_key_exists($field, $data) && is_array($data[$field])) {
-                if (count($data[$field]) && array_key_exists(0, $data[$field]) && !is_array($data[$field][0])) {
-                    // user gave an array with all ids
-                    $attributes = $entry->defineAttributes();
-                    $primary_key = $attributes[$field]['relatedTo']['field'];
-                    $criteriaModel->$primary_key = $data[$field];
-                    $criteriaModel->storeIds($data[$field]);
-                }elseif(array_key_exists('ids', $data[$field])){
-                    //user did not change anything and just returned the origianl CriteriaModel of the entry
-                    $criteriaModel->relatedTo  = array(
-                        'field' => $field,
-                        'id'    => $id,
-                        'model' => Anu::getClassName($this)
-                    );
-                    $criteriaModel->storeIds($data[$field]['ids']);
-                }else{
-                    //user inserted an array of objects eg matrix elements that contains elements with an id
-                    $ids = array();
-                    foreach ($data[$field] as $populateField){
-                        $ids[] = $populateField['id'];
-                    }
-                    if($ids){
-                        $primary_key = anu()->matrix->getPrimaryKey();
-                        $criteriaModel->$primary_key = $ids;
-                        $criteriaModel->storeIds($ids);
-                    }
-                }
-            }else{
-                //no data from user -> just search the original relations from database
-                $criteriaModel->relatedTo  = array(
-                    'field' => $field,
-                    'id'    => $id,
-                    'model' => Anu::getClassName($this)
-                );
-                $ids = $criteriaModel->ids();
-                $criteriaModel->storeIds($ids);
-            }
-        }
-
-        return $criteriaModel;
     }
 
 
@@ -467,6 +407,8 @@ class baseService implements \JsonSerializable
      * @param $attributes   array
      */
     public function changePositions($element, $field,  $parentfield){
+        /** @var baseRecord $record */
+        $record = Anu::getClassByName($element, "Record", true);
         $children = null;
         $where = array();
         $oldPosition = $element->oldPosition;
@@ -478,7 +420,7 @@ class baseService implements \JsonSerializable
                 if(is_array($element->$parentfield) && count($element->$parentfield) && $element->$parentfield[0]){
                     $parentId = $element->$parentfield[0];
                     $parent = $this->getElementById($parentId);
-                    $children = $this->find(['relatedTo' => $parent, $this->primary_key.'[!]' => $element->id], true);
+                    $children = $this->find(['relatedTo' => $parent, $record->getPrimaryKey().'[!]' => $element->id], true);
                 }else{
                     //find entries related to nothing...
                     $children = $this->find([
@@ -486,22 +428,22 @@ class baseService implements \JsonSerializable
                             'field' => $parentfield,
                             'id'    => 'nothing',
                             'model' => Anu::getClassName($this)
-                    ), $this->primary_key.'[!]' => $element->id], true);
+                    ), $record->getPrimaryKey().'[!]' => $element->id], true);
                 }
 
-                $where[$this->primary_key] = $children;
+                $where[$record->getPrimaryKey()] = $children;
             }else{
                 //just normal int field relation...
                 $where[$parentfield] = $element->$parentfield;
             }
         }else{
-            $where[$this->primary_key . "[!]"] = $element->id;
+            $where[$record->getPrimaryKey() . "[!]"] = $element->id;
         }
         $isInsert = false;
         if(property_exists($element, 'oldSiblings') && property_exists($element, 'oldPosition') && $element->oldSiblings !== null){
             $isInsert = true;
             anu()->database->update($this->getTable(), array("#".$field => "$field-1"), array(
-                $this->primary_key => $element->oldSiblings,
+                $record->getPrimaryKey() => $element->oldSiblings,
                 $field . "[>=]" => $element->oldPosition
             ));
         }
@@ -511,11 +453,11 @@ class baseService implements \JsonSerializable
                 $where[$field . "[<=]"] = $oldPosition;
             }
             $where[$field . "[>=]"] = $newPosition;
-            anu()->database->update($this->getTable(), array("#".$field => "$field+1"), $where);
+            anu()->database->update($record->getTableName(), array("#".$field => "$field+1"), $where);
         }else{
             $where[$field . "[<=]"] = $newPosition;
             $where[$field . "[>=]"] = $oldPosition;
-            anu()->database->update($this->getTable(), array("#".$field => "$field-1"), $where);
+            anu()->database->update($record->getTableName(), array("#".$field => "$field-1"), $where);
         }
     }
 

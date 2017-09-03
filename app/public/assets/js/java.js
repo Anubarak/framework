@@ -166,6 +166,7 @@ myApp.directive('moduleRelations', ['RelationService', function(RelationService)
                     '</div>',
         link: function(scope) {
             RelationService.getElements(scope.model, true).then(function(elements){
+                console.log(elements);
                 var newElement = elements.filter(function (el) {
                     return el.id == scope.x;
                 });
@@ -236,7 +237,7 @@ angular.module("myApp").factory('RelationService', function($http) {
                     action: action
                 }
             }).then(function successCallback(response) {
-                console.log(response.data);
+                //console.log(response.data);
                 return response.data;
 
             }, function errorCallback(response) {
@@ -246,6 +247,7 @@ angular.module("myApp").factory('RelationService', function($http) {
         }
     }
 });
+
 
 var datepickerOptions = {
     constrainInput: false,

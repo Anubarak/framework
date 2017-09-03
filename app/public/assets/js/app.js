@@ -1,7 +1,6 @@
 /**
  * Created by SECONDRED on 29.08.2017.
  */
-console.log("test");
 const myApp = angular.module('myApp',['tg.dynamicDirective', 'ui.sortable', 'ngQuill']).config(function($interpolateProvider, $httpProvider){
 
     $interpolateProvider.startSymbol('{[{').endSymbol('}]}');

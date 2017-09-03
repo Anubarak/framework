@@ -9,8 +9,6 @@
 namespace Anu;
 
 
-use function Sodium\crypto_aead_aes256gcm_is_available;
-
 class baseController
 {
     /**

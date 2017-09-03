@@ -7,6 +7,7 @@ namespace Anu;
  * Include your own classes here for autocompleation in the same way as I have done it
  *
  * @property entryService                           $entry
+ * @property fieldService                           $field
  * @property userService                            $user
  * @property assetService                           $asset
  * @property questionService                        $question
@@ -211,14 +212,17 @@ class Anu
      * @param $class
      * @param null $extention
      * @param bool $returnClass
-     * @return bool|string|baseModel|entryModel|baseService|entryService
+     * @return bool|string|baseModel|entryModel|baseService|entryService|fieldService
      */
     public static function getClassByName($class, $extention = null, $returnClass = false){
         if(is_string($class)){
             $type = ($extention)? $extention : "Service";
             $className = Anu::getNameSpace() . $class . $type;
-            if($returnClass) return new $className;
-            return $className;
+            if(class_exists($className)){
+                if($returnClass) return new $className;
+                return $className;
+            }
+            return null;
         }else{
             $className = get_class($class);
             $match = array();

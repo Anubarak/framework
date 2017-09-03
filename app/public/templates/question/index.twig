@@ -3,14 +3,20 @@
 {% block content %}
     {{ entry.title }}
 
-    {% for matrix in entry.matrix %}
+    {% for page in entry.matrix %}
+        {{ page.title }}<br>
+    {% endfor %}
 
-        {{ matrix.id }}<br>
-        {{ dump(matrix.content) }}
-        {{ matrix.text }}
-        {% if matrix.test_id is defined %}
-            {{ matrix.test_id.first().id }}
-            {{ matrix.test_id.first().title }}
-        {% endif %}
+    <br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br>
+<pre>{{ dump(entry.matrix) }}</pre>
+    {% for matrix in entry.matrix %}
+        {{ matrix.headline }}<br>
+        {% for comic in matrix.comic %}
+            {{ comic.title }}<br>
+            {% for page in comic.pages %}
+                {{ page.title }}<br>
+            {% endfor %}
+        {% endfor %}
     {% endfor %}
 {% endblock %}

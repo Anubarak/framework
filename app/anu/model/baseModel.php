@@ -14,12 +14,14 @@ class baseModel implements \JsonSerializable
 
     private $errors = null;
     public $id = null;
+    public $class = null;
 
     public function __construct(){
         $attributes = $this->defineAttributes();
         foreach ($attributes as $k => $v){
             $this->$k = null;
         }
+        $this->class = Anu::getClassName($this);
     }
 
     /**

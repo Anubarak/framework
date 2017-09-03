@@ -115,6 +115,7 @@ class matrixService extends entryService
                             }
 
                             $relation = $value['relatedTo'];
+                            $relation['class'] = $entry->class;
                             $relations = $this->getRelationsFromEntryByKey($entry, $key);
                             $this->updateRelations($entry, $key, $relation, $relations);
                         }

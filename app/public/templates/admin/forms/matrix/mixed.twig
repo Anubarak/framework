@@ -1,4 +1,4 @@
-<div class="form-group" ng-class="{error: $root.$$childTail[$root.$$childTail.form][htmlPrefix + index].$invalid}">
+<div class="form-group" ng-class="{error: rootScope[rootScope.form][htmlPrefix + index].$invalid}">
     <label for="{[{htmlPrefix}]}{[{ index }]}">{[{ rootScope.getFieldTitle(attributes, index) }]}</label>
     <input type="text"
            id="{[{htmlPrefix}]}{[{ index }]}"

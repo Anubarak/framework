@@ -6,16 +6,17 @@
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
     $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
     $server = $protocol . $host . '/';
-    DEFINE("BASE_URL", $server . "framework/");
+    DEFINE("BASE_URL", $server . "anu   /");
 
     $dirs = array(
-        'app\anu\service', 'app\anu\model', 'app\anu\control', 'app\anu\core', 'app\anu\record', 'app\anu\twig',
+        'app\anu\service', 'app\anu\field', 'app\anu\model', 'app\anu\control', 'app\anu\core', 'app\anu\record', 'app\anu\twig',
         'app\plugins', 'app\plugins\model', 'app\plugins\service', 'app\plugins\control', 'app\plugins\record',
     );
 
     $baseFiles = array(
         'app\anu\service\baseService.php',
-        'app\anu\model\baseModel.php'
+        'app\anu\model\baseModel.php',
+        'app\anu\service\fieldService.php'
     );
 
     foreach ($baseFiles as $file){

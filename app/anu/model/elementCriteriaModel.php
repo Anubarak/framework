@@ -46,9 +46,11 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
         }
         $this->service = $service;
         $model = Anu::getClassByName($service, "Model", true);
+
         $attributes = $model->defineAttributes();
         foreach ($attributes as $k => $v){
-            if($v[0] == AttributeType::Position){
+            //TODO better condition
+            if($v[0] == AttributeType::Position || $k === 'position'){
                 $this->order = $k;
                 break;
             }

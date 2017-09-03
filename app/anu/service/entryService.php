@@ -62,71 +62,12 @@ class entryService extends baseService
             $attributes = $entry->defineAttributes();
             foreach ($attributes as $key => $value){
                 if($data[$key] !== 'now()'){
-                    switch ($value[0]){
-                        case AttributeType::Relation:
-                            if (property_exists($entry, $key)) {
-                                if (!isset($value['relatedTo'])) {
-                                    throw new Exception("Error: missing relatedTo Attribute in " . Anu::getClassName($this) . " Service");
-                                }
-                                $relations = $this->getRelationsFromEntryByKey($entry, $key);
-                                $relation = $value['relatedTo'];
-                                foreach ($relations as $rel) {
-                                    $relationsToSave[] = $this->getRelationData($relation, $key, $rel);
-                                }
-                            }
-                            break;
-                        case AttributeType::Matrix:
-                            if(property_exists($entry, $key)){
-                                if(!isset($value['1'])){
-                                    throw new Exception("Error: missing related Matrix Attribute in " . Anu::getClassName($this) . "Service");
-                                }
-                                //$matrix = anu()->matrix->getMatrixByName($value[1]);
-                                //array of matrixes...
-                                $matrixIds = array();
-                                $i = 0;
-                                $relation = array(
-                                    'table' => 'matrix',
-                                    'field' => 'matrix_id',
-                                    'model' => 'matrix',
-                                );
-                                if(is_array($entry->$key) && count($entry->$key)){
-                                    foreach ($entry->$key as $matrix){
-                                        $matrix->position = $i;
-                                        if($id = anu()->matrix->saveEntry($matrix)){
-                                            $matrixIds[] = $id;
-                                            $relationsToSave[] = $this->getRelationData($relation, $key, $id);
-                                        }
-                                        $i++;
-                                    }
-                                }
-                            }
-                            break;
-                        case AttributeType::Position:
-                            $relatedField = (array_key_exists('relatedField', $value))? $value['relatedField'] : 'nothing';
-                            if($relatedField !== 'nothing') {
-                                if(!$entry->$relatedField || count($entry->$relatedField) == 0) {
-                                    //no relation.. just get last one and increase by one...
-                                    $position = $this->setNewPosition($key, $relatedField);
-                                    $entry->$key = $position;
-                                }else {
-                                    $parent = $this->getEntryById($entry->$relatedField[0]);
-                                    $entry->$key = $parent->$key + 1;
-                                }
-                            }else{
-                                $criteria = new elementCriteriaModel($this);
-                                $criteria->ORDER = $key;
-                                $criteria->enabled = 'all';
-                                $last = $criteria->last();
-                                $entry->$key = $last->$key + 1;
-                            }
-
+                    if($field = anu()->field->getField($value[0])){
+                        $field->onInsert($entry, $key, $value, $relationsToSave, $values);
+                    }else{
+                        if(array_key_exists($key, $recordAttributes)){
                             $values[$key] = $entry->$key;
-                            break;
-                        default:
-                            if(array_key_exists($key, $recordAttributes)){
-                                $values[$key] = $entry->$key;
-                            }
-                            break;
+                        }
                     }
                 }else{
                     $values["#".$key] = $data[$key];
@@ -155,113 +96,12 @@ class entryService extends baseService
             foreach ($attributes as $key => $value){
                 if($data[$key] !== 'now()'){
                     //relations
-                    switch ($value[0]){
-                        case AttributeType::Relation:
-                            if(property_exists($entry, $key)){
-                                if(!isset($value['relatedTo'])){
-                                    throw new Exception("Error: missing relatedTo Attribute in " . Anu::getClassName($this) . " Service");
-                                }
-
-                                $relation = $value['relatedTo'];
-                                $relations = $this->getRelationsFromEntryByKey($entry, $key);
-                                if($relations){
-                                    $this->updateRelations($entry, $key, $relation, $relations);
-                                }
-                            }
-                            break;
-                        case AttributeType::Position:
-                            if(property_exists($entry, $key)){
-                                $relatedField = array_key_exists('relatedField', $value)? $value['relatedField'] : null;
-                                //no position change -> increase value by one if there is a relation change
-                                if($entry->$key === null){
-                                    //save from edit field -> no direct position change by user
-                                    if($relatedField){
-                                        if($oldEntry->$relatedField->getStoredIds() != $entry->$relatedField){
-                                            //just a relation change -> set position = last
-                                            if((is_array($entry->$relatedField) && count($entry->$relatedField)) || ($entry->$relatedField instanceof elementCriteriaModel && $ids = $entry->$relatedField->ids())){
-                                                if($ids){
-                                                    $relationId = $ids[0];
-                                                }else{
-                                                    $relationId = $entry->$relatedField[0];
-                                                }
-                                                $relField = $attributes[$relatedField]['relatedTo']['field'];
-                                            }else{
-                                                $relationId = 'nothing';
-                                                $relField = $relatedField;
-                                            }
-
-                                            $position = $this->setNewPosition($key, $relField, $relationId, $entry->id);
-                                            $entry->$key = $position;
-                                            //save old Values to fill the empty one
-                                            //old Parent
-                                            $entry->oldIds = $oldEntry->$relatedField->getStoredIds();
-
-                                            $entry->oldPosition = $oldEntry->$key;
-                                            $this->changePositions($entry, $key, $relatedField);
-                                        }else{
-                                            $entry->$key = $oldEntry->$key;
-                                        }
-                                    }else{
-                                        $entry->$key = $oldEntry->$key;
-                                    }
-                                }else{
-                                    //save from list -> position changes every time
-                                    $this->changePositions($entry, $key, $relatedField);
-                                }
-                            }
+                    if($field = anu()->field->getField($value[0])){
+                        $field->onUpdate($entry, $key, $value, $values, $oldEntry);
+                    }else{
+                        if(array_key_exists($key, $recordAttributes)){
                             $values[$key] = $entry->$key;
-                            break;
-                        case AttributeType::Matrix:
-                            if(property_exists($entry, $key)){
-                                if(!isset($value['1'])){
-                                    throw new Exception("Error: missing related Matrix Attribute in " . Anu::getClassName($this) . "Service");
-                                }
-                                //$matrix = anu()->matrix->getMatrixByName($value[1]);
-                                //array of matrixes...
-                                $oldIds = array();
-                                if($oldEntry && property_exists($oldEntry, $key)){
-                                    $oldIds = $oldEntry->$key->ids();
-                                }
-                                $matrixIds = array();
-                                $i = 0;
-                                if(is_array($entry->$key) && count($entry->$key)){
-                                    foreach ($entry->$key as $matrix){
-                                        $matrix->position = $i;
-                                        if($id = anu()->matrix->saveEntry($matrix)){
-                                            $matrixIds[] = $id;
-                                        }
-                                        $i++;
-                                    }
-                                }
-
-                                if($max = count($oldIds)){
-                                    $idsToDelete = array();
-                                    for($i = 0; $i < $max; $i++){
-                                        if(!in_array($oldIds[$i], $matrixIds)){
-                                            $idsToDelete[] = $oldIds[$i];
-                                        }
-                                    }
-                                    if(count($idsToDelete)){
-                                        anu()->database->delete('matrix', array(
-                                            'matrix_id' => $idsToDelete
-                                        ));
-                                    }
-                                }
-
-                                $relation = array(
-                                    'table' => 'matrix',
-                                    'field' => 'matrix_id',
-                                    'model' => 'matrix',
-                                );
-                                $this->updateRelations($entry, $key, $relation, $matrixIds);
-
-                            }
-                            break;
-                        default:
-                            if(array_key_exists($key, $recordAttributes)){
-                                $values[$key] = $entry->$key;
-                            }
-                            break;
+                        }
                     }
                 }else{
                     $values["#".$key] = $data[$key];
@@ -460,7 +300,7 @@ class entryService extends baseService
             'field_2' => $relation['field'],
             'id_1' => $id_1,
             'id_2' => $id_2,
-            'model_1' => Anu::getClassName($this),
+            'model_1' => $relation['class'],
             'model_2'=> $relation['model']
         );
     }
@@ -550,16 +390,17 @@ class entryService extends baseService
      * @param $relationIds
      */
     public function updateRelations($entry, $field, $relationInformation, $relationIds){
-        //delete prevoius relations if there are any
-        $className = Anu::getClassName($this);
+        //delete previous relations if there are any
         anu()->database->delete('relation', array(
             'field_1'   => $field,
-            'model_1'   => $className,
+            'model_1'   => $entry->class,
             'id_1'      => $entry->id
         ));
-        foreach ($relationIds as $rel){
-            if($rel){
-                anu()->database->insert('relation', $this->getRelationData($relationInformation, $field, $rel, $entry->id));
+        if(count($relationIds)){
+            foreach ($relationIds as $rel){
+                if($rel){
+                    anu()->database->insert('relation', $this->getRelationData($relationInformation, $field, $rel, $entry->id));
+                }
             }
         }
     }
