@@ -23,6 +23,7 @@ class relationField extends fieldService
             $relation['class'] = $model->class;
             $model->$key = $this->getBaseCriteriaModelForPopulatedEntry($model, $data, $relation, $key);
         }
+
         return $model;
     }
 

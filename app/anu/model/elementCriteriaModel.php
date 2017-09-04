@@ -212,12 +212,12 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
             }else{
                 $rows = anu()->database->select(anu()->$className->getTable(), $select , $where);
             }
+
             if($debug){
                 echo "<pre>";
                 var_dump($where);
                 var_dump(anu()->database->last());
                 echo "</pre>";
-                die();
             }
             $rows = array_unique($rows,SORT_REGULAR);
 

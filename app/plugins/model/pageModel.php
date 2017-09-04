@@ -9,16 +9,22 @@ class pageModel extends entryModel
     public function defineAttributes()
     {
         return array_merge(parent::defineAttributes(), array(
-            'page_id' => array(AttributeType::Hidden, 'index' => AttributeType::PrimaryKey),
-            'parent_pid' => array(AttributeType::Relation, 'title' => Anu::t('Elternseite'), 'relatedTo' => array(
-                'table' => 'pages',
-                'field' => 'page_id',
-                'model' => 'page',
-                'limit' => 1
-            ), 'parentChild' => true),
-            'linkName'          => array(AttributeType::Mixed, 'title' => Anu::t('Link Bezeichnung')),
-            'position'          => array(AttributeType::Position, "relatedField" => 'parent_pid')
+            'page_id'       => array(AttributeType::Hidden, 'index' => AttributeType::PrimaryKey),
+            'linkName'      => array(AttributeType::Mixed, 'title' => Anu::t('Link Bezeichnung'))
+            //'position'          => array(AttributeType::Position, "relatedField" => 'parent_pid')
         ));
+    }
+
+    /**
+     * Set Type of structure possible fieled = StructureType enum
+     * Channel = not sortable all entries in one level
+     * Matrix = parent <-> child relation.. are sortable
+     *
+     * @return string
+     */
+    public function defineStructure()
+    {
+        return StructureType::Matrix;
     }
 
 }

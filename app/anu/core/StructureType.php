@@ -8,12 +8,10 @@ namespace Anu;
  * This class is a poor man's version of an enum, since PHP does not have support for native enumerations.
  *
  */
-require_once BASE . 'app\anu\core\BaseEnum.php';
-abstract class DBIndex extends BaseEnum
+abstract class StructureType
 {
     // Constants
     // =========================================================================
-
-    const Primary      = 'primary_key';
-    const Unique       = 'unique';
+    const Matrix = 'matrix';
+    const Channel =  'channel';
 }

@@ -20,5 +20,17 @@ class comicModel extends entryModel
         ));
     }
 
+    /**
+ * Set Type of structure possible fieled = StructureType enum
+ * Channel = not sortable all entries in one level
+ * Matrix = parent <-> child relation.. are sortable
+ *
+ * @return string
+ */
+    public function defineStructure()
+    {
+        return StructureType::Channel;
+    }
+
 }
     

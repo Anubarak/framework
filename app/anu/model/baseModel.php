@@ -110,9 +110,25 @@ class baseModel implements \JsonSerializable
 
     public function defineAttributes()
     {
-        return array(
 
-        );
+        $type = $this->defineStructure();
+        $attributes = array();
+        /** @var baseRecord $record */
+        $record = Anu::getClassByName($this, "Record", true);
+        switch ($type){
+            case StructureType::Channel:
+
+                break;
+            case StructureType::Matrix:
+                $attributes['parent'] = array(AttributeType::Relation, 'title' => Anu::t('Elternseite'), 'relatedTo' => array(
+                    'table' => $record->getTableName(),
+                    'field' => $record->getPrimaryKey(),
+                    'model' => Anu::getClassName($this)
+                ), 'parentChild' => true);
+                //$attributes['position'] = array(AttributeType::Position);
+                break;
+        }
+        return $attributes;
     }
 
     /**
@@ -121,5 +137,17 @@ class baseModel implements \JsonSerializable
     public function jsonSerialize() {
         $this->class = Anu::getClassName($this);
         return get_object_vars($this);
+    }
+
+    /**
+     * Set Type of structure possible fieled = StructureType enum
+     * Channel = not sortable all entries in one level
+     * Matrix = parent <-> child relation.. are sortable
+     *
+     * @return string
+     */
+    public function defineStructure()
+    {
+        return StructureType::Channel;
     }
 }

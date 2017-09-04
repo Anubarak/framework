@@ -1,6 +1,6 @@
 <div ng-controller="listController{{ list }}" class="form-group listController" data-list="{{ list }}">
     <div class="floatleft">
-        <tg-dynamic-directive ng-model="rootItem" tg-dynamic-directive-view="getView">
+        <tg-dynamic-directive tg-dynamic-directive-children="{[{hasChildren}]}" ng-model="rootItem" tg-dynamic-directive-view="getView">
         </tg-dynamic-directive>
         <div style="clear: both;"></div>
     </div>
@@ -13,9 +13,9 @@
                 <a ng-href="action/entry/edit/{{ list }}/{[{ ngModelItem.id }]}" >{[{ngModelItem.title}]}</a>
             </div>
             <div style="clear: both"></div>
-            <ul class="apps-container" ng-show="ngModelItem.hasChildren" data-id="{[{ngModelItem.id}]}" ui-sortable="sortableOptions" ng-model="ngModelItem.children">
+            <ul class="apps-container" ng-show="hasChildren" data-id="{[{ngModelItem.id}]}" ui-sortable="sortableOptions" ng-model="ngModelItem.children">
                 <li class="test" ng-repeat="innerItem in ngModelItem.children">
-                    <tg-dynamic-directive ng-model="innerItem" tg-dynamic-directive-view="getView">
+                    <tg-dynamic-directive tg-dynamic-directive-children="{[{hasChildren}]}" ng-model="innerItem" tg-dynamic-directive-view="getView">
                     </tg-dynamic-directive>
                 </li>
             </ul>
@@ -26,4 +26,5 @@
 </div>
 
 
+{% includeJsFile '/vendor/underscore.js'%}
 {% includeJsFile 'listController.js'%}

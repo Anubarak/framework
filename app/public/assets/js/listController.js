@@ -19,6 +19,25 @@ function treeify(list, idAttr, parentAttr, childrenAttr) {
         }
     });
     return treeList;
+}
+
+var buildTree = function(elements, tree){
+    console.log('allElements', elements);
+    if(typeof tree === 'undefined'){
+        tree = [];
+    }
+    angular.forEach(elements, function(item){
+        var tmpChildren = item.children;
+        item.children = [];
+        angular.forEach(tmpChildren, function(id){
+            item.children.push(elements.filter(function(el){
+                return el.id == id;
+            }));
+        });
+        tree.push(item);
+    });
+    console.log(tree);
+    return tree;
 };
 
 if(typeof scopes === 'undefined'){
@@ -30,6 +49,7 @@ var test = null;
 $.each(container, function(index, item){
     var list = $(item).data('list');
     myApp.controller('listController'+list, ['$scope','$http', function($scope,$http) {
+        test = $scope;
         $scope.init = function(){
             $scope.hasChildren = false;
             $scope.entries = [];
@@ -38,7 +58,12 @@ $.each(container, function(index, item){
                 var myEntries = [];
                 //create object with id => entryId
                 var parentKey = '';
-                angular.forEach(attributes[list], function(attribute){
+                angular.forEach(attributes[list], function(attribute, index){
+                    if(index === 'parent'){
+                        $scope.parentFieldId = 'parent';
+                        parentKey = 'parent';
+                        $scope.hasChildren = true;
+                    }
                     if(attribute[0] === 'position' && 'relatedField' in attribute){
                         console.log(attribute);
                         parentKey = attribute['relatedField'];
@@ -46,12 +71,20 @@ $.each(container, function(index, item){
                     }
                 });
                 if(parentKey){
-                    angular.forEach(entries[list], function(item){
+                    /*angular.forEach(entries[list], function(item){
                         item['hasChildren'] = true;
                         item.parent = (item[parentKey].ids.length)? item[parentKey].ids[0] : null;
                         myEntries.push(item);
+                    });*/
+                    _.each(entries[list], function (o) {
+                        o.children.forEach(function (childId) {
+                            _.findWhere(entries[list], {id: childId}).parents = o.id;
+                        });
                     });
-                    $scope.entries = treeify(myEntries);
+                    console.log('buidTree', entries[list]);
+                    $scope.entries = treeify(entries[list], null, 'parents');
+                    console.log('entries', $scope.entries);
+                    //$scope.entries = treeify(myEntries);
                 }else{
                     $scope.entries = entries[list];
                 }
@@ -61,16 +94,21 @@ $.each(container, function(index, item){
 
         $scope.send = function(data, model){
             var form = new FormData();
-            console.log(data);
-            console.log(model);
+
             var model = angular.copy(model);
             if($scope.parentFieldId){
                 model[$scope.parentFieldId] = [data.parentId];
+            }else{
+                model[$scope.parentFieldId] = [];
             }
             delete model.children;
             form.append("entry", JSON.stringify(model));
             form.append("data", JSON.stringify(data));
             form.append('action', "entry/saveTree");
+
+            console.log(data);
+            console.log(model);
+            return true;
             $http({
                 method: 'POST',
                 url: '',
@@ -90,7 +128,7 @@ $.each(container, function(index, item){
                 // called asynchronously if an error occurs
                 // or server returns response with an error status.
             });
-        }
+        };
 
 
         var tmpList = [];

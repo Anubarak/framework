@@ -26,7 +26,7 @@ angular.module('tg.dynamicDirective', [])
                 scope: true,
                 template: '<div ng-include="templateUrl"></div>',
                 link: function(scope, element, attrs, ngModel) {
-
+                    scope.hasChildren = attrs.tgDynamicDirectiveChildren;
                     scope.$watch(function() {
                         var ngModelItem = scope.$eval(attrs.ngModel);
                         var getView = scope.$eval(attrs.tgDynamicDirectiveView);

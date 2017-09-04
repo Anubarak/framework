@@ -528,7 +528,16 @@ class baseService implements \JsonSerializable
         $model = Anu::getClassByName($className, "Model", true);
         $attributes = $model->defineAttributes();
         foreach ($entries as $entry){
-            $entry->children = array();
+            /** @var entryRecord $record */
+            $record = Anu::getClassByName($entry, "Record", true);
+            $entry->children = anu()->$className->find([
+                'relatedTo' => array(
+                    'field' => $record->getPrimaryKey(),
+                    'model' => $entry->class,
+                    'id'    => $entry->id
+                )
+            ], true);
+            //$entry->children = array();
             $entry->url = $entry->getUrl();
         }
 

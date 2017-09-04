@@ -1,6 +1,5 @@
 {% set class = class(entry) %}
 
-
 <div ng-controller="entryController" class="entryController" data-id="{{ entry.id }}" data-class="{{ class }}">
     {% if inModal is defined and inModal %}
         <div class="modal-body">
@@ -33,3 +32,5 @@
 
     </div>
 {% endif %}
+
+{% includeJsFile 'entryController.js'%}

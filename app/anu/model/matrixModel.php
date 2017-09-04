@@ -24,6 +24,23 @@ class matrixModel extends baseModel
         );
     }
 
+
+    /**
+     * Set Type of structure possible fieled = StructureType enum
+     * Channel = not sortable all entries in one level
+     * Matrix = parent <-> child relation.. are sortable
+     *
+     * @return string
+     */
+    public function defineStructure()
+    {
+        return StructureType::Matrix;
+    }
+
+    public function defineMatrixDept(){
+        return 1;
+    }
+
     public function getUrl(){
         $className = Anu::getClassName($this);
         $url = BASE_URL . $className . "/" . $this->getAttribute('slug');

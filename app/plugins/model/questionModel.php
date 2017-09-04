@@ -14,16 +14,10 @@ class questionModel extends entryModel
                 'model' => 'answer',
                 'limit' => 1
             )),
-            'pages' => array(AttributeType::Relation, 'title' => Anu::t('Seiten'), 'relatedTo' => array(
-                'table' => 'page',
-                'field' => 'page_id',
-                'model' => 'page',
-                'limit' => 1
-            )),
-            'comics' => array(AttributeType::Relation, 'title' => Anu::t('Comics'), 'relatedTo' => array(
-                'table' => 'comic',
-                'field' => 'comic_id',
-                'model' => 'comic',
+            'answer' => array(AttributeType::Relation, 'title' => Anu::t('Fragen 2'), 'relatedTo' => array(
+                'table' => 'answer',
+                'field' => 'answer_id',
+                'model' => 'answer',
                 'limit' => 1
             )),
             'text'          => array(AttributeType::Text, 'min_len' => 5, 'max_len' => 16, 'title' => Anu::t('Text')),
@@ -33,6 +27,18 @@ class questionModel extends entryModel
             'position'      => array(AttributeType::Position),
             'matrix'        => array(AttributeType::Matrix, 'testMatrix')
         ));
+    }
+
+    /**
+     * Set Type of structure possible fieled = StructureType enum
+     * Channel = not sortable all entries in one level
+     * Matrix = parent <-> child relation.. are sortable
+     *
+     * @return string
+     */
+    public function defineStructure()
+    {
+        return StructureType::Channel;
     }
 
 }
