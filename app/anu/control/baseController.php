@@ -46,8 +46,8 @@ class baseController
                 die();
         */
         //anu()->record->installRecord('testMatrix');
-        //anu()->user->login("", "anubarak1993@gmail.com", 'Warpten5000');
 
+        //anu()->user->login("", "anubarak16@gmail.com", 'Warpten500');
         //anu()->user->login("blub", "Friedl@Uwe.de");
         //$user = anu()->user->getUserById(2);
         //$loggedIn = anu()->user->login('Fischer@Fisch.de', 'Fischer@Fisch.de');
@@ -64,6 +64,7 @@ class baseController
         }else{
             anu()->template->setNotice("could not install Record", 'error');
         }*/
+        anu()->record->installRecord('fieldLayout', false);
         anu()->template->render('pages/home.twig', array(
             'title'       => "test Title",
             'headline'    => "headline",

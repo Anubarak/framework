@@ -6,15 +6,12 @@
  * Time: 15:54
  */
 
-namespace Anu;
+/*namespace Anu;
 
 
 class pageRecord extends entryRecord
 {
 
-    /**
-     * Define Attributes
-     */
     public function defineAttributes(){
         return array_merge(array(
             'page_id'   => array(AttributeType::Number ),
@@ -29,9 +26,6 @@ class pageRecord extends entryRecord
         ), parent::defineIndex());
     }
 
-    /**
-     * @return string
-     */
     public function getTableName(){
         return 'page';
     }
@@ -39,4 +33,4 @@ class pageRecord extends entryRecord
     public function getRecordName(){
         return "Seiten";
     }
-}
+}*/

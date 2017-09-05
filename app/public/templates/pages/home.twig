@@ -6,16 +6,16 @@
     {% include 'user/login.twig' %}
 
 
-    {% set form = anu.page.renderList() %}
+    {% set form = anu.entry.renderList('page') %}
     {{ form|raw }}
-{#
+
     <br><br><br><br>
-    {% set form = anu.question.renderList() %}
+    {% set form = anu.entry.renderList('question') %}
     {{ form|raw }}
 
     <br><br><br>
-    {% set form = anu.comic.renderList() %}
-    {{ form|raw }}#}
+    {% set form = anu.entry.renderList('comic') %}
+    {{ form|raw }}
 
     <br><br><br><br>
     <br><br><br><br>
@@ -134,12 +134,6 @@
         {% endfor %}
     {% endif %}
 
-
-
-    {% set asset = anu.asset.getAssetById(6) %}
-    <img src="{{ asset.getUrl() }}">
-
-    </div>
     {#
     {% includeJsFile 't'%}
     {% includeJsFile 't2'%}

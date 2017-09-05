@@ -13,7 +13,8 @@ class userService extends baseService
 {
     private $currentUser = null;
 
-    protected   $table = null;
+    public      $tableName = null;
+    public      $recordName = null;
     protected   $template = null;
     protected   $primary_key = null;
     protected   $id = 0;
@@ -21,8 +22,9 @@ class userService extends baseService
 
     public function init(){
         $class = Anu::getClassByName($this, "Record", true);
-        $this->table = $class->getTableName();
+        $this->tableName = $class->getTableName();
         $this->primary_key = $class->getPrimaryKey();
+        $this->model = 'user';
         if($userId = anu()->session->get('user_id', null)){
             $this->currentUser = $this->getUserById($userId);
         }
@@ -44,7 +46,7 @@ class userService extends baseService
             $response['password'] = 'Password not set';
         }
 
-        $userId = anu()->database->get($this->table, $this->primary_key, array(
+        $userId = anu()->database->get($this->tableName, $this->primary_key, array(
              'OR' => array(
                  'title'    => $title,
                  'email'    => $email
@@ -102,12 +104,6 @@ class userService extends baseService
             return false;
         }
 
-        if(!$this->table || !$this->primary_key){
-            $className = Anu::getClassName($this);
-            $this->table = anu()->$className->table;
-            $this->primary_key = anu()->$className->primary_key;
-        }
-
         //check if its a new entry of if we should update an existing one
         $record =  new userRecord();
         $recordValues = $record->defineAttributes();
@@ -130,7 +126,7 @@ class userService extends baseService
                 $values['password'] = password_hash($values['password'], PASSWORD_DEFAULT);
             }
 
-            anu()->database->insert($this->table, $values);
+            anu()->database->insert($this->tableName, $values);
 
             $id = anu()->database->id();
             $user->id = $id;
@@ -158,8 +154,8 @@ class userService extends baseService
 
             }
 
-            anu()->database->update($this->table, $values, array(
-                $this->table . "." . $this->primary_key => $user->id
+            anu()->database->update($this->tableName, $values, array(
+                $this->tableName . "." . $this->primary_key => $user->id
             ));
 
             return anu()->database->id();

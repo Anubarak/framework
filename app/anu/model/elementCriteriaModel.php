@@ -44,8 +44,9 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
         if(!$service || !is_object($service)){
             throw new \Exception("Parameter must be kind of Service");
         }
+
         $this->service = $service;
-        $model = Anu::getClassByName($service, "Model", true);
+        $model = Anu::getModelByName($service->tableName);
 
         $attributes = $model->defineAttributes();
         foreach ($attributes as $k => $v){
@@ -67,14 +68,16 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
             $this->attributes = getPublicObjectVars($this);
         }
 
-        $tables = $this->service->getTable();
+        $tables = $this->service->tableName;
+
+
         if(!$tables){
-            $tables = anu()->record->getAllRecords();
+            $tables = anu()->record->getAllRecords(true);
         }elseif(!is_array($tables)){
-            $tables = array(array(
-                'table_name' => $tables,
-                'name'       => Anu::getClassName($this->service)
-            ));
+            $record = Anu::getRecordByName($tables);
+            $tables = array(
+                $record
+            );
         }
 
         $where = array('enabled' => '1');
@@ -90,13 +93,13 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
 
         $entries = array();
         foreach ($tables as $record){
-            $className = $record['name'];
+            $className = $record->tableName;
             //check for relations...
             $select = array();
             if(!property_exists(anu(), $className)){
                 throw new \Exception("Error: Class $className not found. Please create $className Service");
             }
-            $select[] = anu()->$className->getPrimaryKey() . '(id)';
+            $select[] = $record->primary_key . '(id)';
             if($relations){
 
                 $id = null;
@@ -106,11 +109,14 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                     echo "<pre>";
                     var_dump($relations);
                     echo "</pre>";
-                    die();
                 }
                 if(is_object($relations)){
                     $id = $relations->id;
-                    $model = Anu::getClassName($relations);
+                    echo("<pre>");
+                    var_dump($relations);
+                    echo("</pre>");
+                    die();
+                    $model = Anu::getModelByName($relations);
                 }else{
                     $field = isset($relations['field'])? $relations['field'] : null;
                     $id = array_key_exists("id", $relations)? $relations['id'] : 0;
@@ -125,10 +131,10 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                 if($id !== 'nothing'){
                     $join = array(
                         '[>]relation(relation1)' => array(
-                            anu()->$className->getPrimaryKey() => 'id_1'
+                            $record->primary_key => 'id_1'
                         ),
                         '[>]relation(relation2)' => array(
-                            anu()->$className->getPrimaryKey() => 'id_2'
+                            $record->primary_key => 'id_2'
                         )
                     );
                     $whereFirstTable = array();
@@ -138,13 +144,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
 
 
                     if($className == $model ){
-                        if($debug){
-                            echo "<pre>";
-                            var_dump($id);
-                            echo "</pre>";
-                            die();
-                        }
-                        $where[anu()->$className->getTable() . '.' . anu()->$className->getPrimaryKey() . '[!]'] = $id;
+                        $where[$record->tableName . '.' . $record->primary_key . '[!]'] = $id;
                     }
 
                     if($field){
@@ -180,8 +180,8 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                         'model_1'   => $model
                     ));
 
-                    if(array_key_exists($this->service->getPrimaryKey(). '[!]', $where)){
-                        $key = $this->service->getPrimaryKey(). '[!]';
+                    if(array_key_exists($record->primary_key. '[!]', $where)){
+                        $key = $record->primary_key. '[!]';
                         if(is_array($where[$key])){
                             foreach ($relationTable as $rel){
                                 $where[$key][] = $rel;
@@ -192,7 +192,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                             $where[$key][] = $tmp;
                         }
                     }else{
-                        $where[$this->service->getPrimaryKey(). '[!]'] = $relationTable;
+                        $where[$record->primary_key. '[!]'] = $relationTable;
                     }
 
                 }
@@ -205,17 +205,16 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                 echo "<pre>";
                 var_dump($where);
                 echo "</pre>";
-                die();
             }
             if($join){
-                $rows = anu()->database->select(anu()->$className->getTable(), $join, $select , $where);
+                $rows = anu()->database->select($record->tableName, $join, $select , $where);
             }else{
-                $rows = anu()->database->select(anu()->$className->getTable(), $select , $where);
+                $rows = anu()->database->select($record->tableName, $select , $where);
             }
 
             if($debug){
                 echo "<pre>";
-                var_dump($where);
+                var_dump($rows);
                 var_dump(anu()->database->last());
                 echo "</pre>";
             }

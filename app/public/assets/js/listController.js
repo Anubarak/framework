@@ -54,7 +54,7 @@ $.each(container, function(index, item){
             $scope.hasChildren = false;
             $scope.entries = [];
             $scope.parentFieldId = '';
-            if(typeof entries[list] !== undefined){
+            if(typeof entries[list] !== 'undefined'){
                 var myEntries = [];
                 //create object with id => entryId
                 var parentKey = '';
@@ -76,14 +76,18 @@ $.each(container, function(index, item){
                         item.parent = (item[parentKey].ids.length)? item[parentKey].ids[0] : null;
                         myEntries.push(item);
                     });*/
+                    console.log('buidTree', entries[list]);
                     _.each(entries[list], function (o) {
                         o.children.forEach(function (childId) {
                             _.findWhere(entries[list], {id: childId}).parents = o.id;
                         });
                     });
-                    console.log('buidTree', entries[list]);
-                    $scope.entries = treeify(entries[list], null, 'parents');
-                    console.log('entries', $scope.entries);
+
+                    console.log('after under', entries[list]);
+                    var tree = treeify(entries[list], null, 'parents');
+                    console.log('tree', tree);
+                    $scope.entries = tree;
+                    //console.log('entries', $scope.entries);
                     //$scope.entries = treeify(myEntries);
                 }else{
                     $scope.entries = entries[list];

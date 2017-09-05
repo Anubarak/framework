@@ -1,9 +1,8 @@
 {% extends 'layout/site.twig' %}
 
 {% block content %}
-    {% set class = attribute(anu, form) %}
-
-    {% set form = class.renderForm(entry) %}
+    {% set param = entry? entry : form %}
+    {% set form = anu.entry.renderForm(param) %}
     {{ form|raw }}
 
 {% endblock %}

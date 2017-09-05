@@ -11,19 +11,21 @@ namespace Anu;
 
 class matrixService extends entryService
 {
-    protected   $table = null;
+    public      $tableName = null;
+    public      $model = null;
     protected   $template = null;
     protected   $primary_key = null;
     protected   $id = 0;
 
 
-    public function init(){
+    public function init($service = 'null'){
         $class = Anu::getClassByName($this, "Record", true);
         if($class === false){
             throw new \Exception('could not find Record for ' . get_class($this));
         }
-        $this->table = $class->getTableName();
-        $this->primary_key = $class->getPrimaryKey();
+        $this->model      = $class->tableName;
+        $this->tableName = $class->tableName;
+        $this->primary_key = $class->primary_key;
     }
 
 
@@ -36,11 +38,6 @@ class matrixService extends entryService
         $this->generateSlugForEntry($entry);
         if(!$this->validate($entry) || !$this->checkSavePermission($entry)){
             return false;
-        }
-        if(!$this->table || !$this->primary_key){
-            $className = Anu::getClassName($entry);
-            $this->table = anu()->$className->table;
-            $this->primary_key = anu()->$className->primary_key;
         }
 
         //check if its a new entry of if we should update an existing one
@@ -86,7 +83,7 @@ class matrixService extends entryService
                     }
                 }
             }
-            anu()->database->insert($this->table, $values);
+            anu()->database->insert($this->tableName, $values);
             $id = anu()->database->id();
             $entry->id = $id;
             if($relationsToSave && $id){
@@ -131,8 +128,8 @@ class matrixService extends entryService
             }
         }
 
-        anu()->database->update($this->table, $values, array(
-            $this->table . "." . $this->primary_key => $entry->id
+        anu()->database->update($this->tableName, $values, array(
+            $this->tableName . "." . $this->primary_key => $entry->id
         ));
 
         if($entry->getErrors() == null){

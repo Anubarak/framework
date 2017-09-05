@@ -14,9 +14,11 @@ class entryController extends baseController
     public function validateSlug(){
         if($class = anu()->request->getValue('class')){
             $slug = anu()->request->getValue('slug');
-            $inUse = anu()->database->has(anu()->$class->getTable(), array(
+            $id = anu()->request->getValue('id', 0);
+            $record = Anu::getRecordByName($class);
+            $inUse = anu()->database->has($record->tableName, array(
                 'slug' => $slug,
-                anu()->$class->getPrimaryKey() . "[!]" => anu()->request->getValue('id')
+                $record->primary_key . "[!]" => $id
             ));
 
             $this->returnJson(array(
@@ -65,7 +67,7 @@ class entryController extends baseController
     public function save(){
             $data = anu()->request->postVar('entry');
             $className = $data['class'];
-            $entry = Anu::getClassByName($className, 'Model', true);
+            $entry = Anu::getModelByName($className);
             anu()->$className->populateModel($data, $entry);
             $matrix = anu()->request->postVar('matrix', null);
             $matrixArray = array();
@@ -75,7 +77,7 @@ class entryController extends baseController
                         if($matrixElement['id']){
                             $singleMatrix = anu()->matrix->getMatrixById($matrixElement['id']);
                         }else{
-                            $singleMatrix = new matrixModel();
+                            $singleMatrix = new matrixModel('matrix');
                         }
                         $matrixAttributes = anu()->matrix->getMatrixByName($matrixElement['matrixId'])->defineAttributes()[$matrixElement['type']];
                         $content = array();

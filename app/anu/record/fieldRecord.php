@@ -9,13 +9,13 @@
 namespace Anu;
 
 
-class entryRecord extends baseRecord
+class fieldRecord extends baseRecord
 {
     /**
      * @return string
      */
     public function getTableName(){
-        return "";
+        return "fields";
     }
 
     /**
@@ -23,18 +23,20 @@ class entryRecord extends baseRecord
      */
     public function defineAttributes(){
         return array_merge(array(
-            'slug'          => array(AttributeType::Mixed),
-            'author_id'     => array(AttributeType::Number),
-            'enabled'       => array(AttributeType::Bool),
+            'id'              => array(AttributeType::Number),
+            'slug'            => array(AttributeType::Mixed),
+            'settings'        => array(AttributeType::Text),
+            'enabled'         => array(AttributeType::Bool),
         ), parent::defineAttributes());
+
     }
 
     /**
      * @return array
      */
     public function defineIndex(){
-        return array(
-            'slug' => array(DBIndex::Unique)
-        );
+        return array_merge(array(
+            'id'   => array(DBIndex::Primary)
+        ), parent::defineIndex());
     }
 }

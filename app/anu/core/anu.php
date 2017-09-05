@@ -35,7 +35,7 @@ class app{
         $whoops->register();
 
         $dirs = array(
-            Anu::getCoreServiceDirectory(), Anu::getPluginServiceDirectory()
+            Anu::getCoreServiceDirectory()/*, Anu::getPluginServiceDirectory()*/
         );
 
         foreach ($dirs as $dir){
@@ -59,10 +59,8 @@ class app{
 
         $this->plugins = (object)array();
         //include Plugin directories
-        $dirs = array(
-            Anu::getPluginDirectory()
-        );
-        foreach ($dirs as $dir){
+
+        /*foreach ($dirs as $dir){
             $files = scandir($dir);
             $countFiles = count($files);
             if($countFiles > 2) {
@@ -76,7 +74,7 @@ class app{
                     }
                 }
             }
-        }
+        }*/
     }
 
     public function init(){
@@ -91,7 +89,25 @@ class app{
             ));
             die();
         }
-        //TODO check if Table exists and create insaller
+
+        $records = anu()->record->getAllRecords();
+        if(is_array($records) && count($records)){
+            foreach ($records as $record){
+                $baseRecord = new baseRecord($record);
+
+                $className = $record['name'] . "Service";
+                $recordName = $record['name'];
+                if(class_exists($className)){
+                    $this->$recordName = new $className();
+                }else{
+                    $this->$recordName = new entryService();
+                }
+
+                $this->$recordName->init($baseRecord);
+            }
+        }
+
+        //TODO check if Table exists and create installer
         /*
         $result = anu()->database->('SHOW TABLES LIKE `records`')->fetch();
         echo "<pre>";
@@ -219,7 +235,7 @@ class Anu
             $type = ($extention)? $extention : "Service";
             $className = Anu::getNameSpace() . $class . $type;
             if(class_exists($className)){
-                if($returnClass) return new $className;
+                if($returnClass) return new $className($class);
                 return $className;
             }
             return null;
@@ -241,6 +257,28 @@ class Anu
         }
 
         return false;
+    }
+
+    /**
+     * @param $model
+     * @return entryModel
+     */
+    public static function getModelByName($model){
+        $className = Anu::getNameSpace() . $model . "Model";
+        if(class_exists($className)){
+            return new $className($model);
+        }
+        $model = new entryModel($model);
+        return $model;
+    }
+
+    public static function getRecordByName($record){
+        $className = Anu::getNameSpace() . $record . "Record";
+        if(class_exists($className)){
+            return new $className();
+        }
+        $record = anu()->record->getRecordByName($record);
+        return new baseRecord($record);
     }
 
     /**

@@ -16,12 +16,12 @@ class baseModel implements \JsonSerializable
     public $id = null;
     public $class = null;
 
-    public function __construct(){
+    public function __construct($class){
         $attributes = $this->defineAttributes();
         foreach ($attributes as $k => $v){
             $this->$k = null;
         }
-        $this->class = Anu::getClassName($this);
+        $this->class = $class;
     }
 
     /**
@@ -114,7 +114,7 @@ class baseModel implements \JsonSerializable
         $type = $this->defineStructure();
         $attributes = array();
         /** @var baseRecord $record */
-        $record = Anu::getClassByName($this, "Record", true);
+        $record = Anu::getRecordByName($this->class);
         switch ($type){
             case StructureType::Channel:
 
@@ -134,8 +134,7 @@ class baseModel implements \JsonSerializable
     /**
      * @return array
      */
-    public function jsonSerialize() {
-        $this->class = Anu::getClassName($this);
+    public function jsonSerialize() {;
         return get_object_vars($this);
     }
 

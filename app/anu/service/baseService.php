@@ -11,7 +11,8 @@ namespace Anu;
 
 class baseService implements \JsonSerializable
 {
-    protected   $table = null;
+    public      $tableName = null;
+    public      $model = null;
     protected   $template = null;
     protected   $primary_key = null;
     protected   $id = 0;
@@ -20,7 +21,6 @@ class baseService implements \JsonSerializable
      * @return array
      */
     public function jsonSerialize() {
-        $this->class = Anu::getClassName($this);
         return get_object_vars($this);
     }
 
@@ -175,6 +175,8 @@ class baseService implements \JsonSerializable
      * @throws \Exception
      */
     public function populateModel($data, $model, $attributes = null){
+        //$data['attributes'] = "";
+
         if($model->setData($data)){
             if($attributes === null){
                 $attributes = $model->defineAttributes();
@@ -245,12 +247,12 @@ class baseService implements \JsonSerializable
         $select = array();
         $primaryKey = $this->primary_key;
 
-        $select[] = $this->table . "." . $primaryKey . "(id)";
-        $record = Anu::getClassByName($this, 'Record', true);
+        $select[] = $this->tableName . "." . $primaryKey . "(id)";
+        $record = Anu::getRecordByName($this->model);
         $recordAttributes = $record->defineAttributes();
         foreach ($recordAttributes as $k => $v){
             if(array_key_exists($k, $attributes)){
-                $select[] = $this->table . "." . $k;
+                $select[] = $this->tableName . "." . $k;
             }
         }
 
@@ -269,18 +271,17 @@ class baseService implements \JsonSerializable
             return null;
         }
         $this->id = $elementId;
-        if($model = Anu::getClassByName($this, 'Model', true)){
-            $attributes = $model->defineAttributes();
 
+        if($model = Anu::getModelByName($this->model)){
+            $attributes = $model->defineAttributes();
             $select = $this->iterateDBSelect($attributes);
 
             $join = array(
-                "[>]relation" => array($this->table . "." . $this->primary_key => 'id_1')
+                "[>]relation" => array($this->tableName . "." . $this->primary_key => 'id_1')
             );
-            $where = array($this->table . "." . $this->primary_key => $elementId);
+            $where = array($this->tableName . "." . $this->primary_key => $elementId);
 
-            $row = anu()->database->get($this->table, $join, $select, $where);
-
+            $row = anu()->database->get($this->tableName, $join, $select, $where);
             if($row){
                 return $this->populateModel($row, $model);
             }
@@ -302,9 +303,10 @@ class baseService implements \JsonSerializable
             return false;
         }
 
-        if(!$this->table || !$this->primary_key){
+        if(!$this->name || !$this->primary_key){
+            //TODO change to record
             $className = Anu::getClassName($this);
-            $this->table = anu()->$className->table;
+            $this->name  = anu()->$className->tableName;
             $this->primary_key = anu()->$className->primary_key;
         }
 
@@ -328,7 +330,7 @@ class baseService implements \JsonSerializable
                 }
             }
 
-            anu()->database->insert($this->table, $values);
+            anu()->database->insert($this->tableName, $values);
             $id = anu()->database->id();
             $element->id = $id;
             return $id;
@@ -349,8 +351,8 @@ class baseService implements \JsonSerializable
                 }
             }
 
-            anu()->database->update($this->table, $values, array(
-                $this->table . "." . $this->primary_key => $element->id
+            anu()->database->update($this->tableName, $values, array(
+                $this->tableName . "." . $this->primary_key => $element->id
             ));
 
             return anu()->database->id();
@@ -382,7 +384,7 @@ class baseService implements \JsonSerializable
      * @return string
      */
     public function getTable(){
-        return $this->table;
+        return $this->tableName;
     }
 
     /**
@@ -395,9 +397,9 @@ class baseService implements \JsonSerializable
     /**
      * @param $attributes
      */
-    public function find($attributes = null, $onlyIds = false){
+    public function find($attributes = null, $onlyIds = false, $debug = false){
         $criteria = new elementCriteriaModel($this);
-        return $criteria->find($attributes, $onlyIds);
+        return $criteria->find($attributes, $onlyIds, $debug);
     }
 
 
@@ -408,6 +410,7 @@ class baseService implements \JsonSerializable
      */
     public function changePositions($element, $field,  $parentfield){
         /** @var baseRecord $record */
+        //TODO update to record
         $record = Anu::getClassByName($element, "Record", true);
         $children = null;
         $where = array();
@@ -442,6 +445,7 @@ class baseService implements \JsonSerializable
         $isInsert = false;
         if(property_exists($element, 'oldSiblings') && property_exists($element, 'oldPosition') && $element->oldSiblings !== null){
             $isInsert = true;
+            //TODO record get Table Name
             anu()->database->update($this->getTable(), array("#".$field => "$field-1"), array(
                 $record->getPrimaryKey() => $element->oldSiblings,
                 $field . "[>=]" => $element->oldPosition
@@ -453,11 +457,11 @@ class baseService implements \JsonSerializable
                 $where[$field . "[<=]"] = $oldPosition;
             }
             $where[$field . "[>=]"] = $newPosition;
-            anu()->database->update($record->getTableName(), array("#".$field => "$field+1"), $where);
+            anu()->database->update($record->tableName, array("#".$field => "$field+1"), $where);
         }else{
             $where[$field . "[<=]"] = $newPosition;
             $where[$field . "[>=]"] = $oldPosition;
-            anu()->database->update($record->getTableName(), array("#".$field => "$field-1"), $where);
+            anu()->database->update($record->tableName, array("#".$field => "$field-1"), $where);
         }
     }
 
@@ -465,8 +469,8 @@ class baseService implements \JsonSerializable
      * @param $entry baseModel
      */
     public function renderForm($entry = null, $template = 'admin/forms/index.twig'){
-        if(!$entry){
-            $entry = Anu::getClassByName($this, "Model", true);
+        if(is_string($entry)){
+            $entry = Anu::getModelByName($entry);
             //just to add relationModels
             $this->populateModel(null, $entry);
         }
@@ -522,17 +526,19 @@ class baseService implements \JsonSerializable
     /**
      * @param $entry baseModel
      */
-    public function renderList(){
-        $className = Anu::getClassName($this);
-        $entries = anu()->$className->find(['enabled' => 'all']);
-        $model = Anu::getClassByName($className, "Model", true);
+    public function renderList($recordHandle){
+        $className = $recordHandle;
+
+        /** @var entryRecord $record */
+        $record = Anu::getRecordByName($recordHandle);
+        $criteria = new elementCriteriaModel($record);
+        $entries = $criteria->find(['enabled' => 'all']);
+        $model = Anu::getModelByName($recordHandle);
         $attributes = $model->defineAttributes();
         foreach ($entries as $entry){
-            /** @var entryRecord $record */
-            $record = Anu::getClassByName($entry, "Record", true);
-            $entry->children = anu()->$className->find([
+            $entry->children = $criteria->find([
                 'relatedTo' => array(
-                    'field' => $record->getPrimaryKey(),
+                    'field' => $record->primary_key,
                     'model' => $entry->class,
                     'id'    => $entry->id
                 )

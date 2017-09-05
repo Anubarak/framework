@@ -42,7 +42,7 @@ myApp.directive('unique', function($http) {
             if('unique' in scope.attributes){
                 ngModel.$asyncValidators.slug = function(value) {
                     c = ngModel;
-                    var entryId = scope.rootScope.data.id;
+                    var entryId = scope.rootScope.data.id? scope.rootScope.data.id : 0;
                     var entryClass = scope.rootScope.entryClass;
                     var form = new FormData();
                     form.append("class", entryClass);

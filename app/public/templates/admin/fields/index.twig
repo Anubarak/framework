@@ -1,0 +1,19 @@
+{% extends 'layout/site.twig' %}
+
+{% block content %}
+    <div ng-controller="entryController" class="entryController" data-id="{{ entry.id }}" data-class="{{ class }}">
+        <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="{{ class }}Form">
+
+            <div ng-repeat="(index, item) in attributes">
+                <div thin-directive="{[{item[0]}]}" root-scope="rootScope" datasource="data[index]" index="index"  prefix="" attributes="item"> </div>
+            </div>
+
+            <input type="hidden" name="action" value="action/entry/save">
+            <input type="hidden" name="class" ng-model="entryClass">
+
+            <input type="button" class="btn btn-default pull-right" ng-click="send()" value="senden">
+        </form>
+    </div>
+{% endblock %}
+
+{% includeJsFile 'fieldController.js'%}

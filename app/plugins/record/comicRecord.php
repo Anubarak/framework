@@ -8,13 +8,10 @@
 
 namespace Anu;
 
-
+/*
 class comicRecord extends entryRecord
 {
 
-    /**
-     * Define Attributes
-     */
     public function defineAttributes(){
         return array_merge(array(
             'comic_id'   => array(AttributeType::Number, ),
@@ -28,9 +25,6 @@ class comicRecord extends entryRecord
         ), parent::defineIndex());
     }
 
-    /**
-     * @return string
-     */
     public function getTableName(){
         return 'comic';
     }
@@ -39,4 +33,4 @@ class comicRecord extends entryRecord
         return "Comics";
     }
 
-}
+}*/

@@ -18,8 +18,16 @@ class recordService
     /**
      * @return array|bool
      */
-    public function getAllRecords(){
-        return anu()->database->select('records', '*');
+    public function getAllRecords($returnModel = false){
+        if(!$returnModel){
+            return anu()->database->select('records', '*');
+        }
+        $records = anu()->database->select('records', '*');
+        $response = array();
+        foreach ($records as $record){
+            $response[] = new baseRecord($record);
+        }
+        return $response;
     }
 
     public function getRecordById($id){
@@ -27,11 +35,12 @@ class recordService
     }
 
     public function getRecordByName($name){
-        return anu()->database->select('records', '*', array(
+        $record = anu()->database->select('records', '*', array(
             'OR' => array(
                 'table_name' => $name,
                 'name'      => $name
             )));
+        return count($record)? $record[0] : null;
     }
 
 
@@ -163,7 +172,8 @@ class recordService
             if($success && !$ignoreRecordTable){
                 anu()->database->insert('records', array(
                     'name' => $this->record->getTableName(),
-                    'table_name' => $this->record->getTableName()
+                    'table_name' => $this->record->getTableName(),
+                    'primary_key' => $this->record->getPrimaryKey()
                 ));
             }
         }

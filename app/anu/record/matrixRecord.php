@@ -42,4 +42,8 @@ class matrixRecord extends baseRecord
             'matrix_id' => array(DBIndex::Primary)
         );
     }
+
+    public function getRecordName(){
+        return 'matrix';
+    }
 }

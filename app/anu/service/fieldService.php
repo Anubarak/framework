@@ -8,8 +8,8 @@
 
 namespace Anu;
 
-
-class fieldService
+require_once BASE . 'app\anu\service\entryService.php';
+class fieldService extends entryService
 {
     public $handle = '';
 
@@ -95,5 +95,28 @@ class fieldService
         }
 
         return $criteriaModel;
+    }
+
+    /**
+     * @param $entry
+     */
+    public function getAllFieldsForEntry($recordHandle){
+        $response = array();
+        if($record = anu()->record->getRecordByName($recordHandle)){
+            $handle = $record['name'];
+            $join = array(
+                '[>]fields' => array('fieldHandle' => 'slug')
+            );
+            $fields = anu()->database->select('fieldlayout', $join, '*', array(
+                'recordHandle'  => array($handle, 'entry')
+            ));
+
+            if($fields && is_array($fields) && count($fields)){
+                foreach ($fields as $field){
+                    $response[$field['slug']] = json_decode($field['settings'], true);
+                }
+            }
+        }
+        return $response;
     }
 }

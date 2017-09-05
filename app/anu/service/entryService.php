@@ -13,19 +13,23 @@ use function Sodium\crypto_aead_aes256gcm_is_available;
 
 class entryService extends baseService
 {
-    protected   $table = null;
+    public      $tableName = null;
+    public      $model      = null;
     protected   $template = null;
     protected   $primary_key = null;
     protected   $id = 0;
 
-
-    public function init(){
-        $class = Anu::getClassByName($this, "Record", true);
-        if($class === false){
-            throw new Exception('could not find Record for ' . get_class($this));
+    /**
+     * @param string $service
+     * @throws Exception
+     */
+    public function init($record = null){
+        /** @var baseRecord $record */
+        if($record !== null){
+            $this->tableName = $record->tableName;
+            $this->model = $record->tableName;
+            $this->primary_key = $record->primary_key;
         }
-        $this->table = $class->getTableName();
-        $this->primary_key = $class->getPrimaryKey();
     }
 
     /**
@@ -39,19 +43,13 @@ class entryService extends baseService
             return false;
         }
 
-        if(!$this->table || !$this->primary_key){
-            $className = Anu::getClassName($entry);
-            $this->table = anu()->$className->table;
-            $this->primary_key = anu()->$className->primary_key;
-        }
-
         $event = new event($this, array(
            'entry'  => &$entry
         ));
         $event->raiseEvent('onBeforeSaveEntry');
 
         //check if its a new entry of if we should update an existing one
-        $record = Anu::getClassByName($this, "Record", true);
+        $record = Anu::getRecordByName($entry->class);
         $recordAttributes = $record->defineAttributes();
 
         if(!$entry->id){
@@ -73,7 +71,7 @@ class entryService extends baseService
                     $values["#".$key] = $data[$key];
                 }
             }
-            anu()->database->insert($this->table, $values);
+            anu()->database->insert($this->tableName, $values);
             $id = anu()->database->id();
             $entry->id = $id;
             if($relationsToSave && $id){
@@ -108,8 +106,8 @@ class entryService extends baseService
                 }
             }
 
-            anu()->database->update($this->table, $values, array(
-                $this->table . "." . $this->primary_key => $entry->id
+            anu()->database->update($this->tableName, $values, array(
+                $this->tableName . "." . $this->primary_key => $entry->id
             ));
 
             if($entry->getErrors() == null){
@@ -140,14 +138,14 @@ class entryService extends baseService
             throw new Exception('ID is not specified.');
         }
         $this->id = $entryId;
-        if($model = Anu::getClassByName($this, 'Model', true)){
+        if($model = Anu::getModelByName($this->tableName)){
             $attributes = $model->defineAttributes();
             $where = array();
             $select = $this->iterateDBSelect($attributes);
 
-            $where[$this->table . "." . $this->primary_key] = $entryId;
+            $where[$this->tableName . "." . $this->primary_key] = $entryId;
 
-            $row = anu()->database->get($this->table, $select, $where);
+            $row = anu()->database->get($this->tableName, $select, $where);
 
             if($row){
                 return $this->populateModel($row, $model);
@@ -168,7 +166,7 @@ class entryService extends baseService
             return false;
         }
 
-        anu()->database->delete($this->table, array(
+        anu()->database->delete($this->tableName, array(
             $this->primary_key => $entry->id
         ));
 
@@ -204,7 +202,8 @@ class entryService extends baseService
      */
     public function renderEntryBySlug($slug){
         if($entry = $this->getEntryBySlug($slug)){
-            anu()->template->render($this->template, array(
+            $template = $entry->class . "/index.twig";
+            anu()->template->render($template, array(
                 'entry' => $entry
             ));
         }else{
@@ -217,7 +216,7 @@ class entryService extends baseService
      * @return null|entryModel
      */
     public function getEntryBySlug($slug){
-        $id = anu()->database->select($this->table, $this->primary_key, array(
+        $id = anu()->database->select($this->tableName, $this->primary_key, array(
             'slug' => $slug
         ));
 
@@ -233,7 +232,7 @@ class entryService extends baseService
     public function generateSlugForEntry($entry){
         if(!$entry->id && property_exists($entry, 'slug')){
             $slug = $entry->slug;
-            $slugInUse = anu()->database->has($this->table, array('slug' => $slug));
+            $slugInUse = anu()->database->has($this->tableName, array('slug' => $slug));
             if(!$slugInUse && $slug != null){
                 return true;
             }
@@ -243,7 +242,7 @@ class entryService extends baseService
             while ($slugInUse){
                 $counter++;
                 $slug = $originalSlug . "-" . $counter;
-                $slugInUse = anu()->database->has($this->table, array('slug' => $slug));
+                $slugInUse = anu()->database->has($this->tableName, array('slug' => $slug));
 
             }
             $slug = $originalSlug . "-" . $counter;
