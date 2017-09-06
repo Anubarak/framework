@@ -43,4 +43,20 @@ class questionRecord extends entryRecord
         return "Fragen";
     }
 
+    public function getModel()
+    {
+        return 'question';
+    }
+
+    /**
+     * Set Type of structure possible fieled = StructureType enum
+     * Channel = not sortable all entries in one level
+     * Matrix = parent <-> child relation.. are sortable
+     *
+     * @return string
+     */
+    public function defineStructure()
+    {
+        return StructureType::Channel;
+    }
 }

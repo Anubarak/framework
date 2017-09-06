@@ -18,15 +18,24 @@ class fieldRecord extends baseRecord
         return "fields";
     }
 
+    public function getRecordName(){
+        return 'field';
+    }
+
+    public function getModel(){
+        return "field";
+    }
+
     /**
      * @return array
      */
     public function defineAttributes(){
         return array_merge(array(
-            'id'              => array(AttributeType::Number),
-            'slug'            => array(AttributeType::Mixed),
-            'settings'        => array(AttributeType::Text),
-            'enabled'         => array(AttributeType::Bool),
+            'id'                => array(AttributeType::Number),
+            'slug'              => array(AttributeType::Mixed),
+            'fieldType'         => array(AttributeType::Mixed),
+            'settings'          => array(AttributeType::Text),
+            'enabled'           => array(AttributeType::Bool),
         ), parent::defineAttributes());
 
     }

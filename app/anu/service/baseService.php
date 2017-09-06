@@ -536,13 +536,19 @@ class baseService implements \JsonSerializable
         $model = Anu::getModelByName($recordHandle);
         $attributes = $model->defineAttributes();
         foreach ($entries as $entry){
-            $entry->children = $criteria->find([
-                'relatedTo' => array(
-                    'field' => $record->primary_key,
-                    'model' => $entry->class,
-                    'id'    => $entry->id
-                )
-            ], true);
+            if($entry === null){
+               continue;
+            }
+            if($record->structure === StructureType::Matrix){
+                $entry->children = $criteria->find([
+                    'relatedTo' => array(
+                        'field' => $record->primary_key,
+                        'model' => $entry->class,
+                        'id'    => $entry->id
+                    )
+                ], true);
+            }
+
             //$entry->children = array();
             $entry->url = $entry->getUrl();
         }

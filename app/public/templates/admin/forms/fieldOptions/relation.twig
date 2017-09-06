@@ -1,0 +1,12 @@
+<div class="form-group" ng-class="{error: fieldForm.relatedTo.$invalid}">
+    <label for="relatedTo">Verknüpfung zu</label>
+
+    <select class="form-control"
+            name="relatedTo"
+            id="relatedTo"
+            ng-model="fieldOptions.relatedTo"
+            ng-options="item.id as item.name for item in records track by item.id"
+            ng-required="true"
+    >
+    </select>
+</div>

@@ -27,13 +27,13 @@ class entryService extends baseService
         /** @var baseRecord $record */
         if($record !== null){
             $this->tableName = $record->tableName;
-            $this->model = $record->tableName;
+            $this->model = $record->model;
             $this->primary_key = $record->primary_key;
         }
     }
 
     /**
-     * @param $entry            entryModel
+     * @param $entry            entryModel|fieldModel
      * @return bool|int|string
      */
     public function saveEntry($entry){
@@ -138,7 +138,7 @@ class entryService extends baseService
             throw new Exception('ID is not specified.');
         }
         $this->id = $entryId;
-        if($model = Anu::getModelByName($this->tableName)){
+        if($model = Anu::getModelByName($this->model)){
             $attributes = $model->defineAttributes();
             $where = array();
             $select = $this->iterateDBSelect($attributes);
@@ -279,7 +279,7 @@ class entryService extends baseService
                 }
             }
         }else{
-            $relations = $entry->$key->getStoredIds();
+            $relations = $entry->$key->ids();
         }
         return $relations;
     }

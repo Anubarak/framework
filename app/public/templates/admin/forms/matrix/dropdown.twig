@@ -1,0 +1,13 @@
+<div class="form-group" ng-class="{error: rootScope[rootScope.form][htmlPrefix + index].$invalid}">
+    <label for="{[{htmlPrefix}]}{[{ index }]}">{[{ rootScope.getFieldTitle(attributes, index) }]}</label>
+
+    <select class="form-control"
+            name="{[{htmlPrefix}]}{[{ index }]}"
+            id="{[{htmlPrefix}]}{[{ index }]}"
+            ng-init="datasource = attributes.options[0].id"
+            ng-model="datasource"
+            ng-options="item.id as item.label for item in attributes.options track by item.id"
+            ng-required="rootScope.isRequired(attributes)"
+    >
+    </select>
+</div>

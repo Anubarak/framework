@@ -5,6 +5,10 @@
 
     {% include 'user/login.twig' %}
 
+    <br><br><br>
+    {% set form = anu.field.renderList('field') %}
+    {{ form|raw }}
+
 
     {% set form = anu.entry.renderList('page') %}
     {{ form|raw }}
@@ -16,6 +20,8 @@
     <br><br><br>
     {% set form = anu.entry.renderList('comic') %}
     {{ form|raw }}
+
+
 
     <br><br><br><br>
     <br><br><br><br>

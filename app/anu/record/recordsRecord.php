@@ -26,6 +26,9 @@ class recordsRecord extends baseRecord
             'id'            => array(AttributeType::Number),
             'name'          => array(AttributeType::Mixed),
             'table_name'    => array(AttributeType::Mixed),
+            'primary_key'   => array(AttributeType::Mixed),
+            'model'         => array(AttributeType::Mixed),
+            'structure'         => array(AttributeType::Mixed),
             'date'          => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP'),
         );
 

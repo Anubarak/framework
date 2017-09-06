@@ -429,6 +429,17 @@ myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 
     $scope.$on('$destroy', function() {
         console.log('Controller destroyed');
     });
+
+    $scope.isRequired = function(attributes){
+        return ('required' in attributes && attributes['required'] == true);
+    };
+    $scope.testValue ="rere";
+    $scope.$watch(
+        "data.fieldType",
+        function handleFooChange( newValue, oldValue ) {
+            console.log(newValue);
+        }
+    );
 }]);
 
 $(document).on('show.bs.modal', '.modal', function (event) {

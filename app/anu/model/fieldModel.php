@@ -21,6 +21,12 @@ class fieldModel extends baseModel
             'createDate'    => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp, 'title' => Anu::t('Erstellungsdatum')),
             'updateDate'    => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp, 'title' => Anu::t('Bearbeitungsdatum')),
             'enabled'       => array(AttributeType::Bool, 'default' => '1', 'title' => Anu::t('Aktiv')),
+            'fieldType'     => array(
+                AttributeType::DropDown,
+                'required'  => true,
+                'title'     => Anu::t('Feldtyp'),
+                'options'   => anu()->field->getAllPossibleFieldTypes()
+            ),
             'settings'      => array(AttributeType::JSON, 'title' => Anu::t('Attributes'))
         ), parent::defineAttributes());
     }

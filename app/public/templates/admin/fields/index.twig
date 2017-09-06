@@ -2,7 +2,11 @@
 
 {% block content %}
     <div ng-controller="entryController" class="entryController" data-id="{{ entry.id }}" data-class="{{ class }}">
-        <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="{{ class }}Form">
+        <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="fieldForm">
+
+            <pre>
+            {[{ fieldOptions | json }]}
+            </pre>
 
             <div ng-repeat="(index, item) in attributes">
                 <div thin-directive="{[{item[0]}]}" root-scope="rootScope" datasource="data[index]" index="index"  prefix="" attributes="item"> </div>
@@ -10,7 +14,8 @@
 
             <input type="hidden" name="action" value="action/entry/save">
             <input type="hidden" name="class" ng-model="entryClass">
-
+            <div id="fieldOptionContainer">
+            </div>
             <input type="button" class="btn btn-default pull-right" ng-click="send()" value="senden">
         </form>
     </div>

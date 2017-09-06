@@ -14,6 +14,8 @@ class baseRecord
     public $name = '';
     public $tableName = '';
     public $primary_key;
+    public $model = '';
+    public $structure = 'channel';
 
     /**
      * Define aliases for javascript and such
@@ -25,6 +27,17 @@ class baseRecord
         $this->tableName = (isset($record['table_name']))? $record['table_name'] : $this->getTableName();
         $this->installed = (isset($record['name']))? true : $this->isInstalled();
         $this->primary_key = (isset($record['primary_key']))? $record['primary_key'] : $this->getPrimaryKey();
+        if(isset($record['model'])){
+            $this->model = $record['model'];
+        }elseif(method_exists($this, 'getModel')){
+            $this->model = $this->getModel();
+        }
+
+        if(isset($record['structure'])){
+            $this->structure = $record['structure'];
+        }elseif(method_exists($this, 'defineStructure')){
+            $this->structure = $this->defineStructure();
+        }
     }
 
     /**
@@ -54,6 +67,10 @@ class baseRecord
         return array(
 
         );
+    }
+
+    public function getModel(){
+        return "";
     }
 
     /**

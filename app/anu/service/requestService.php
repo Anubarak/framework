@@ -145,9 +145,9 @@ class requestService
         //go to the detail entry page if parameters set
         if($entry && $slug){
             if(isset(anu()->$entry) && is_object(anu()->$entry)){
-                if(!anu()->record->getRecordByName($entry)){
-                    throw new \Exception($entry . ' is not installed');
-                }
+                //if(!anu()->record->getRecordByName($entry)){
+                //    throw new \Exception($entry . ' is not installed');
+                //}
                 anu()->$entry->renderEntryBySlug($slug);
             }else{
                 throw new \Exception('could not found Service with Name = ' . $entry );

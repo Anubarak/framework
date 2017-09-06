@@ -46,4 +46,9 @@ class matrixRecord extends baseRecord
     public function getRecordName(){
         return 'matrix';
     }
+
+    public function getModel()
+    {
+        return 'matrix';
+    }
 }

@@ -6,7 +6,8 @@ var className = '';
 var test = [];
 var container = $('.entryController').first();
 id = container.data('id');
-myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 'configService', function ($scope, $http, $timeout, $compile, configService, RelationService) {
+myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 'configService', '$templateRequest',
+        function ($scope, $http, $timeout, $compile, configService, $templateRequest) {
     $scope.data = {
         id: anu.entry.id
     };
@@ -17,7 +18,10 @@ myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 
     $scope.attributes = anu.entry.attributes;
     // class/type of entry... not really used but we need to store it
     $scope.entryClass = anu.entry.class;
+    $scope.fieldOptions = {};
     $scope.rootScope = $scope;
+    $scope.records = anu.records;
+    $scope.fieldOptions.relatedTo = anu.records[0].id;
     /**
      * Contentmatrix build
      * @type {{matrix: [*]}}
@@ -96,11 +100,10 @@ myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 
         //$scope.reset();
         var form = new FormData();
         var data = angular.copy($scope.data);
-        data.class = $scope.entryClass;
-        var matrix = angular.copy($scope.matrixElements);
+        var fieldOptions = angular.copy($scope.fieldOptions);
         form.append("entry", JSON.stringify(data));
-        form.append("matrix", JSON.stringify(matrix));
-        form.append('action', "entry/save");
+        form.append("fieldOptions", JSON.stringify(fieldOptions));
+        form.append('action', "field/save");
         $http({
             method: 'POST',
             url: '',
@@ -195,4 +198,18 @@ myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 
     $scope.$on('$destroy', function() {
         console.log('Controller destroyed');
     });
+
+    $scope.$watch(
+        "data.fieldType",
+        function handleFieldTypeChange( newValue, oldValue ) {
+            console.log(newValue);
+            console.log("request", configService);
+            $templateRequest(configService.angularTemplatePath + 'admin/forms/fieldOptions/' + newValue + ".twig").then(function (html) {
+                 var template = angular.element(html);
+                console.log(template);
+                 $('#fieldOptionContainer').html(template);
+                 $compile(template)($scope);
+            });
+        }
+    );
 }]);

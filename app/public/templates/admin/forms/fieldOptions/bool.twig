@@ -1,0 +1,16 @@
+<div class="form-group" ng-class="{error: fieldForm.default.$invalid}">
+    <label for="default" class="form-check-label">
+        Standardwert
+    </label><br>
+    <button type="button"
+            id="default"
+            ng-model="fieldOptions.default"
+            name="default"
+            class="btn btn-lg btn-toggle"
+            autocomplete="off"
+            ng-class="{active: fieldOptions.default}"
+            ng-click="fieldOptions.default = !fieldOptions.default;"
+    >
+        <div class="handle"></div>
+    </button>
+</div>

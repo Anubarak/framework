@@ -11,6 +11,13 @@ namespace Anu;
 require_once BASE . 'app\anu\service\entryService.php';
 class fieldService extends entryService
 {
+
+    public function init($record = NULL){
+        $this->tableName = 'fields';
+        $this->model    = 'field';
+        $this->primary_key = 'id';
+    }
+
     public $handle = '';
 
     public function onUpdate($entry, $key, $attributes, &$values, $oldEntry = null){
@@ -118,5 +125,37 @@ class fieldService extends entryService
             }
         }
         return $response;
+    }
+
+    /**
+     * return array
+     */
+    public function getAllPossibleFieldTypes(){
+        return array(
+            array(
+                'id' => AttributeType::Text,
+                'label' => 'Text'
+            ),
+            array(
+                'id'    => AttributeType::DropDown,
+                'label' => "Dropdown"
+            ),
+            array(
+                'id'    => AttributeType::Relation,
+                'label' => 'Verknüpfung'
+            ),
+            array(
+                'id'    => AttributeType::Mixed,
+                'label' => Anu::t('Text unformatiert')
+            ),
+            array(
+                'id'    => AttributeType::Number,
+                'label' => Anu::t('Zahl')
+            ),
+            array(
+                'id'    => AttributeType::Bool,
+                'label' => Anu::t('Lichtschalter')
+            )
+        );
     }
 }

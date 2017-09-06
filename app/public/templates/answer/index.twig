@@ -13,12 +13,12 @@
     {% endfor %}
     #}
 
-    {% set questions = anu.question.find({
+    {% set comics = anu.comic.find({
         'relatedTo': entry
     }) %}
 
-    {% for question in questions %}
-        {{ question.title }}<br>
+    {% for comic in comics %}
+        {{ comic.title }}<br>
     {% endfor %}
 
     {% set form = anu.answer.renderForm(entry) %}

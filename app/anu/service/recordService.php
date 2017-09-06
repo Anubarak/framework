@@ -30,8 +30,17 @@ class recordService
         return $response;
     }
 
+    /**
+     * return record array by Id
+     *
+     * @param $id
+     * @return null
+     */
     public function getRecordById($id){
-        return anu()->database->select('records', '*', array('id' => $id));
+        if($record = anu()->database->select('records', '*', array('id' => $id))){
+            return new baseRecord($record[0]);
+        }
+        return null;
     }
 
     public function getRecordByName($name){
