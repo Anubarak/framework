@@ -46,14 +46,15 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
         }
 
         $this->service = $service;
-        $model = Anu::getModelByName($service->tableName);
-
-        $attributes = $model->defineAttributes();
-        foreach ($attributes as $k => $v){
-            //TODO better condition
-            if($v[0] == AttributeType::Position || $k === 'position'){
-                $this->order = $k;
-                break;
+        $model = Anu::getModelByName($service->model);
+        if($model->class){
+            $attributes = $model->defineAttributes();
+            foreach ($attributes as $k => $v){
+                //TODO better condition
+                if($v[0] == AttributeType::Position || $k === 'position'){
+                    $this->order = $k;
+                    break;
+                }
             }
         }
     }
@@ -99,10 +100,11 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
 
         $entries = array();
         foreach ($tables as $record){
-            $className = $record->model;
+            $className = $record->handle;
             //check for relations...
             $select = array();
             if(!property_exists(anu(), $className)){
+
                 echo("<pre>");
                 var_dump(__CLASS__ . " " . __LINE__);
                 var_dump($record);
@@ -156,7 +158,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                     }
 
                     if($field){
-                        $whereFirstTable['relation1.field_1'] = $field;
+                        $whereFirstTable['relation1.fieldHandle'] = $field;
                         //$whereSecondTable['relation2.field_2'] = $field;
                         //$whereThirdTable['relation1.field_2'] = $field;
                         //$whereFourthTable['relation2.field_1'] = $field;
@@ -170,7 +172,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                     }
 
                     if($model){
-                        $whereFirstTable['relation1.model_1'] = $model;
+                        $whereFirstTable['relation1.record_1'] = $model;
                         //$whereSecondTable['relation2.model_2'] = $model;
                         //$whereThirdTable['relation1.model_2'] = $model;
                         //$whereFourthTable['relation2.model_1'] = $model;
@@ -184,8 +186,8 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                     );
                 }else{
                     $relationTable = anu()->database->select('relation', 'id_1', array(
-                        'field_1'   => $field,
-                        'model_1'   => $model
+                        'fieldHandle'   => $field,
+                        'record_1'   => $model
                     ));
 
                     if(array_key_exists($record->primary_key. '[!]', $where)){

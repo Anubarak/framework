@@ -1375,6 +1375,18 @@ class database
         }
     }
 
+
+    public function isTable($name)
+    {
+        if (empty($name))
+        {
+            return false;
+        }
+        $query = $this->pdo->query("SHOW TABLES LIKE '" . $name . "'");
+        return $query ? (bool)$query->rowCount() : false;
+    }
+
+
     public function count($table, $join = null, $column = null, $where = null)
     {
         $map = [];

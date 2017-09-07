@@ -24,7 +24,6 @@ class entryModel extends baseModel
 
     public function defineAttributes()
     {
-
         if(!$this->attributes){
             $baseAttributes = array(
                 'title'         => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Titel')),
@@ -34,7 +33,9 @@ class entryModel extends baseModel
                 'enabled'       => array(AttributeType::Bool, 'default' => '1', 'title' => Anu::t('Aktiv')),
                 'author_id'     => array(AttributeType::Hidden, 'default' => Defaults::currentUserId, 'title' => Anu::t('Author'))
             );
-            $merged = array_merge($baseAttributes, anu()->field->getAllFieldsForEntry($this->class));
+            $className = $this->class;
+
+            $merged = array_merge($baseAttributes, anu()->$className->getFieldsForEntry());
             $this->attributes = array_merge(parent::defineAttributes(), $merged);
         }
 

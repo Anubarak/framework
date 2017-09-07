@@ -19,9 +19,10 @@ class entryRecord extends baseRecord
     }
 
     /**
+     * @param $baseAttributes array|null
      * @return array
      */
-    public function defineAttributes(){
+    public function defineAttributes($baseAttributes = null){
         return array_merge(array(
             'slug'          => array(AttributeType::Mixed),
             'author_id'     => array(AttributeType::Number),
@@ -30,9 +31,10 @@ class entryRecord extends baseRecord
     }
 
     /**
+     * @param $index null
      * @return array
      */
-    public function defineIndex(){
+    public function defineIndex($index = null){
         return array(
             'slug' => array(DBIndex::Unique)
         );

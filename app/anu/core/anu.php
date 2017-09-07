@@ -95,8 +95,8 @@ class app{
             foreach ($records as $record){
                 $baseRecord = new baseRecord($record);
 
-                $className = $record['name'] . "Service";
-                $recordName = $record['name'];
+                $className = $record['handle'] . "Service";
+                $recordName = $record['handle'];
                 if(class_exists($className)){
                     $this->$recordName = new $className();
                 }else{

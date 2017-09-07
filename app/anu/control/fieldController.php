@@ -22,19 +22,26 @@ class fieldController extends baseController
     }
 
 
+    public function overview(){
+        anu()->template->render('admin/fields/overview.twig', array());
+        exit();
+    }
+
+
     /**
      * Render Template to add an entry
      *
      * @param $parameter array
      */
     public function edit($parameter){
-        $this->requireLogin();
-
-        if(count($parameter) != 2){
-            return null;
+        //$this->requireLogin();
+        $field = null;
+        if($parameter){
+            if(ctype_digit($parameter[count($parameter)-1])){
+                $field = anu()->field->getEntryById($parameter[count($parameter)-1]);
+            }
         }
-        $class = $parameter[0];
-        if(!$field = anu()->field->getEntryById($parameter[1])){
+        if(!$field){
             $field = new fieldModel('field');
             anu()->field->populateModel(null, $field);
         }
@@ -76,6 +83,19 @@ class fieldController extends baseController
 
         $this->returnJson($response);
 
+    }
+
+    public function bindFields($param){
+        if(is_array($param) && count($param)){
+            $record = anu()->record->getRecordById($param[0]);
+            $allFields = anu()->field->getAllFields();
+            anu()->template->addAnuJsObject($allFields, 'fields');
+            $fieldsForEntry = anu()->field->getAllFieldsForEntry($record, true);
+            anu()->template->addAnuJsObject($fieldsForEntry, 'fieldsForRecord');
+
+            anu()->template->render('admin/fields/bindFields.twig', array());
+            exit;
+        }
     }
 
 }

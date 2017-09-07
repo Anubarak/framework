@@ -121,14 +121,22 @@ class requestService
             $function = $arrRoute[$i+1];
             if($arrRoute[0] !== 'ajax'){
                 $className = Anu::getClassByName($controller, "Controller");
-                $class = new $className();
+                if($className){
+                    $class = new $className();
+                }else{
+                    $class = new entryController();
+                }
+
                 if(count($arrRoute) >= 3){
-                    $parameter = array_slice($arrRoute, 2, count($arrRoute)-1);
+                    $parameter = $arrRoute;//array_slice($arrRoute, 2, count($arrRoute)-1);
                     if(method_exists($class, $function)){
+                        if(!is_array($parameter)){
+                            $parameter = array($parameter);
+                        }
                         $class->$function($parameter);
                     }
                 }else{
-                    $class->$function();
+                    $class->$function(null);
                 }
             }elseif (count($arrRoute) == 3 && $arrRoute[0] === 'ajax'){
                 $ajaxController = new ajaxController();

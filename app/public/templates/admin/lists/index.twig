@@ -10,7 +10,7 @@
             <div style="float: left">
                 <i ng-hide="ngModelItem.first" class="fa fa-arrows move" aria-hidden="true"></i>
                 <span ng-hide="ngModelItem.first" class="status" ng-class="{true: 'active', false: 'disabled'}[ngModelItem.enabled == 1]"></span>
-                <a ng-href="action/entry/edit/{{ list }}/{[{ ngModelItem.id }]}" >{[{ngModelItem.title}]}</a>
+                <a ng-href="{{ baseUrl }}action/{{ list }}/edit/{[{ ngModelItem.id }]}" >{[{ngModelItem.title}]}</a>
             </div>
             <div style="clear: both"></div>
             <ul class="apps-container" ng-show="hasChildren" data-id="{[{ngModelItem.id}]}" ui-sortable="sortableOptions" ng-model="ngModelItem.children">
@@ -22,7 +22,7 @@
         </div>
     </script>
 
-    <a href="action/entry/add/{{ list }}" type="button" class="btn btn-default pull-right">{{ list }} hinzufügen</a>
+    <a href="{{ baseUrl }}action/{{ list }}/edit/" type="button" class="btn btn-danger pull-right">{{ list }} hinzufügen</a>
 </div>
 
 

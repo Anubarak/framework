@@ -249,6 +249,7 @@ class baseService implements \JsonSerializable
 
         $select[] = $this->tableName . "." . $primaryKey . "(id)";
         $record = Anu::getRecordByName($this->model);
+
         $recordAttributes = $record->defineAttributes();
         foreach ($recordAttributes as $k => $v){
             if(array_key_exists($k, $attributes)){
@@ -565,10 +566,18 @@ class baseService implements \JsonSerializable
             }
             attributes["' . $className .  '"] = ' . json_encode($attributes) . ';
         ');
+
+        $controller = "entry";
+        $controllerName = $recordHandle . "Controller";
+        if(class_exists(Anu::getNameSpace() . $controllerName)){
+            $controller = $recordHandle;
+        }
+
         return anu()->template->render('admin/lists/index.twig', array(
             'entries'       => $entries,
             'attributes'    => $attributes,
-            'list'          => $className
+            'list'          => $className,
+            'controller'    => $controller
         ));
     }
 }

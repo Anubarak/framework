@@ -1,0 +1,10 @@
+
+
+{% extends 'admin/layout/site.twig' %}
+
+
+{% set pageHeadline = "Felder" %}
+{% block content %}
+    {% set form = anu.field.renderList('field') %}
+    {{ form|raw }}
+{% endblock %}

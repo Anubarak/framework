@@ -1,7 +1,9 @@
-{% extends 'layout/site.twig' %}
+{% extends 'admin/layout/site.twig' %}
 
+
+{% set pageHeadline = (entry.id)? "Feld bearbeiten" : "Neues Feld" %}
 {% block content %}
-    <div ng-controller="entryController" class="entryController" data-id="{{ entry.id }}" data-class="{{ class }}">
+    <div ng-controller="fieldController">
         <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="fieldForm">
 
             <pre>

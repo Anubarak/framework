@@ -66,6 +66,7 @@ class entryController extends baseController
      */
     public function save(){
             $data = anu()->request->postVar('entry');
+
             $className = $data['class'];
             $entry = Anu::getModelByName($className);
             anu()->$className->populateModel($data, $entry);
@@ -136,14 +137,26 @@ class entryController extends baseController
      * @param $parameter array
      */
     public function edit($parameter){
-        $this->requireLogin();
+        //$this->requireLogin();
 
-        if(count($parameter) != 2){
-            return null;
+        $entry = null;
+        if($parameter){
+            if(ctype_digit($parameter[count($parameter)-1])){
+                $class = $parameter[0];
+                $entry = anu()->$class->getEntryById($parameter[count($parameter)-1]);
+            }
         }
-        $class = $parameter[0];
-        if($entry = anu()->$class->getEntryById($parameter[1])){
+        if(!$entry){
+            $entry = new entryModel($parameter[0]);
+            $class = $parameter[0];
+            anu()->$class->populateModel(null, $entry);
+            echo("<pre>");
+            var_dump($entry);
+            echo("</pre>");
+            die();
+        }
 
+        if($entry){
             anu()->template->render('admin/forms/edit.twig', array(
                 'form' => $parameter[0],
                 'entry' => $entry,

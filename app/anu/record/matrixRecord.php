@@ -19,9 +19,10 @@ class matrixRecord extends baseRecord
     }
 
     /**
+     * @param $baseAttributes array|null
      * @return array
      */
-    public function defineAttributes(){
+    public function defineAttributes($baseAttributes = null){
         return array(
             'matrix_id'         => array(AttributeType::Number),
             'position'          => array(AttributeType::Number),
@@ -35,9 +36,10 @@ class matrixRecord extends baseRecord
     }
 
     /**
+     * @param index null
      * @return array
      */
-    public function defineIndex(){
+    public function defineIndex($index = null){
         return array(
             'matrix_id' => array(DBIndex::Primary)
         );

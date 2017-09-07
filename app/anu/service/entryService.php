@@ -18,6 +18,7 @@ class entryService extends baseService
     protected   $template = null;
     protected   $primary_key = null;
     protected   $id = 0;
+    protected   $fields = null;
 
     /**
      * @param string $service
@@ -76,7 +77,12 @@ class entryService extends baseService
             $entry->id = $id;
             if($relationsToSave && $id){
                 foreach ($relationsToSave as $relation){
-                    $relation['id_1'] = $id;
+                    if($relation['id_1'] == 0){
+                        $relation['id_1'] = $id;
+                    }
+                    if($relation['id_2'] == 0){
+                        $relation['id_2'] = $id;
+                    }
                     anu()->database->insert('relation', $relation);
                 }
             }
@@ -279,7 +285,7 @@ class entryService extends baseService
                 }
             }
         }else{
-            $relations = $entry->$key->ids();
+            $relations = $entry->$key->getStoredIds();
         }
         return $relations;
     }
@@ -293,14 +299,23 @@ class entryService extends baseService
      * @param int $id_1
      * @return array
      */
-    public function getRelationData($relation, $field_1, $id_2, $id_1 = 0){
+    public function getRelationData($relation, $field_1, $id_2, $id_1 = 0, $revert = false){
+        if(!$revert){
+            return array(
+                'fieldHandle' => $field_1,
+                'id_1' => $id_1,
+                'id_2' => $id_2,
+                'record_1' => $relation['class'],
+                'record_2'=> $relation['model']
+            );
+        }
+
         return array(
-            'field_1' => $field_1,
-            'field_2' => $relation['field'],
-            'id_1' => $id_1,
-            'id_2' => $id_2,
-            'model_1' => $relation['class'],
-            'model_2'=> $relation['model']
+            'fieldHandle' => $field_1,
+            'id_1' => $id_2,
+            'id_2' => $id_1,
+            'record_1' => $relation['model'],
+            'record_2'=> $relation['class']
         );
     }
 
@@ -384,23 +399,45 @@ class entryService extends baseService
      * Update Relations in an existing Entry
      *
      * @param $entry
-     * @param $key
-     * @param $relationArray
+     * @param $field
+     * @param $relationInformation
      * @param $relationIds
      */
     public function updateRelations($entry, $field, $relationInformation, $relationIds){
         //delete previous relations if there are any
         anu()->database->delete('relation', array(
-            'field_1'   => $field,
-            'model_1'   => $entry->class,
-            'id_1'      => $entry->id
+            "OR #or" => array(
+                'AND #first' => array(
+                    'fieldHandle'   => $field,
+                    'record_1'      => $entry->class,
+                    'id_1'          => $entry->id
+                ),
+                'AND #second' => array(
+                    'fieldHandle'   => $field,
+                    'record_2'      => $entry->class,
+                    'id_2'          => $entry->id
+                )
+            )
         ));
+
         if(count($relationIds)){
             foreach ($relationIds as $rel){
                 if($rel){
                     anu()->database->insert('relation', $this->getRelationData($relationInformation, $field, $rel, $entry->id));
+                    anu()->database->insert('relation', $this->getRelationData($relationInformation, $field, $rel, $entry->id, true));
                 }
             }
         }
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getFieldsForEntry(){
+        if(!$this->fields){
+            $this->fields = anu()->field->getAllFieldsForEntry($this->model);
+
+        }
+        return $this->fields;
     }
 }

@@ -13,9 +13,10 @@ class questionRecord extends entryRecord
 {
 
     /**
-     * Define Attributes
+     * @param $baseAttributes array|null
+     * @return array
      */
-    public function defineAttributes(){
+    public function defineAttributes($baseAttributes = null){
         return array_merge(array(
             'question_id'   => array(AttributeType::Number, ),
             'text'          => array(AttributeType::Mixed),
@@ -26,7 +27,11 @@ class questionRecord extends entryRecord
         ), parent::defineAttributes());
     }
 
-    public function defineIndex(){
+    /**
+     * @param null $index
+     * @return array|null
+     */
+    public function defineIndex($index = null){
         return array_merge(array(
             'question_id'   => array(DBIndex::Primary)
         ), parent::defineIndex());

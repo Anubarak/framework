@@ -1,7 +1,9 @@
-{% extends 'layout/site.twig' %}
+{% extends 'admin/layout/site.twig' %}
 
+{% set pageHeadline = (entry)? "Eintrag bearbeiten" : "Neuer Eintrag" %}
 {% block content %}
     {% set param = entry? entry : form %}
+
     {% set form = anu.entry.renderForm(param) %}
     {{ form|raw }}
 

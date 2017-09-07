@@ -1,0 +1,72 @@
+{% extends 'admin/layout/site.twig' %}
+
+{% block content %}
+
+
+    {% include 'user/login.twig' %}
+
+    <br><br><br>
+    {% set form = anu.field.renderList('field') %}
+    {{ form|raw }}
+
+
+    {% set form = anu.entry.renderList('page') %}
+    {{ form|raw }}
+
+    <br><br><br><br>
+    {% set form = anu.entry.renderList('question') %}
+    {{ form|raw }}
+
+    <br><br><br>
+    {% set form = anu.entry.renderList('comic') %}
+    {{ form|raw }}
+
+
+
+    <br><br><br><br>
+    <br><br><br><br>
+    <br><br><br><br>
+    <br><br><br><br>
+    <br><br><br><br>
+
+
+        {#
+            {% set users = anu.user.find() %}
+            {% if users %}
+                {% for user in users %}
+                    {{ user.password }}<br>
+                {% endfor %}
+            {% endif %}
+
+
+
+            {% set user = anu.user.getCurrentUser() %}
+            {% if user %}
+                 {{ user.email }}
+            {% else %}
+                kein nutzer
+            {% endif %}
+            #}
+
+        {% set matrixes = anu.matrix.find() %}
+        <br><br>
+
+        {% for matrix in matrixes %}
+            {{ matrix.id }}  .. {{ matrix.content }} .. {{ matrix.position }}<br>
+        {% endfor %}
+        <br><br><br>
+
+        {% set elements = anu.entry.find() %}
+        {% if elements %}
+            {% for entry in elements %}
+                {{ entry.id }} .. <a href="{{ entry.getUrl() }}">{{ entry.title }}</a><br>
+            {% endfor %}
+        {% endif %}
+
+        {#
+        {% includeJsFile 't'%}
+        {% includeJsFile 't2'%}
+        {% includeJsFile 't23'%}
+        {% includeCssFile 't23'%}
+        {% includeCssFile 't23'%}#}
+{% endblock %}

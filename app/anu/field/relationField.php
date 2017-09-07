@@ -55,6 +55,7 @@ class relationField extends fieldService
             $relation['class'] = $entry->class;
             foreach ($relations as $rel) {
                 $relationsToSave[] = anu()->entry->getRelationData($relation, $key, $rel);
+                $relationsToSave[] = anu()->entry->getRelationData($relation, $key, $rel, 0, true);
             }
         }
     }

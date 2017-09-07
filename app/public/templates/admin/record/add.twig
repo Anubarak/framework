@@ -1,0 +1,19 @@
+{% extends 'admin/layout/site.twig' %}
+
+{% set pageHeadline = (record.id)? "Record bearbeiten" : "Neuer Record" %}
+{% block content %}
+
+    <div ng-controller="recordController" class="form-group" >
+        <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="recordForm">
+            <div ng-repeat="(index, item) in attributes">
+                <div thin-directive="{[{item[0]}]}" root-scope="rootScope" datasource="data[index]" index="index"  prefix="" attributes="item"> </div>
+            </div>
+
+            <button ng-click="send();" type="button" class="pull-right btn btn-danger">Speichern</button>
+        </form>
+
+    </div>
+
+{% endblock %}
+
+{% includeJsFile 'recordInstallController.js'%}

@@ -121,7 +121,7 @@ myApp.directive('datepicker', function () {
                 $scope.datasource.set('year', value.substr(6,4));
                 $scope.$apply();
             });
-
+            console.log('scope', $scope);
             element.datepicker('update', $scope.datasource.format('DD.MM.YYYY'));
         }
     };
@@ -198,6 +198,9 @@ myApp.directive('thinDirective', function($compile,$templateRequest, configServi
                 scope.htmlPrefix = attrs['prefix'];
                 $templateRequest(configService.angularTemplatePath + 'admin/forms/matrix/' + attrs.thinDirective + ".twig").then(function (html) {
                     //element.append($compile(html)(scope));
+                    if("options" in scope.attributes && scope.attributes.options.length){
+                        scope.datasource = scope.attributes.options[0].id;
+                    }
                     var template = angular.element(html);
                     element.append(template);
                     $compile(template)(scope);

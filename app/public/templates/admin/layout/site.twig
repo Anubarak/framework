@@ -1,0 +1,30 @@
+{% extends "admin/layout/_layout.twig" %}
+
+{% block body %}
+
+    <div class="row affix-row">
+    {% block header %}
+        {% include 'admin/layout/partials/header.twig' %}
+    {% endblock %}
+
+        <div class="col-sm-9 col-md-10 affix-content">
+            <div class="container">
+
+                {% if pageHeadline is defined %}
+                    <div class="page-header">
+                        <h3><span class="glyphicon glyphicon-th-list"></span> {{ pageHeadline }}</h3>
+                    </div>
+                {% endif %}
+
+                {% block content %}
+
+
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+{#{% block footer %}
+        {% include 'admin/layout/partials/footer.twig' %}
+    {% endblock %}#}
+{% endblock %}
+

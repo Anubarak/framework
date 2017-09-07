@@ -16,6 +16,11 @@ class baseRecord
     public $primary_key;
     public $model = '';
     public $structure = 'channel';
+    public $attributes = array();
+    public $baseAttributes = array();
+    public $index = array();
+    public $id = 0;
+    public $handle = '';
 
     /**
      * Define aliases for javascript and such
@@ -38,6 +43,11 @@ class baseRecord
         }elseif(method_exists($this, 'defineStructure')){
             $this->structure = $this->defineStructure();
         }
+        if(isset($record['id'])){
+            $this->id = $record['id'];
+        }
+
+        $this->handle = isset($record['handle'])? $record['handle'] : $this->getModel();
     }
 
     /**
@@ -48,25 +58,43 @@ class baseRecord
     }
 
     /**
+     * @param null $baseAttributes
      * @return array
      */
-    public function defineAttributes(){
-        $baseAttributes = array(
-            'createDate'    => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP'),
-            'updateDate'    => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP'),
-            'title'         => array(AttributeType::Mixed),
-        );
-        return array_merge($baseAttributes, anu()->field->getAllFieldsForEntry($this->tableName));
+    public function defineAttributes($baseAttributes = null){
+        if($this->baseAttributes && !$baseAttributes){
+            return $this->baseAttributes;
+        }
+
+        if(!$baseAttributes){
+            $baseAttributes = array(
+                'title'         => array(AttributeType::Mixed),
+                'createDate'    => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP'),
+                'updateDate'    => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP')
+            );
+        }
+
+        $this->baseAttributes = array_merge($baseAttributes, anu()->field->getAllFieldsForEntry($this->handle));
+        return $this->baseAttributes;
 
     }
 
     /**
-     * @return array
+     * Index
+     *
+     * @param null $index
+     * @return array|null
      */
-    public function defineIndex(){
-        return array(
+    public function defineIndex($index = null){
+        if($this->index && !$index){
+            return $this->index;
+        }
+        if(!$index){
+            $index = array();
+        }
+        $this->index = $index;
 
-        );
+        return $this->index;
     }
 
     public function getModel(){
@@ -91,5 +119,60 @@ class baseRecord
 
     public function isInstalled(){
         return anu()->record->isRecordInstalled($this);
+    }
+
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize() {;
+        return get_object_vars($this);
+    }
+
+    /**
+     * Return Attributes for new record entry
+     *
+     * @return array
+     */
+    public function defaultRecordAttributes(){
+        return array(
+            'id'            => array(AttributeType::Hidden),
+            'date'          => array(AttributeType::DateTime, 'required' => true),
+            'name'          => array(AttributeType::Mixed, 'required' => true),
+            'handle'        => array(AttributeType::Mixed, 'required' => true),
+            'table_name'    => array(AttributeType::Mixed, 'required' => true),
+            'model'         => array(AttributeType::Mixed, 'required' => true),
+            'structure'     => array(AttributeType::DropDown, 'required' => true, 'options' => array(
+                array(
+                    'id' => StructureType::Channel,
+                    'label' => 'Kanal'
+                ),
+                array(
+                    'id' => StructureType::Matrix,
+                    'label' => 'Matrix'
+                )
+            )),
+            'primary_key'   => array(AttributeType::Mixed, 'required' => true)
+        );
+    }
+
+
+
+
+    public function populate($data = array()){
+        $this->attributes = $this->defaultRecordAttributes();
+        foreach ($this->attributes as $k => $v){
+            switch ($v[0]){
+                case AttributeType::DateTime:
+                    $UTC = new \DateTimeZone("UTC");
+                    $time = isset($data[$k])? $data[$k] : null;
+                    $date = new \DateTime($time, $UTC );
+                    $this->$k = $date->format('Y-m-d H:i:s');
+                    break;
+                default:
+                    $this->$k = isset($data[$k])? $data[$k] : '';
+                    break;
+            }
+        }
     }
 }

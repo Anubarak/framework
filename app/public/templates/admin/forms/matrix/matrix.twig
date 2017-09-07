@@ -1,5 +1,5 @@
 <label>{[{ rootScope.getFieldTitle(attributes, index) }]}</label><br>
-<div ng-repeat="(key, matrixOptions) in attributes.attributes" class="left">
+<div ng-repeat="(key, matrixOptions) in attributes.attributes" class="pull-left">
     <button class="btn btn-default" ng-click="rootScope.addMatrixElement(key, index)">{[{ key }]}</button>
 </div>
 <div class="clearfix"></div>

@@ -19,9 +19,10 @@ class fieldLayoutRecord extends baseRecord
     }
 
     /**
+     * @param $baseAttributes array|null
      * @return array
      */
-    public function defineAttributes(){
+    public function defineAttributes($baseAttributes = null){
         return array(
             'id'              => array(AttributeType::Number),
             'field_id'        => array(AttributeType::Number),
@@ -31,9 +32,10 @@ class fieldLayoutRecord extends baseRecord
     }
 
     /**
+     * @param index null
      * @return array
      */
-    public function defineIndex(){
+    public function defineIndex($index = null){
         return array_merge(array(
             'id'   => array(DBIndex::Primary)
         ), parent::defineIndex());

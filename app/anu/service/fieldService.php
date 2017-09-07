@@ -66,7 +66,9 @@ class fieldService extends entryService
             if(array_key_exists($field, $data) && is_array($data[$field])) {
                 if (count($data[$field]) && array_key_exists(0, $data[$field]) && !is_array($data[$field][0])) {
                     // user gave an array with all ids
-                    $primary_key = $attributes['field'];
+                    /** @var baseRecord $record */
+                    $record = anu()->record->getRecordByName($attributes['model'], true);
+                    $primary_key = $record->primary_key;
                     $criteriaModel->$primary_key = $data[$field];
                     $criteriaModel->storeIds($data[$field]);
                 }elseif(array_key_exists('ids', $data[$field])){
@@ -104,27 +106,50 @@ class fieldService extends entryService
         return $criteriaModel;
     }
 
-    /**
-     * @param $entry
-     */
-    public function getAllFieldsForEntry($recordHandle){
-        $response = array();
-        if($record = anu()->record->getRecordByName($recordHandle)){
-            $handle = $record['name'];
-            $join = array(
-                '[>]fields' => array('fieldHandle' => 'slug')
-            );
-            $fields = anu()->database->select('fieldlayout', $join, '*', array(
-                'recordHandle'  => array($handle, 'entry')
-            ));
 
-            if($fields && is_array($fields) && count($fields)){
-                foreach ($fields as $field){
-                    $response[$field['slug']] = json_decode($field['settings'], true);
-                }
+    /**
+     * Get all Fields for Entry
+     *
+     * @param $record
+     * @return array
+     * @throws \Exception
+     */
+    public function getAllFieldsForEntry($record, $returnIds = null){
+        if(is_string($record)){
+            if(!$record = anu()->record->getRecordByName($record, true)){
+                return array();
             }
         }
+
+        $response = array();
+
+        $handle = $record->handle;
+        $join = array(
+            '[>]fields' => array('fieldHandle' => 'slug')
+        );
+        $select = (!$returnIds)? '*' : 'fields.id';
+        $fields = anu()->database->select('fieldlayout', $join, $select, array(
+            'recordHandle'  => array($handle, 'entry')
+        ));
+
+        if($returnIds){
+            return $fields;
+        }
+
+        if($fields && is_array($fields) && count($fields)){
+            foreach ($fields as $field){
+                $response[$field['slug']] = json_decode($field['settings'], true);
+            }
+        }
+
         return $response;
+    }
+
+    /**
+     * @return array all fields
+     */
+    public function getAllFields(){
+        return anu()->field->find(['enabled' => true]);
     }
 
     /**

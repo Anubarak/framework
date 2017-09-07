@@ -2,26 +2,21 @@
  * Created by SECONDRED on 03.08.2017.
  */
 
-var className = '';
-var test = [];
-var container = $('.entryController').first();
-id = container.data('id');
-myApp.controller('fieldController', ['$scope', '$http', '$timeout', '$compile', 'configService', '$templateRequest',
+var test;
+
+myApp.controller('recordController', ['$scope', '$http', '$timeout', '$compile', 'configService', '$templateRequest',
         function ($scope, $http, $timeout, $compile, configService, $templateRequest) {
     $scope.data = {
-        id: anu.entry.id
+        id: anu.record.id
     };
-    $scope.form = anu.entry.class + 'Form';
+    $scope.form = 'recordForm';
     $scope.slugEmpty = true;
     $scope.errorMessages = {};
     $scope.editors = {};
-    $scope.attributes = anu.entry.attributes;
+    $scope.attributes = anu.record.attributes;
     // class/type of entry... not really used but we need to store it
-    $scope.entryClass = anu.entry.class;
     $scope.fieldOptions = {};
     $scope.rootScope = $scope;
-    $scope.records = anu.records;
-    $scope.fieldOptions.relatedTo = anu.records[0].id;
     /**
      * Contentmatrix build
      * @type {{matrix: [*]}}
@@ -36,10 +31,10 @@ myApp.controller('fieldController', ['$scope', '$http', '$timeout', '$compile', 
     /**
      * init scope
      */
-    $.each(anu.entry, function (index, item) {
+    $.each(anu.record, function (index, item) {
         if(index === "attributes" || !(index in $scope.attributes)) return true;
         if(index in $scope.attributes && $scope.attributes[index][0] === 'datetime') {
-            var dateTime = entry[index];
+            var dateTime = anu.record[index];
             var zone = 'Europe/London';
             var format = 'YYYY-MM-DD HH:mm:ss ZZ';
             var d = new Date();
@@ -61,7 +56,7 @@ myApp.controller('fieldController', ['$scope', '$http', '$timeout', '$compile', 
      * TODO remove just for console debuggin
      * @type {*}
      */
-    test.push($scope);
+    test = $scope;
 
     /**
      * Sortable options
@@ -100,10 +95,8 @@ myApp.controller('fieldController', ['$scope', '$http', '$timeout', '$compile', 
         //$scope.reset();
         var form = new FormData();
         var data = angular.copy($scope.data);
-        var fieldOptions = angular.copy($scope.fieldOptions);
-        form.append("entry", JSON.stringify(data));
-        form.append("fieldOptions", JSON.stringify(fieldOptions));
-        form.append('action', "field/save");
+        form.append("record", JSON.stringify(data));
+        form.append('action', "record/save");
         $http({
             method: 'POST',
             url: '',
@@ -111,6 +104,7 @@ myApp.controller('fieldController', ['$scope', '$http', '$timeout', '$compile', 
             headers: { 'Content-Type': undefined},
             transformRequest: angular.identity
         }).then(function successCallback(response) {
+            console.log(response);
             if ('success' in response.data && response.data['success'] === true) {
                 showNotification('Der Eintrag wurde erfolgreich gespeichert', 'notice');
                 if('id' in response.data && response.data.id){
@@ -198,17 +192,4 @@ myApp.controller('fieldController', ['$scope', '$http', '$timeout', '$compile', 
     $scope.$on('$destroy', function() {
         console.log('Controller destroyed');
     });
-
-    $scope.$watch(
-        "data.fieldType",
-        function handleFieldTypeChange( newValue, oldValue ) {
-            if(newValue){
-                $templateRequest(configService.angularTemplatePath + 'admin/forms/fieldOptions/' + newValue + ".twig").then(function (html) {
-                    var template = angular.element(html);
-                    $('#fieldOptionContainer').html(template);
-                    $compile(template)($scope);
-                });
-            }
-        }
-    );
 }]);

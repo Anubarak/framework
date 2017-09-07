@@ -19,9 +19,10 @@ class userRecord extends baseRecord
     }
 
     /**
+     * @param $baseAttributes array|null
      * @return array
      */
-    public function defineAttributes(){
+    public function defineAttributes($baseAttributes = null){
         return array_merge(array(
             'user_id'           => array(AttributeType::Number),
             'first_name'        => array(AttributeType::Mixed),
@@ -35,9 +36,10 @@ class userRecord extends baseRecord
     }
 
     /**
-     * @return array
+     * @param null $index
+     * @return array|null
      */
-    public function defineIndex(){
+    public function defineIndex($index = null){
         return array_merge(array(
             'user_id'   => array(DBIndex::Primary),
             'email'     => array(DBIndex::Unique),

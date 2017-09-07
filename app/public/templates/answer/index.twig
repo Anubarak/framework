@@ -21,6 +21,14 @@
         {{ comic.title }}<br>
     {% endfor %}
 
+    {% set questions = anu.question.find({
+    'relatedTo': entry
+    }) %}
+
+    {% for question in questions %}
+        {{ question.title }}<br>
+    {% endfor %}
+
     {% set form = anu.answer.renderForm(entry) %}
     {{ form|raw }}
 

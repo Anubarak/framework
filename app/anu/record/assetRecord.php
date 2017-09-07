@@ -14,7 +14,7 @@ class assetRecord extends baseRecord
     /**
      * Define Attributes
      */
-    public function defineAttributes(){
+    public function defineAttributes($attributes = null){
         return array_merge(array(
             'asset_id'                  => array(AttributeType::Number),
             'path'                      => array(AttributeType::Mixed),
@@ -23,7 +23,7 @@ class assetRecord extends baseRecord
         ), parent::defineAttributes());
     }
 
-    public function defineIndex(){
+    public function defineIndex($index = null){
         return array_merge(array(
             'asset_id'   => array('primary_key')
         ), parent::defineIndex());

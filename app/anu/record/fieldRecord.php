@@ -27,9 +27,10 @@ class fieldRecord extends baseRecord
     }
 
     /**
+     * @param $baseAttributes array|null
      * @return array
      */
-    public function defineAttributes(){
+    public function defineAttributes($baseAttributes = null){
         return array_merge(array(
             'id'                => array(AttributeType::Number),
             'slug'              => array(AttributeType::Mixed),
@@ -41,9 +42,10 @@ class fieldRecord extends baseRecord
     }
 
     /**
+     * @param index null
      * @return array
      */
-    public function defineIndex(){
+    public function defineIndex($index = null){
         return array_merge(array(
             'id'   => array(DBIndex::Primary)
         ), parent::defineIndex());

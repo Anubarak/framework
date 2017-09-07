@@ -12,20 +12,30 @@ namespace Anu;
 class recordController extends baseController
 {
     public function getContent(){
-        $records = anu()->record->loadAllRecords();
+        $classRecords = anu()->record->loadAllRecords();
+        $installedRecords = anu()->record->getAllRecords(true);
 
-        anu()->template->addAnuJsObject($records, 'records');
+        foreach ($classRecords as $cRecord){
+            if(!$cRecord->installed){
+                $installedRecords[] = $cRecord;
+            }
+        }
+
+        anu()->template->addAnuJsObject($installedRecords, 'records');
 
         anu()->template->render('admin/record/index.twig', array(
-            'records' => $records
+            'records' => $installedRecords
         ));
     }
+
+
 
 
     /**
      * @param $recordId
      */
     public function toggleInstallation(){
+        $this->requireLogin();
         $recordName = anu()->request->getValue('record');
         $response = array();
         if($recordName){
@@ -43,5 +53,50 @@ class recordController extends baseController
         }
 
         $this->returnJson($response);
+    }
+
+    public function edit($parameter = null){
+        $this->requireLogin();
+        $isNewRecord = true;
+        if($parameter){
+            if(is_array($parameter)){
+                $id = $parameter[0];
+            }else{
+                $id = $parameter;
+            }
+            $newRecord = anu()->record->getRecordById($id);
+            $isNewRecord = false;
+        }else{
+            $newRecord = new baseRecord();
+            $newRecord->populate();
+        }
+
+
+        anu()->template->addAnuJsObject($newRecord, 'record');
+        anu()->template->render('admin/record/add.twig', array(
+            'record' => $newRecord
+        ));
+        exit;
+    }
+
+    public function save(){
+        $data = anu()->request->getValue('record', null);
+
+        $record = new baseRecord($data);
+        $recordAttributes = array(
+            $data['primary_key'] => array(
+                AttributeType::Number
+            )
+        );
+
+        $recordAttributes = array_merge($recordAttributes, $record->defineAttributes());
+        $record->defineAttributes($recordAttributes);
+        $record->defineIndex(array($data['primary_key'] => DBIndex::Primary));
+
+        $response = anu()->record->installRecord($record);
+
+        $this->returnJson(array(
+            'success' => $response
+        ));
     }
 }

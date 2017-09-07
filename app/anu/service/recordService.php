@@ -15,6 +15,8 @@ class recordService
     private $record = null;
 
     public $records = array();
+
+
     /**
      * @return array|bool
      */
@@ -43,12 +45,22 @@ class recordService
         return null;
     }
 
-    public function getRecordByName($name){
+    /**
+     * Returns a record
+     *
+     * @param $name
+     * @param $returnModel
+     * @return baseRecord|null
+     */
+    public function getRecordByName($name, $returnModel = false){
         $record = anu()->database->select('records', '*', array(
             'OR' => array(
                 'table_name' => $name,
                 'name'      => $name
             )));
+        if($returnModel && count($record)){
+            return new baseRecord($record[0]);
+        }
         return count($record)? $record[0] : null;
     }
 
@@ -68,7 +80,9 @@ class recordService
                 for($i = 2; $i < $countFiles; $i++){
                     $withoutExt = preg_replace('/\\.[^.\\s]{3,4}$/', '', $files[$i]);
                     $withNameSpace = Anu::getNameSpace() . $withoutExt;
-                    $this->records[] = new $withNameSpace();
+                    if(class_exists($withNameSpace)){
+                        $this->records[] = new $withNameSpace();
+                    }
                 }
             }
         }
@@ -124,7 +138,7 @@ class recordService
         if($items){
             $success = anu()->database->action(function($database){
                 anu()->database->query("
-                    CREATE TABLE `" . $this->record->getTableName() . "` ( " . $this->items . ") ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;"
+                    CREATE TABLE `" . $this->record->tableName . "` ( " . $this->items . ") ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;"
                 );
 
                 $errors = anu()->database->error();
@@ -141,7 +155,7 @@ class recordService
                         foreach ($rows as $v){
                             if($v === DBIndex::Primary){
                                 anu()->database->query('
-                                    ALTER TABLE `' . $this->record->getTableName() . '`
+                                    ALTER TABLE `' . $this->record->tableName . '`
                                         ADD PRIMARY KEY (`' . $k . '`);
                                 ');
 
@@ -152,7 +166,7 @@ class recordService
 
 
                                 anu()->database->query('
-                                    ALTER TABLE `' . $this->record->getTableName() . '`
+                                    ALTER TABLE `' . $this->record->tableName . '`
                                         MODIFY `' . $k . '` int(11) NOT NULL AUTO_INCREMENT
                                 ');
 
@@ -163,7 +177,7 @@ class recordService
                             }
                             if($v === DBIndex::Unique){
                                 anu()->database->query('
-                                    ALTER TABLE `' . $this->record->getTableName() . '`
+                                    ALTER TABLE `' . $this->record->tableName . '`
                                         ADD UNIQUE (`' . $k . '`);
                                 ');
 
@@ -180,9 +194,11 @@ class recordService
             //anu()->database->debugError();
             if($success && !$ignoreRecordTable){
                 anu()->database->insert('records', array(
-                    'name' => $this->record->getTableName(),
-                    'table_name' => $this->record->getTableName(),
-                    'primary_key' => $this->record->getPrimaryKey()
+                    'name'          => $this->record->name,
+                    'table_name'    => $this->record->tableName,
+                    'primary_key'   => $this->record->primary_key,
+                    'model'         => $this->record->model,
+                    'structure'     => $this->record->structure
                 ));
             }
         }
@@ -195,23 +211,22 @@ class recordService
      */
     public function deleteRecord($record){
         if(is_string($record)){
-            $record = $this->getRecordByName($record);
-            if($record){
-                $record = $record[0];
-            }else{
-                return false;
-            }
-        }
+            if(!$record = $this->getRecordByName($record, true)){
+                throw new \Exception(Anu::parse("Could not find Record"));
+            };
 
-        if(isset($record['id']) && $record['id']){
-            $id = $record['id'];
-            anu()->database->query('DROP TABLE . ' . $record['table_name']);
+        }
+        /**@var baseRecord $record */
+        if(property_exists($record, 'id') && $record->id){
+            $id = $record->id;
+            anu()->database->dumpTable($record->tableName);
+            anu()->database->query('DROP TABLE . ' . $record->tableName);
             anu()->database->debugError();
             anu()->database->delete('records', array('id' => $id));
             anu()->database->delete('relation', array(
                 'OR'    => array(
-                   'model_1'    => $record['name'],
-                   'model_2'    => $record['name']
+                   'model_1'    => $record->tableName,
+                   'model_2'    => $record->tableName
                 )
             ));
             //anu()->database->debugError();
@@ -231,7 +246,7 @@ class recordService
             }
         }
 
-        anu()->database->dumpTable($record->getTableName());
+        anu()->database->dumpTable($record->tableName);
     }
 
     /**
@@ -244,12 +259,12 @@ class recordService
             if(class_exists($className)){
                 $record = new $className();
             }else{
-                return false;
+                $record = anu()->record->getRecordByName($record, true);
             }
         }
 
         return anu()->database->has('records', array(
-            'table_name'   => $record->getTableName()
+            'table_name'   => $record->tableName
         ));
     }
 }
