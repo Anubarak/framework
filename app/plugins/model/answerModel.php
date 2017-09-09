@@ -27,5 +27,6 @@ class answerModel extends entryModel
         return StructureType::Channel;
     }
 
+
 }
     

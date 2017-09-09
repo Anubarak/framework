@@ -176,7 +176,6 @@ class baseService implements \JsonSerializable
      */
     public function populateModel($data, $model, $attributes = null){
         //$data['attributes'] = "";
-
         if($model->setData($data)){
             if($attributes === null){
                 $attributes = $model->defineAttributes();
@@ -187,6 +186,7 @@ class baseService implements \JsonSerializable
                 if($field = anu()->field->getField($v[0])){
                     $field->onPopulate($model, $v, $value, $k);
                 }else{
+
                     $model->$k = $value;
                 }
 
@@ -227,9 +227,10 @@ class baseService implements \JsonSerializable
         $primaryKey = $this->primary_key;
 
         $select[] = $this->tableName . "." . $primaryKey . "(id)";
-        $record = Anu::getRecordByName($this->model);
+        $record = Anu::getRecordByName($this->model, true);
 
         $recordAttributes = $record->defineAttributes();
+
         foreach ($recordAttributes as $k => $v){
             if(array_key_exists($k, $attributes)){
                 $select[] = $this->tableName . "." . $k;
@@ -379,7 +380,8 @@ class baseService implements \JsonSerializable
      * @param $attributes
      */
     public function find($attributes = null, $onlyIds = false, $debug = false){
-        $criteria = new elementCriteriaModel($this);
+        $record = Anu::getRecordByName($this->model);
+        $criteria = new elementCriteriaModel($record);
         return $criteria->find($attributes, $onlyIds, $debug);
     }
 
@@ -450,6 +452,7 @@ class baseService implements \JsonSerializable
      * @param $entry baseModel
      */
     public function renderForm($entry = null, $template = 'admin/forms/index.twig'){
+
         if(is_string($entry)){
             $entry = Anu::getModelByName($entry);
             //just to add relationModels
@@ -489,6 +492,7 @@ class baseService implements \JsonSerializable
         }
 
         $entry->attributes = $attributes;
+        $entry->fieldLayout = anu()->entry->getFieldLayout($entry);
         anu()->template->addAnuJsObject($entry, 'entry');
 
         anu()->template->addJsCode('
@@ -509,17 +513,18 @@ class baseService implements \JsonSerializable
      */
     public function renderList($recordHandle){
         $className = $recordHandle;
-
         /** @var entryRecord $record */
         $record = Anu::getRecordByName($recordHandle);
         $criteria = new elementCriteriaModel($record);
         $entries = $criteria->find(['enabled' => 'all']);
+
         $model = Anu::getModelByName($recordHandle);
         $attributes = $model->defineAttributes();
         foreach ($entries as $entry){
             if($entry === null){
                continue;
             }
+
             if($record->structure === StructureType::Matrix){
                 $entry->children = $criteria->find([
                     'relatedTo' => array(

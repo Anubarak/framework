@@ -14,7 +14,6 @@ class baseRecord
     public $name = '';
     public $tableName = '';
     public $primary_key;
-    public $model = '';
     public $structure = 'channel';
     public $attributes = array();
     public $baseAttributes = array();
@@ -34,11 +33,6 @@ class baseRecord
         $this->table_name = (isset($record['table_name']))? $record['table_name'] : $this->getTableName();
         $this->installed = (isset($record['name']))? true : $this->isInstalled();
         $this->primary_key = (isset($record['primary_key']))? $record['primary_key'] : $this->getPrimaryKey();
-        if(isset($record['model'])){
-            $this->model = $record['model'];
-        }elseif(method_exists($this, 'getModel')){
-            $this->model = $this->getModel();
-        }
 
         if(isset($record['structure'])){
             $this->structure = $record['structure'];
@@ -147,7 +141,6 @@ class baseRecord
             'name'          => array(AttributeType::Mixed, 'required' => true),
             'handle'        => array(AttributeType::Mixed, 'required' => true),
             'table_name'    => array(AttributeType::Mixed, 'required' => true),
-            'model'         => array(AttributeType::Mixed, 'required' => true),
             'structure'     => array(AttributeType::DropDown, 'required' => true, 'options' => array(
                 array(
                     'id' => StructureType::Channel,

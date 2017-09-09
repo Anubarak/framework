@@ -9,11 +9,19 @@
 
     <div ng-controller="bindFieldController" ng-cloak>
         <label>Feld Layout {{ record.name }}</label>
-        <ul class="list-group list-group-small sortable"  ui-sortable="sortableOptions" ng-model="data.fields">
-            <id-to-list  ng-repeat="item in data.fields" item="item" list="fields" template-url="/tpl.html"></id-to-list>
-        </ul>
+        <div class="">
+            <div class="pull-left" ng-repeat="(tabName, tab) in data.fields" style="padding-left: 5px;padding-right: 5px;">
+                <label class="pull-left">{[{ ::tabName }]}</label><br>
+                <ul class="list-group list-group-small sortable pull-left"  ui-sortable="sortableOptions" ng-model="tab">
+                    <id-to-list  ng-repeat="item in tab" item="item" list="fields" template-url="/tpl.html"></id-to-list>
+                </ul>
+            </div>
+        </div>
+        <div class="clearfix">
 
-        <div>
+        </div>
+
+        <div class="pull-left">
             <label>Freie Felder</label>
             <ul class="list-group list-group-small sortable" ui-sortable="sortableOptions" ng-model="leftFields">
                 <id-to-list  ng-repeat="item in leftFields" item="item" list="fields" template-url="/tpl.html"></id-to-list>

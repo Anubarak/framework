@@ -24,9 +24,10 @@ class jsonField extends fieldService
             if(is_array($jsonData) && count($jsonData)){
                 foreach ($jsonData as $jsonKey => $json){
                     if(property_exists($model, $jsonKey)){
-                        throw new \Exception($jsonKey . ' is a reserved key an must not be used as an index for matrixcontent');
+                        //throw new \Exception($jsonKey . ' is a reserved key an must not be used as an index for matrixcontent');
+                    }else{
+                        $model->$jsonKey = $json;
                     }
-                    $model->$jsonKey = $json;
                 }
             }
         }else{

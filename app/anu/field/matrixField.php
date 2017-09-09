@@ -104,4 +104,8 @@ class matrixField extends fieldService
         }
     }
 
+    public function onInstall($record, $field){
+        anu()->database->alterTableAddColumn($record->tableName, $field->slug, "TINYINT(1) NULL default ''");
+    }
+
 }

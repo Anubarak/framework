@@ -66,7 +66,7 @@ class fieldController extends baseController
             $fieldOptions['relatedTo'] = array(
                 'table' => $record->tableName,
                 'field' => $record->primary_key,
-                'model' => $record->model
+                'model' => $record->handle
             );
         }
 
@@ -92,10 +92,19 @@ class fieldController extends baseController
      */
     public function bindFields($param){
         //if(is_array($param) && count($param)){
-            $record = anu()->record->getRecordById(22/*$param[0]*/);
+            $record = anu()->record->getRecordById(26/*$param[0]*/);
             $allFields = anu()->field->getAllFields();
             anu()->template->addAnuJsObject($allFields, 'fields');
-            $fieldsForEntry = anu()->field->getAllFieldsForEntry($record, true);
+
+            $tabs = anu()->field->getAllTabsForEntry($record);
+
+            $fieldsForEntry = array();
+            foreach ($tabs as $tab){
+                $fieldsForEntry[$tab] = anu()->field->getAllFieldsForEntry($record, true, $record->handle, $tab);
+            }
+            if(count($fieldsForEntry) == 0){
+                $fieldsForEntry['tab1'] = array();
+            }
 
             anu()->template->addAnuJsObject($fieldsForEntry, 'fieldsForRecord');
             anu()->template->addAnuJsObject($record, 'record');
@@ -112,14 +121,19 @@ class fieldController extends baseController
      */
     public function bindFieldsSave(){
         $data = anu()->request->getValue('record');
+
         $record = anu()->record->getRecordById($data['id'], true);
-        $fieldIds = $data['fields'];
-        $fields = array();
-        foreach ($fieldIds as $fieldId){
-            $fields[] = anu()->field->getFieldById($fieldId);;
+        $tabs = $data['fields'];
+        $response = false;
+        foreach ($tabs as $tabHandle => $ids){
+            $fields = array();
+            foreach ($ids as $fieldId){
+                $fields[] = anu()->field->getFieldById($fieldId);;
+            }
+
+            $response = anu()->record->bindFieldsToRecord($record, $fields, $tabHandle, $record->handle);
         }
 
-        $response = anu()->record->bindFieldsToRecord($record, $fields);
 
         $this->returnJson(array(
             'success'   => $response

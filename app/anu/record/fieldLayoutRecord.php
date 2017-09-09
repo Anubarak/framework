@@ -15,7 +15,7 @@ class fieldLayoutRecord extends baseRecord
      * @return string
      */
     public function getTableName(){
-        return "fieldLayout";
+        return "fieldlayout";
     }
 
     /**
@@ -24,9 +24,10 @@ class fieldLayoutRecord extends baseRecord
      */
     public function defineAttributes($baseAttributes = null){
         return array(
-            'id'              => array(AttributeType::Number),
-            'field_id'        => array(AttributeType::Number),
-            'record_id'       => array(AttributeType::Number)
+            'id'                 => array(AttributeType::Number),
+            'fieldHandle'        => array(AttributeType::Mixed),
+            'recordHandle'       => array(AttributeType::Mixed),
+            'tabHandle'          => array(AttributeType::Mixed)
         );
 
     }

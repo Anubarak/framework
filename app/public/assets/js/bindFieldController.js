@@ -26,13 +26,18 @@ myApp.controller('bindFieldController', ['$scope', '$http', '$timeout', '$compil
     };
 
     $scope.init = function(){
-        $scope.data.fields = [];
-        angular.forEach(anu.fieldsForRecord, function(item){
-            $scope.data.fields.push(item);
+        $scope.data.fields = anu.fieldsForRecord;
+        var usedFields = [];
+        angular.forEach(anu.fieldsForRecord, function(item, index){
+            angular.forEach(item, function(i){
+                usedFields.push(i);
+            });
+
         });
+
         $scope.sortAble1 = $scope.data.fields;
         anu.fields.filter(function(e){
-            if($.inArray(e.id, $scope.data.fields) === -1){
+            if($.inArray(e.id, usedFields) === -1){
                 $scope.leftFields.push(e.id);
                 return true;
             }
@@ -155,7 +160,7 @@ myApp.controller('bindFieldController', ['$scope', '$http', '$timeout', '$compil
         connectWith: ".sortable",
         update: function(e, ui){
             if (this === ui.item.parent()[0]) {
-                console.log(e);
+                //console.log(e);
             }
         }
     };

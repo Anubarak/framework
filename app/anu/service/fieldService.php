@@ -56,7 +56,9 @@ class fieldService extends entryService
      */
     public function getBaseCriteriaModelForPopulatedEntry($entry, $data, $attributes, $field){
         $class = $attributes['model'];
-        $criteriaModel = new elementCriteriaModel(anu()->$class);
+        $record = Anu::getRecordByName($class);
+
+        $criteriaModel = new elementCriteriaModel($record);
         $id = isset($entry->id) ? $entry->id : null;
         //new empty entry at all.... with no id an nothing
         if($data === null){
@@ -117,7 +119,7 @@ class fieldService extends entryService
      * @return array
      * @throws \Exception
      */
-    public function getAllFieldsForEntry($record, $returnIds = null){
+    public function getAllFieldsForEntry($record, $returnIds = null, $entryType = null, $tab = null){
         if(is_string($record)){
             if(!$record = anu()->record->getRecordByName($record, true)){
                 return array();
@@ -131,10 +133,19 @@ class fieldService extends entryService
             '[>]fields' => array('fieldHandle' => 'slug')
         );
         $select = (!$returnIds)? '*' : 'fields.id';
-        $fields = anu()->database->select('fieldlayout', $join, $select, array(
+
+        // Where statement
+        $where = array(
             'recordHandle'  => array($handle, 'entry'),
             'ORDER'         => 'fieldlayout.id'
-        ));
+        );
+        if($entryType){
+            $where['entryType'] = $entryType;
+        }
+        if($tab){
+            $where['tabHandle'] = $tab;
+        }
+        $fields = anu()->database->select('fieldlayout', $join, $select, $where);
 
         if($returnIds){
             return $fields;
@@ -145,8 +156,29 @@ class fieldService extends entryService
                 $response[$field['slug']] = json_decode($field['settings'], true);
             }
         }
-
         return $response;
+    }
+
+    /**
+     * @param $record
+     * @return array|bool
+     */
+    public function getAllTabsForEntry($record){
+        if(is_string($record)){
+            if(!$record = anu()->record->getRecordByName($record, true)){
+                return array();
+            }
+        }
+
+        $tabs = anu()->database->select('fieldlayout', 'tabHandle', array(
+            'recordHandle' => $record->handle,
+            'GROUP'        => 'tabHandle'
+        ));
+
+        if(count($tabs) && $tabs[0]){
+            return $tabs;
+        }
+        return array();
     }
 
     /**

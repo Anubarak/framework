@@ -105,6 +105,7 @@ class entryController extends baseController
                     $entry->$matrixKey = $matrixArray;
                 }
             }
+
             $response = array();
             if(!$id = anu()->$className->saveEntry($entry)){
                 $response['success'] = false;
@@ -114,6 +115,7 @@ class entryController extends baseController
                 $response['id']     = $id;
             }
 
+            anu()->database->debugError();
             $this->returnJson($response);
 
     }

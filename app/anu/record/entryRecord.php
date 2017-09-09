@@ -23,11 +23,24 @@ class entryRecord extends baseRecord
      * @return array
      */
     public function defineAttributes($baseAttributes = null){
-        return array_merge(array(
-            'slug'          => array(AttributeType::Mixed),
-            'author_id'     => array(AttributeType::Number),
-            'enabled'       => array(AttributeType::Bool),
-        ), parent::defineAttributes());
+        if($this->baseAttributes && !$baseAttributes){
+            return $this->baseAttributes;
+        }
+
+        if($baseAttributes){
+            $this->baseAttributes = $baseAttributes;
+        }
+
+        if(!$this->baseAttributes) {
+            $this->baseAttributes = array_merge(array(
+                'slug' => array(AttributeType::Mixed),
+                'author_id' => array(AttributeType::Number),
+                'enabled' => array(AttributeType::Bool),
+                'entryType' => array(AttributeType::Mixed),
+            ), parent::defineAttributes());
+        }
+
+        return $this->baseAttributes;
     }
 
     /**
@@ -35,8 +48,16 @@ class entryRecord extends baseRecord
      * @return array
      */
     public function defineIndex($index = null){
-        return array(
-            'slug' => array(DBIndex::Unique)
-        );
+        if($this->index && !$index){
+            return $this->index;
+        }
+        if(!$index){
+            $index = array(
+                'slug' => array(DBIndex::Unique)
+            );
+        }
+        $this->index = $index;
+
+        return $this->index;
     }
 }

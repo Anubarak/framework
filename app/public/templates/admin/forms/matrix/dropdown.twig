@@ -2,8 +2,8 @@
     <label for="{[{htmlPrefix}]}{[{ index }]}">{[{ rootScope.getFieldTitle(attributes, index) }]}</label>
 
     <select class="form-control"
-            name="{[{htmlPrefix}]}{[{ index }]}"
-            id="{[{htmlPrefix}]}{[{ index }]}"
+            name="{[{::htmlPrefix}]}{[{ ::index }]}"
+            id="{[{::htmlPrefix}]}{[{ ::index }]}"
             ng-model="datasource"
             ng-required="rootScope.isRequired(attributes)"
             ng-cloak

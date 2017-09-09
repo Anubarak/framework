@@ -13,7 +13,7 @@ myApp.controller('recordController', ['$scope','$http', function($scope,$http) {
         }
         $scope.isSubmitting = true;
         var form = new FormData();
-        form.append("record", record.tableName);
+        form.append("record", record.handle);
         form.append('action', "record/toggleInstallation");
         $http({
             method: 'POST',

@@ -65,6 +65,7 @@ myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 
         id: anu.entry.id
     };
     $scope.form = 'entryForm';
+    $scope.fieldLayout = anu.entry.fieldLayout;
     $scope.slugEmpty = true;
     $scope.allRelations = {};
     $scope.errorMessages = {};
@@ -97,11 +98,13 @@ myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 
     $scope.matrixTempIdCounter = 0;
 
     angular.forEach(attributes, function (item, index) {
-        if ("relatedTo" in item) {
-            $scope.allRelations[item.relatedTo.model] = [];
-            /*RelationService.getElements(item.relatedTo.model).then(function(element){
-                $scope.allRelations[item.relatedTo.model] = element;
-            });*/
+        if(item){
+            if ("relatedTo" in item) {
+                $scope.allRelations[item.relatedTo.model] = [];
+                /*RelationService.getElements(item.relatedTo.model).then(function(element){
+                 $scope.allRelations[item.relatedTo.model] = element;
+                 });*/
+            }
         }
     });
     $scope.editor = null;

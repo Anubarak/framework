@@ -9,17 +9,20 @@
 namespace anu;
 
 
-class dropdownField extends fieldService
+class boolField extends fieldService
 {
     /**
-     * @param $model        baseModel|entryModel
-     * @param $attributes   array
-     * @param $data         array
-     * @param $key          string
+     * @param $model        entryModel|baseModel|fieldModel
+     * @param $attributes
+     * @param $data
+     * @param $key
+     * @return mixed
      */
     public function onPopulate($model, $attributes, $data, $key)
     {
-        $model->$key = $data;
+        $model->$key = (bool)$data;
+
+        return $model;
     }
 
 
@@ -38,7 +41,7 @@ class dropdownField extends fieldService
     }
 
     public function onInstall($record, $field){
-        anu()->database->alterTableAddColumn($record->tableName, $field->slug, "varchar(255) NULL default ''");
+        anu()->database->alterTableAddColumn($record->tableName, $field->slug, " BOOLEAN NULL");
     }
 
 }

@@ -55,11 +55,10 @@ class recordService
     public function getRecordByName($name, $returnModel = false){
         $record = anu()->database->select('records', '*', array(
             'OR' => array(
-                'table_name' => $name,
-                'name'      => $name
+                'handle' => $name
             )));
         if($returnModel && count($record)){
-            return new baseRecord($record[0]);
+            return new entryRecord($record[0]);
         }
         return count($record)? $record[0] : null;
     }
@@ -95,6 +94,7 @@ class recordService
      * @return bool
      */
     public function installRecord($record, $ignoreRecordTable = false){
+
         if(is_string($record)){
             $className = Anu::getNameSpace() . $record . "Record";
             if(class_exists($className)){
@@ -197,24 +197,10 @@ class recordService
                     'name'          => $this->record->name,
                     'table_name'    => $this->record->tableName,
                     'primary_key'   => $this->record->primary_key,
-                    'model'         => $this->record->model,
-                    'structure'     => $this->record->structure
+                    'structure'     => $this->record->structure,
+                    'handle'        => $this->record->handle
                 ));
-
-                anu()->database->insert('fieldlayout', array(
-                    array(
-                        'fieldHandle'   => 'slug',
-                        'recordHandle'  => $this->record->handle,
-                    ),
-                    array(
-                        'fieldHandle'   => 'enabled',
-                        'recordHandle'  => $this->record->handle,
-                    ),
-                    array(
-                        'fieldHandle'   => 'author_id',
-                        'recordHandle'  => $this->record->handle,
-                    )
-                ));
+                $record->id = anu()->database->id();
             }
         }
 
@@ -243,6 +229,9 @@ class recordService
                    'model_1'    => $record->tableName,
                    'model_2'    => $record->tableName
                 )
+            ));
+            anu()->database->delete('fieldlayout', array(
+                'recordHandle' => $record->handle
             ));
             //anu()->database->debugError();
             return true;
@@ -274,6 +263,7 @@ class recordService
             if(class_exists($className)){
                 $record = new $className();
             }else{
+
                 $record = anu()->record->getRecordByName($record, true);
             }
         }
@@ -285,17 +275,20 @@ class recordService
 
 
     /**
-     * Bind fields to record
-     *
-     * @param $record baseRecord
-     * @param $fields array fieldModel
+     * @param $record           baseRecord
+     * @param $fields           array
+     * @param $tabHandle        string
+     * @param null $entryType   string
+     * @return bool
      */
-    public function bindFieldsToRecord($record, $fields){
+    public function bindFieldsToRecord($record, $fields, $tabHandle, $entryType = null){
         //delete old records
         $fieldIds = array();
         $insert = array();
         $fieldHandlesPreSave = anu()->database->select('fieldlayout', 'fieldHandle', array(
-            'recordHandle' => $record->handle
+            'recordHandle'  => $record->handle,
+            'entryType'     => ($entryType)? $entryType : $record->handle,
+            'tabHandle'     => $tabHandle
         ));
 
         foreach ($fields as $field){
@@ -303,14 +296,16 @@ class recordService
             $fieldIds[] = $field->id;
             $insert[] = array(
                 'fieldHandle'   => $field->slug,
-                'recordHandle'  => $record->handle
+                'recordHandle'  => $record->handle,
+                'tabHandle'     => $tabHandle,
+                'entryType'     => ($entryType)? $entryType : $record->handle
             );
 
             if(($key = array_search($field->slug, $fieldHandlesPreSave)) !== false) {
                 unset($fieldHandlesPreSave[$key]);
             }else{
-                /** @var fieldService $fieldType */
 
+                /** @var fieldService $fieldType */
                 if($fieldType = anu()->field->getField($field->fieldType)){
                     $fieldType->onInstall($record, $field);
                 }
@@ -318,6 +313,7 @@ class recordService
             }
 
         }
+
         if(count($fieldHandlesPreSave)){
             foreach ($fieldHandlesPreSave as $deleteFields){
                 anu()->database->alterTableRemoveColumn($record->tableName, $deleteFields);
@@ -325,11 +321,12 @@ class recordService
         }
 
         anu()->database->delete('fieldlayout', array(
-            'recordHandle'  => $record->handle
+            'recordHandle'  => $record->handle,
+            'entryType'     => ($entryType)? $entryType : $record->handle,
+            'tabHandle'     => $tabHandle
         ));
 
         anu()->database->insert('fieldlayout', $insert);
-
 
         return true;
     }

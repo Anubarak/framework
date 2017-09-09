@@ -6,8 +6,19 @@
     {% endif %}
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="{{ class }}Form">
 
-        <div ng-repeat="(index, item) in attributes">
-            <div thin-directive="{[{item[0]}]}" root-scope="rootScope" datasource="data[index]" index="index"  prefix="" attributes="item"> </div>
+        <ul class="nav nav-tabs">
+            <li ng-repeat="(index, item) in fieldLayout" ng-class="::{'active':$first}">
+                <a data-toggle="tab" href="#{[{::index}]}">{[{::index}]}</a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="{[{::tabHandle}]}" class="tab-pane fade in"  ng-class="::{'active':$first}" ng-repeat="(tabHandle, attributes) in fieldLayout">
+                <h3>{[{::tabHandle}]}</h3>
+                <div ng-repeat="(index, item) in attributes">
+                    <div thin-directive="{[{item[0]}]}" root-scope="rootScope" datasource="data[index]" index="index"  prefix="" attributes="item"> </div>
+                </div>
+            </div>
         </div>
 
         <input type="hidden" name="action" value="action/entry/save">

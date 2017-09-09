@@ -2,23 +2,21 @@
 
 {% block content %}
 
-
-    {% include 'user/login.twig' %}
-
     <br><br><br>
-    {% set form = anu.field.renderList('field') %}
-    {{ form|raw }}
-
-
-    {% set form = anu.entry.renderList('page') %}
+    {% set form = anu.entry.renderList('comic') %}
     {{ form|raw }}
 
     <br><br><br><br>
     {% set form = anu.entry.renderList('question') %}
     {{ form|raw }}
+    {% include 'user/login.twig' %}
 
     <br><br><br>
-    {% set form = anu.entry.renderList('comic') %}
+    {% set form = anu.field.renderList('rezept') %}
+    {{ form|raw }}
+
+
+    {% set form = anu.entry.renderList('page') %}
     {{ form|raw }}
 
 

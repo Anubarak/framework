@@ -12,7 +12,7 @@ use Exception;
 
 class entryModel extends baseModel
 {
-
+    public $class = '';
 
     public function __construct($handle)
     {
@@ -25,17 +25,11 @@ class entryModel extends baseModel
     public function defineAttributes()
     {
         if(!$this->attributes){
-            $baseAttributes = array(
-                'title'         => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Titel')),
-                'slug'          => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Slug'), DBIndex::Unique => true),
-                'createDate'    => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp, 'title' => Anu::t('Erstellungsdatum')),
-                'updateDate'    => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp, 'title' => Anu::t('Bearbeitungsdatum')),
-                'enabled'       => array(AttributeType::Bool, 'default' => '1', 'title' => Anu::t('Aktiv')),
-                'author_id'     => array(AttributeType::Hidden, 'default' => Defaults::currentUserId, 'title' => Anu::t('Author'))
-            );
+            $baseAttributes = $this->baseAttributes();
             $className = $this->class;
 
             $merged = array_merge($baseAttributes, anu()->$className->getFieldsForEntry());
+
             $this->attributes = array_merge(parent::defineAttributes(), $merged);
         }
 
@@ -50,5 +44,24 @@ class entryModel extends baseModel
     public function defineStructure()
     {
         return StructureType::Channel;
+    }
+
+    public function baseAttributes(){
+        return array(
+            'title'         => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Titel')),
+            'slug'          => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Slug'), DBIndex::Unique => true),
+            'createDate'    => array(AttributeType::DateTime, 'default' => Defaults::creationTimestamp, 'title' => Anu::t('Erstellungsdatum')),
+            'updateDate'    => array(AttributeType::DateTime, 'default' => Defaults::currentTimestamp, 'title' => Anu::t('Bearbeitungsdatum')),
+            'enabled'       => array(AttributeType::Bool, 'default' => '1', 'title' => Anu::t('Aktiv')),
+            'author_id'     => array(AttributeType::Hidden, 'default' => Defaults::currentUserId, 'title' => Anu::t('Author')),
+            'entryType'     => array(AttributeType::DropDown, 'title' => Anu::t('Eintragstyp'),
+                'options' => array(
+                    array(
+                        'label' => $this->class,
+                        'id'    => $this->class
+                    )
+                )
+            ),
+        );
     }
 }

@@ -9,7 +9,7 @@
 namespace anu;
 
 
-class dropdownField extends fieldService
+class numberField extends fieldService
 {
     /**
      * @param $model        baseModel|entryModel
@@ -20,6 +20,8 @@ class dropdownField extends fieldService
     public function onPopulate($model, $attributes, $data, $key)
     {
         $model->$key = $data;
+
+        return $model;
     }
 
 
@@ -38,7 +40,7 @@ class dropdownField extends fieldService
     }
 
     public function onInstall($record, $field){
-        anu()->database->alterTableAddColumn($record->tableName, $field->slug, "varchar(255) NULL default ''");
+        anu()->database->alterTableAddColumn($record->tableName, $field->slug, "FLOAT NULL default '0'");
     }
 
 }

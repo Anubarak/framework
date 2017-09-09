@@ -39,24 +39,23 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
      * @param $service entryService|baseService
      * @throws \Exception
      */
-    public function __construct($service)
+    public function __construct($record)
     {
-        if(!$service || !is_object($service)){
-            throw new \Exception("Parameter must be kind of Service");
-        }
-
-        $this->service = $service;
-        $model = Anu::getModelByName($service->model);
-        if($model->class){
-            $attributes = $model->defineAttributes();
-            foreach ($attributes as $k => $v){
-                //TODO better condition
-                if($v[0] == AttributeType::Position || $k === 'position'){
-                    $this->order = $k;
-                    break;
+        $this->service = $record;
+        if($record && property_exists($record, 'handle')){
+            $model = Anu::getModelByName($record->handle);
+            if($model->class){
+                $attributes = $model->defineAttributes();
+                foreach ($attributes as $k => $v){
+                    //TODO better condition
+                    if($v[0] == AttributeType::Position || $k === 'position'){
+                        $this->order = $k;
+                        break;
+                    }
                 }
             }
         }
+
     }
 
     /**
@@ -69,19 +68,20 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
             $this->attributes = getPublicObjectVars($this);
         }
 
-        $tables = $this->service->tableName;
+
+        $tables = ($this->service && property_exists($this->service, 'tableName'))? $this->service->tableName : null;
 
         if(!$tables){
             $tables = anu()->record->getAllRecords(true);
         }elseif(!is_array($tables)){
-            if(!property_exists($this->service, 'model')){
+            if(!property_exists($this->service, 'handle')){
                 echo("<pre>");
                 var_dump(__CLASS__ . " " . __LINE__);
                 var_dump($this->service);
                 echo("</pre>");
                 die();
             }
-            $record = Anu::getRecordByName($this->service->model);
+            $record = Anu::getRecordByName($this->service->handle);
             $tables = array(
                 $record
             );
@@ -228,6 +228,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                 var_dump(anu()->database->last());
                 echo "</pre>";
             }
+
             $rows = array_unique($rows,SORT_REGULAR);
 
             //anu()->database->debugError();

@@ -64,7 +64,8 @@ $.each(container, function(index, item){
                         parentKey = 'parent';
                         $scope.hasChildren = true;
                     }
-                    if(attribute[0] === 'position' && 'relatedField' in attribute){
+                    console.log("attributes", attribute);
+                    if(attribute && attribute.length && attribute[0] === 'position' && 'relatedField' in attribute){
                         console.log(attribute);
                         parentKey = attribute['relatedField'];
                         $scope.parentFieldId = parentKey;

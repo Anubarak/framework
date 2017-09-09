@@ -90,12 +90,14 @@ class app{
             die();
         }
 
+
+
         $records = anu()->record->getAllRecords();
         if(is_array($records) && count($records)){
             foreach ($records as $record){
                 $baseRecord = new baseRecord($record);
 
-                $className = $record['handle'] . "Service";
+                $className = Anu::getNameSpace() .$record['handle'] . "Service";
                 $recordName = $record['handle'];
                 if(class_exists($className)){
                     $this->$recordName = new $className();
@@ -277,8 +279,8 @@ class Anu
         if(class_exists($className)){
             return new $className();
         }
-        $record = anu()->record->getRecordByName($record);
-        return new baseRecord($record);
+
+        return anu()->record->getRecordByName($record, true);
     }
 
     /**

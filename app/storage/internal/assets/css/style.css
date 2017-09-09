@@ -5,6 +5,11 @@
 .navbar-default .navbar-collapse{
     background-color: #333f4d;
 }
+.list-group-small.sortable{
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-height: 50px;
+}
 
 .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:hover, .navbar-default .navbar-nav>.active>a:focus {
     color: #fff;

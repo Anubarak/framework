@@ -28,7 +28,7 @@ class entryService extends baseService
         /** @var baseRecord $record */
         if($record !== null){
             $this->tableName = $record->tableName;
-            $this->model = $record->model;
+            $this->model = $record->handle;
             $this->primary_key = $record->primary_key;
         }
     }
@@ -146,6 +146,7 @@ class entryService extends baseService
         $this->id = $entryId;
         if($model = Anu::getModelByName($this->model)){
             $attributes = $model->defineAttributes();
+
             $where = array();
             $select = $this->iterateDBSelect($attributes);
 
@@ -153,6 +154,7 @@ class entryService extends baseService
 
             $row = anu()->database->get($this->tableName, $select, $where);
 
+            anu()->database->debugError();
             if($row){
                 return $this->populateModel($row, $model);
             }
@@ -439,5 +441,23 @@ class entryService extends baseService
 
         }
         return $this->fields;
+    }
+
+    public function getFieldLayout($entry){
+        $record = anu()->record->getRecordByName($entry->class, true);
+        $fieldLayout = array();
+        if($record){
+            $tabs = anu()->field->getAllTabsForEntry($record);
+            foreach ($tabs as $tab){
+                $fieldLayout[$tab] = anu()->field->getAllFieldsForEntry($record, false, $entry->entryType, $tab);
+            }
+
+            $fieldLayout['Basisattribute'] = $entry->baseAttributes();
+            if(count($fieldLayout) === 1){
+                $fieldLayout['Basisattribute'] = $entry->defineAttributes();
+            }
+        }
+
+        return $fieldLayout;
     }
 }

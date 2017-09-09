@@ -19,13 +19,15 @@ class matrixService extends entryService
 
 
     public function init($service = 'null'){
-        $class = Anu::getClassByName($this, "Record", true);
-        if($class === false){
+        $record = Anu::getClassByName($this, "Record", true);
+        if($record === false){
             throw new \Exception('could not find Record for ' . get_class($this));
         }
-        $this->model      = $class->tableName;
-        $this->tableName = $class->tableName;
-        $this->primary_key = $class->primary_key;
+
+        $this->model      = $record->handle;
+        $this->handle      = $record->handle;
+        $this->tableName = $record->tableName;
+        $this->primary_key = $record->primary_key;
     }
 
 

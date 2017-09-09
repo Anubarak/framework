@@ -14,8 +14,9 @@ class fieldLayoutModel extends baseModel
     {
         return array(
             'id'            => array(AttributeType::Hidden, 'index' => AttributeType::PrimaryKey),
-            'field_id'      => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Feld Id')),
-            'record_id'     => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Record Id')),
+            'fieldHandle'      => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Feld Id')),
+            'recordHandle'     => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Record Id')),
+            'tabHandle'     => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Tab Name'))
         );
     }
 

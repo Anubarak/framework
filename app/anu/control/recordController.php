@@ -22,7 +22,7 @@ class recordController extends baseController
             }
         }
         foreach ($installedRecords as $record){
-            $class = Anu::getNameSpace() . $record->model . "Record";
+            $class = Anu::getNameSpace() . $record->handle . "Record";
             if(!class_exists($class)){
                 $record->editable = true;
             }
@@ -44,6 +44,7 @@ class recordController extends baseController
     public function toggleInstallation(){
         $this->requireLogin();
         $recordName = anu()->request->getValue('record');
+
         $response = array();
         if($recordName){
             if(anu()->record->isRecordInstalled($recordName)){
@@ -85,10 +86,13 @@ class recordController extends baseController
         exit;
     }
 
+    /**
+     * save and install if new
+     */
     public function save(){
         $data = anu()->request->getValue('record', null);
 
-        $record = new baseRecord($data);
+        $record = new entryRecord($data);
         if(!$record->id){
             $recordAttributes = array(
                 $data['primary_key'] => array(
@@ -109,7 +113,8 @@ class recordController extends baseController
         }
 
         $this->returnJson(array(
-            'success' => $response
+            'success' => $response,
+            'id'      => $record->id
         ));
     }
 }
