@@ -64,7 +64,7 @@ myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 
     $scope.data = {
         id: anu.entry.id
     };
-    $scope.form = anu.entry.class + 'Form';
+    $scope.form = 'entryForm';
     $scope.slugEmpty = true;
     $scope.allRelations = {};
     $scope.errorMessages = {};

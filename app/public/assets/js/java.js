@@ -252,6 +252,37 @@ angular.module("myApp").factory('RelationService', function($http) {
 });
 
 
+myApp.directive('idToList', function() {
+    return {
+        restrict: 'E',
+
+        replace: true,
+        transclude: false,
+        scope: {
+            item:'=item',
+            list: '=list'
+        },
+        templateUrl: function(element, attr) {
+            console.log("attr", attr);
+            return attr.templateUrl;
+        },
+        link: function(scope) {
+            var newElement = scope.list.filter(function (el) {
+                    return el.id === scope.item;
+                });
+                scope.e = (newElement.length)? newElement[0] : null;
+
+            scope.removeRelation = function(item, relationId){
+                var index = item.indexOf(relationId);
+                if(index !== -1){
+                    item.splice( index, 1 );
+                }
+            };
+        }
+    }
+});
+
+
 var datepickerOptions = {
     constrainInput: false,
         format: "dd.mm.yyyy",

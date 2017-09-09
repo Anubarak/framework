@@ -3,7 +3,12 @@
 {% block content %}
     <ul class="list-group" ng-controller="recordController" ng-cloak>
         <li class="list-group-item" ng-repeat="record in data.records">
-            {[{ record.name }]}
+            <a href="{{ baseUrl }}action/record/edit/{[{::record.id}]}" ng-show="record.editable">
+                {[{ ::record.name }]}
+            </a>
+            <span ng-show="!record.editable">
+                {[{ ::record.name }]}
+            </span>
             <div class="pull-right">
                 <button type="button"
                         ng-model="record"

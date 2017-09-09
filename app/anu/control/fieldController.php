@@ -85,17 +85,45 @@ class fieldController extends baseController
 
     }
 
+    /**
+     * Bind fields to record, create database Tables
+     *
+     * @param $param
+     */
     public function bindFields($param){
-        if(is_array($param) && count($param)){
-            $record = anu()->record->getRecordById($param[0]);
+        //if(is_array($param) && count($param)){
+            $record = anu()->record->getRecordById(22/*$param[0]*/);
             $allFields = anu()->field->getAllFields();
             anu()->template->addAnuJsObject($allFields, 'fields');
             $fieldsForEntry = anu()->field->getAllFieldsForEntry($record, true);
-            anu()->template->addAnuJsObject($fieldsForEntry, 'fieldsForRecord');
 
-            anu()->template->render('admin/fields/bindFields.twig', array());
+            anu()->template->addAnuJsObject($fieldsForEntry, 'fieldsForRecord');
+            anu()->template->addAnuJsObject($record, 'record');
+            anu()->template->render('admin/fields/bindFields.twig', array(
+                'record'    => $record
+            ));
             exit;
+        //}
+    }
+
+
+    /**
+     * Bind fields to record
+     */
+    public function bindFieldsSave(){
+        $data = anu()->request->getValue('record');
+        $record = anu()->record->getRecordById($data['id'], true);
+        $fieldIds = $data['fields'];
+        $fields = array();
+        foreach ($fieldIds as $fieldId){
+            $fields[] = anu()->field->getFieldById($fieldId);;
         }
+
+        $response = anu()->record->bindFieldsToRecord($record, $fields);
+
+        $this->returnJson(array(
+            'success'   => $response
+        ));
     }
 
 }

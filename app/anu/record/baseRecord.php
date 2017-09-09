@@ -21,6 +21,7 @@ class baseRecord
     public $index = array();
     public $id = 0;
     public $handle = '';
+    public $date = '';
 
     /**
      * Define aliases for javascript and such
@@ -30,6 +31,7 @@ class baseRecord
     public function __construct($record = array()){
         $this->name = (isset($record['name']))? $record['name'] : $this->getRecordName();
         $this->tableName = (isset($record['table_name']))? $record['table_name'] : $this->getTableName();
+        $this->table_name = (isset($record['table_name']))? $record['table_name'] : $this->getTableName();
         $this->installed = (isset($record['name']))? true : $this->isInstalled();
         $this->primary_key = (isset($record['primary_key']))? $record['primary_key'] : $this->getPrimaryKey();
         if(isset($record['model'])){
@@ -45,6 +47,10 @@ class baseRecord
         }
         if(isset($record['id'])){
             $this->id = $record['id'];
+        }
+
+        if(isset($record['date'])){
+            $this->date = $record['date'];
         }
 
         $this->handle = isset($record['handle'])? $record['handle'] : $this->getModel();
@@ -164,9 +170,8 @@ class baseRecord
         foreach ($this->attributes as $k => $v){
             switch ($v[0]){
                 case AttributeType::DateTime:
-                    $UTC = new \DateTimeZone("UTC");
                     $time = isset($data[$k])? $data[$k] : null;
-                    $date = new \DateTime($time, $UTC );
+                    $date = new \DateTime($time );
                     $this->$k = $date->format('Y-m-d H:i:s');
                     break;
                 default:

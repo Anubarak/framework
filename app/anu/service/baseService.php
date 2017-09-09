@@ -183,34 +183,13 @@ class baseService implements \JsonSerializable
             }
 
             foreach ($attributes as $k => $v){
-                switch ($v[0]){
-                    case AttributeType::Relation:
-                        if($field = anu()->field->getField($v[0])){
-                            $field->onPopulate($model, $v, $data, $k);
-                        }
-                        break;
-                    case AttributeType::Matrix:
-                        if($field = anu()->field->getField($v[0])){
-                            $field->onPopulate($model, $v, $data, $k);
-                        }
-                        break;
-                    case AttributeType::DateTime:
-                        $UTC = new \DateTimeZone("UTC");
-                        $date = new \DateTime( $data[$k], $UTC );
-                        $model->$k = $date->format('Y-m-d H:i:s');
-                        break;
-                    case AttributeType::JSON:
-                        $jsonData = json_decode($data[$k], true);
-                        if(is_array($jsonData) && count($jsonData)){
-                            foreach ($jsonData as $jsonKey => $json){
-                                if(property_exists($model, $jsonKey)){
-                                    throw new \Exception($jsonKey . ' is a reserved key an must not be used as an index for matrixcontent');
-                                }
-                                $model->$jsonKey = $json;
-                            }
-                        }
-                        break;
+                $value = isset($data[$k])? $data[$k] : null;
+                if($field = anu()->field->getField($v[0])){
+                    $field->onPopulate($model, $v, $value, $k);
+                }else{
+                    $model->$k = $value;
                 }
+
             }
 
             return $model;
@@ -304,15 +283,16 @@ class baseService implements \JsonSerializable
             return false;
         }
 
-        if(!$this->name || !$this->primary_key){
+        if(!$this->tableName || !$this->primary_key){
             //TODO change to record
+
             $className = Anu::getClassName($this);
             $this->name  = anu()->$className->tableName;
             $this->primary_key = anu()->$className->primary_key;
         }
 
         //check if its a new entry of if we should update an existing one
-        $record = Anu::getClassByName($this, "Record", true);
+        $record = Anu::getRecordByName($this->model);
         $recordAttributes = $record->defineAttributes();
         if(!$element->id){
             // new entry -> insert

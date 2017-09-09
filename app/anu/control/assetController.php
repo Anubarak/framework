@@ -27,7 +27,7 @@ class assetController extends baseController
      * @throws \Exception
      */
     public function storeAssetFromB64(){
-        $asset = new assetModel();
+        $asset = new assetModel('asset');
         $b64Image = anu()->request->getValue('image');
         $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $b64Image));
 

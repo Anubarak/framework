@@ -98,4 +98,8 @@ class positionField extends fieldService
         $values[$key] = $entry->$key;
     }
 
+    public function onInstall($record, $field){
+        anu()->database->alterTableAddColumn($record->tableName, $field->slug, "INT NULL default '0'");
+    }
+
 }

@@ -49,10 +49,11 @@
             #}
 
         {% set matrixes = anu.matrix.find() %}
+
         <br><br>
 
         {% for matrix in matrixes %}
-            {{ matrix.id }}  .. {{ matrix.content }} .. {{ matrix.position }}<br>
+            {{ matrix.id }}  .. {{ matrix.content | json_encode }} .. {{ matrix.position }}<br>
         {% endfor %}
         <br><br><br>
 

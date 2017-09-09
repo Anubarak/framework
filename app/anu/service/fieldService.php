@@ -32,6 +32,10 @@ class fieldService extends entryService
 
     }
 
+    public function onInstall($record, $field){
+
+    }
+
     /**
      * @param $handle
      * @return fieldService|bool
@@ -47,7 +51,6 @@ class fieldService extends entryService
      *
      * @param $entry                baseModel|entryModel        Plain Model of the entry
      * @param $data                 array                       array with the data of the field
-     * @param $class                string                      className of the related Entry -> matrix|class eg page, answer...
      * @param $field                string                      the field in the data
      * @return elementCriteriaModel
      */
@@ -56,33 +59,33 @@ class fieldService extends entryService
         $criteriaModel = new elementCriteriaModel(anu()->$class);
         $id = isset($entry->id) ? $entry->id : null;
         //new empty entry at all.... with no id an nothing
-        if($data === null || !array_key_exists($field, $data) || $data[$field] === null){
+        if($data === null){
             $criteriaModel->relatedTo  = array(
                 'field' => $field,
                 'id'    => $id,
                 'model' => $attributes['class']
             );
         }else{
-            if(array_key_exists($field, $data) && is_array($data[$field])) {
-                if (count($data[$field]) && array_key_exists(0, $data[$field]) && !is_array($data[$field][0])) {
+            if(is_array($data)) {
+                if (count($data) && !is_array($data[0])) {
                     // user gave an array with all ids
                     /** @var baseRecord $record */
                     $record = anu()->record->getRecordByName($attributes['model'], true);
                     $primary_key = $record->primary_key;
-                    $criteriaModel->$primary_key = $data[$field];
-                    $criteriaModel->storeIds($data[$field]);
-                }elseif(array_key_exists('ids', $data[$field])){
+                    $criteriaModel->$primary_key = $data;
+                    $criteriaModel->storeIds($data);
+                }elseif(array_key_exists('ids', $data)){
                     //user did not change anything and just returned the origianl CriteriaModel of the entry
                     $criteriaModel->relatedTo  = array(
                         'field' => $field,
                         'id'    => $id,
                         'model' => $attributes['class']
                     );
-                    $criteriaModel->storeIds($data[$field]['ids']);
+                    $criteriaModel->storeIds($data['ids']);
                 }else{
                     //user inserted an array of objects eg matrix elements that contains elements with an id
                     $ids = array();
-                    foreach ($data[$field] as $populateField){
+                    foreach ($data as $populateField){
                         $ids[] = $populateField['id'];
                     }
                     if($ids){
@@ -129,7 +132,8 @@ class fieldService extends entryService
         );
         $select = (!$returnIds)? '*' : 'fields.id';
         $fields = anu()->database->select('fieldlayout', $join, $select, array(
-            'recordHandle'  => array($handle, 'entry')
+            'recordHandle'  => array($handle, 'entry'),
+            'ORDER'         => 'fieldlayout.id'
         ));
 
         if($returnIds){
@@ -182,5 +186,22 @@ class fieldService extends entryService
                 'label' => Anu::t('Lichtschalter')
             )
         );
+    }
+
+
+    /**
+     * Return Field by Id
+     *
+     * @param $fieldId
+     * @return mixed
+     */
+    public function getFieldById($fieldId){
+        $field = anu()->database->select('fields', '*', array(
+            'id' => $fieldId
+        ));
+        if($field){
+            $fieldModel = new fieldModel('field');
+            return anu()->field->populateModel($field[0], $fieldModel);
+        }
     }
 }

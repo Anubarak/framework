@@ -200,6 +200,21 @@ class recordService
                     'model'         => $this->record->model,
                     'structure'     => $this->record->structure
                 ));
+
+                anu()->database->insert('fieldlayout', array(
+                    array(
+                        'fieldHandle'   => 'slug',
+                        'recordHandle'  => $this->record->handle,
+                    ),
+                    array(
+                        'fieldHandle'   => 'enabled',
+                        'recordHandle'  => $this->record->handle,
+                    ),
+                    array(
+                        'fieldHandle'   => 'author_id',
+                        'recordHandle'  => $this->record->handle,
+                    )
+                ));
             }
         }
 
@@ -267,4 +282,56 @@ class recordService
             'table_name'   => $record->tableName
         ));
     }
+
+
+    /**
+     * Bind fields to record
+     *
+     * @param $record baseRecord
+     * @param $fields array fieldModel
+     */
+    public function bindFieldsToRecord($record, $fields){
+        //delete old records
+        $fieldIds = array();
+        $insert = array();
+        $fieldHandlesPreSave = anu()->database->select('fieldlayout', 'fieldHandle', array(
+            'recordHandle' => $record->handle
+        ));
+
+        foreach ($fields as $field){
+            /**@var fieldModel $field */
+            $fieldIds[] = $field->id;
+            $insert[] = array(
+                'fieldHandle'   => $field->slug,
+                'recordHandle'  => $record->handle
+            );
+
+            if(($key = array_search($field->slug, $fieldHandlesPreSave)) !== false) {
+                unset($fieldHandlesPreSave[$key]);
+            }else{
+                /** @var fieldService $fieldType */
+
+                if($fieldType = anu()->field->getField($field->fieldType)){
+                    $fieldType->onInstall($record, $field);
+                }
+
+            }
+
+        }
+        if(count($fieldHandlesPreSave)){
+            foreach ($fieldHandlesPreSave as $deleteFields){
+                anu()->database->alterTableRemoveColumn($record->tableName, $deleteFields);
+            }
+        }
+
+        anu()->database->delete('fieldlayout', array(
+            'recordHandle'  => $record->handle
+        ));
+
+        anu()->database->insert('fieldlayout', $insert);
+
+
+        return true;
+    }
+
 }

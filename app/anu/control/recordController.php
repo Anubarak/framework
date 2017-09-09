@@ -16,8 +16,15 @@ class recordController extends baseController
         $installedRecords = anu()->record->getAllRecords(true);
 
         foreach ($classRecords as $cRecord){
+            $cRecord->notEditable = true;
             if(!$cRecord->installed){
                 $installedRecords[] = $cRecord;
+            }
+        }
+        foreach ($installedRecords as $record){
+            $class = Anu::getNameSpace() . $record->model . "Record";
+            if(!class_exists($class)){
+                $record->editable = true;
             }
         }
 
@@ -59,12 +66,10 @@ class recordController extends baseController
         $this->requireLogin();
         $isNewRecord = true;
         if($parameter){
-            if(is_array($parameter)){
-                $id = $parameter[0];
-            }else{
-                $id = $parameter;
-            }
-            $newRecord = anu()->record->getRecordById($id);
+            /**@var \Anu\baseRecord $newRecord */
+            $newRecord = anu()->record->getRecordById($parameter[count($parameter)-1]);
+            $newRecord->attributes = $newRecord->defaultRecordAttributes();
+
             $isNewRecord = false;
         }else{
             $newRecord = new baseRecord();
@@ -74,7 +79,8 @@ class recordController extends baseController
 
         anu()->template->addAnuJsObject($newRecord, 'record');
         anu()->template->render('admin/record/add.twig', array(
-            'record' => $newRecord
+            'record' => $newRecord,
+            'isNewRecord' => $isNewRecord
         ));
         exit;
     }
@@ -83,17 +89,24 @@ class recordController extends baseController
         $data = anu()->request->getValue('record', null);
 
         $record = new baseRecord($data);
-        $recordAttributes = array(
-            $data['primary_key'] => array(
-                AttributeType::Number
-            )
-        );
+        if(!$record->id){
+            $recordAttributes = array(
+                $data['primary_key'] => array(
+                    AttributeType::Number
+                )
+            );
 
-        $recordAttributes = array_merge($recordAttributes, $record->defineAttributes());
-        $record->defineAttributes($recordAttributes);
-        $record->defineIndex(array($data['primary_key'] => DBIndex::Primary));
+            $recordAttributes = array_merge($recordAttributes, $record->defineAttributes());
+            $record->defineAttributes($recordAttributes);
+            $record->defineIndex(array($data['primary_key'] => DBIndex::Primary));
 
-        $response = anu()->record->installRecord($record);
+            $response = anu()->record->installRecord($record);
+        }else{
+            anu()->database->update('records', $data, array(
+                'id'   => $record->id
+            ));
+            $response = true;
+        }
 
         $this->returnJson(array(
             'success' => $response

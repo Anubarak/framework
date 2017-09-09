@@ -66,10 +66,10 @@ class entryController extends baseController
      */
     public function save(){
             $data = anu()->request->postVar('entry');
-
             $className = $data['class'];
             $entry = Anu::getModelByName($className);
             anu()->$className->populateModel($data, $entry);
+
             $matrix = anu()->request->postVar('matrix', null);
             $matrixArray = array();
             if($matrix && is_array($matrix) && count($matrix)){
@@ -147,13 +147,9 @@ class entryController extends baseController
             }
         }
         if(!$entry){
-            $entry = new entryModel($parameter[0]);
+            $entry = Anu::getModelByName($parameter[0]);
             $class = $parameter[0];
             anu()->$class->populateModel(null, $entry);
-            echo("<pre>");
-            var_dump($entry);
-            echo("</pre>");
-            die();
         }
 
         if($entry){

@@ -13,6 +13,8 @@ class assetService extends baseService
     protected   $table = 'assets';
     protected   $primary_key = 'asset_id';
     protected   $id = null;
+    public $model = 'asset';
+    public $tableName = 'assets';
 
     /**
      * @param $asset            assetModel
@@ -39,7 +41,7 @@ class assetService extends baseService
         if(isset($post[$this->primary_key])){
             $asset = $this->getElementById($post[$this->primary_key]);
         }else{
-            $asset = Anu::getClassByName($this, "Model", true);
+            $asset = Anu::getModelByName('asset');
         }
 
         $post = anu()->request->getValue('data', array());

@@ -1575,5 +1575,46 @@ class database
         exec($command);
         return true;
     }
+
+    /**
+     * Add column
+     *
+     * @param $table
+     * @param $columnName
+     * @param $columnAttribute
+     * @return bool
+     */
+    public function alterTableAddColumn($table, $columnName, $columnAttribute){
+        if(!$table || !$columnName || !$columnAttribute){
+            return false;
+        }
+        $this->query("IF NOT EXISTS( SELECT NULL
+                        FROM INFORMATION_SCHEMA.COLUMNS
+                        WHERE table_name = '$table'
+                        AND table_schema = '".$this->dataBaseOptions['database_name'] . "'
+                        AND column_name = '$columnName')  THEN
+                        ALTER TABLE `$table` ADD `$columnName` $columnAttribute ;
+                    END IF;");
+        $this->debugError();
+        return true;
+    }
+
+    /**
+     * Drop column
+     *
+     * @param $table
+     * @param $column
+     */
+    public function alterTableRemoveColumn($table, $column){
+        $this->query("IF EXISTS( SELECT NULL
+                        FROM INFORMATION_SCHEMA.COLUMNS
+                        WHERE table_name = '$table'
+                        AND table_schema = '".$this->dataBaseOptions['database_name'] . "'
+                        AND column_name = '$column')  THEN
+                        ALTER TABLE `$table` DROP `$column`;
+                    END IF;");
+        $this->debugError();
+        return true;
+    }
 }
 ?>
