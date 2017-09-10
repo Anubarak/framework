@@ -1,21 +1,74 @@
 {% extends 'admin/layout/site.twig' %}
-{% set pageHeadline = 'Feld Layout' %}
+{% set headline = (entryType.label)? entryType.label : record.name %}
+{% set pageHeadline = 'Feld Layout ' ~ headline %}
+
 {% block content %}
-
-
     <script type="text/ng-template" id="/tpl.html">
        <li class="list-group-item">{[{ ::e.title }]}</li>
     </script>
 
     <div ng-controller="bindFieldController" ng-cloak>
-        <label>Feld Layout {{ record.name }}</label>
-        <div class="">
-            <div class="pull-left" ng-repeat="(tabName, tab) in data.fields" style="padding-left: 5px;padding-right: 5px;">
-                <label class="pull-left">{[{ ::tabName }]}</label><br>
-                <ul class="list-group list-group-small sortable pull-left"  ui-sortable="sortableOptions" ng-model="tab">
-                    <id-to-list  ng-repeat="item in tab" item="item" list="fields" template-url="/tpl.html"></id-to-list>
+        <!-- Inputs EntryType -->
+        <form name="entryTypeForm">
+            <div class="form-group" ng-class="{error: entryTypeForm.label.$invalid && entryTypeForm.label.$dirty}">
+                <label for="label">Label</label>
+                <input type="text"
+                       id="label"
+                       ng-model="entryType.label"
+                       name="label"
+                       class="form-control"
+                       ng-required="true"
+                >
+
+                <ul class="errors" ng-show="entryTypeForm.label.$invalid && entryTypeForm.label.$dirty" ng-cloak>
+                    <li ng-show="entryTypeForm.label.$error.required">
+                        Dieser Wert wird benötigt
+                    </li>
                 </ul>
             </div>
+
+            <div class="form-group" ng-class="{error: entryTypeForm.handle.$invalid && entryTypeForm.handle.$dirty} ">
+                <label for="label">Kurzname</label>
+                <input type="text"
+                       id="handle"
+                       ng-model="entryType.handle"
+                       name="handle"
+                       class="form-control"
+                       ng-required="true"
+                       unique="true"
+                >
+
+                <ul class="errors" ng-show="entryTypeForm.handle.$invalid && entryTypeForm.handle.$dirty" ng-cloak>
+                    <li ng-show="entryTypeForm.handle.$error.required">
+                        Dieser Wert wird benötigt
+                    </li>
+                </ul>
+            </div>
+        </form>
+
+
+
+        <pre>
+            {[{ tabs | json }]}
+        </pre>
+
+        <label>Feld Layout {[{ entryType.label }]}</label>
+        <button class="btn btn-default pull-right" ng-click="addTab();">Tab hinzufügen</button>
+        <div class="clearfix"></div>
+        <div>
+            <ul style="padding-left: 0px;" ui-sortable="sortableGrid" ng-model="tabs">
+                <li class="pull-left" ng-repeat="(tabKey, tab) in tabs" style="padding-left: 5px;padding-right: 5px;">
+                    <label class="pull-left">{[{ ::tab.label }]}</label>
+                    <a href=""  ng-click="removeTab(tabKey)">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </a>
+                    <br>
+                    <ul class="list-group list-group-small sortable pull-left"  ui-sortable="sortableOptions" ng-model="tab.fields">
+                        <id-to-list  ng-repeat="item in tab.fields" item="item" list="fields" template-url="/tpl.html"></id-to-list>
+                    </ul>
+                </li>
+            </ul>
+
         </div>
         <div class="clearfix">
 
@@ -27,8 +80,8 @@
                 <id-to-list  ng-repeat="item in leftFields" item="item" list="fields" template-url="/tpl.html"></id-to-list>
             </ul>
         </div>
-
-        <button ng-click="send();" class="pull-right btn btn-danger">Senden</button>
+        <div class="clearfix"></div>
+        <button ng-click="send();" class="pull-right btn btn-danger" ng-disabled="entryTypeForm.$invalid">Speichern</button>
     </div>
 {% endblock %}
 

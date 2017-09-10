@@ -90,11 +90,13 @@ class recordService
 
 
     /**
-     * @param $record       baseRecord | string
+     * Install Record
+     *
+     * @param $record
+     * @param bool $ignoreRecordTable
      * @return bool
      */
     public function installRecord($record, $ignoreRecordTable = false){
-
         if(is_string($record)){
             $className = Anu::getNameSpace() . $record . "Record";
             if(class_exists($className)){
@@ -198,9 +200,17 @@ class recordService
                     'table_name'    => $this->record->tableName,
                     'primary_key'   => $this->record->primary_key,
                     'structure'     => $this->record->structure,
-                    'handle'        => $this->record->handle
+                    'handle'        => $this->record->handle,
+                    'template'      => $this->record->template,
                 ));
+                anu()->database->debugError();
                 $record->id = anu()->database->id();
+
+                anu()->database->insert('entryTypes', array(
+                    'recordHandle'  => $this->record->handle,
+                    'entryType'     => $this->record->handle,
+                    'label'         => $this->record->name
+                ));
             }
         }
 
@@ -231,6 +241,10 @@ class recordService
                 )
             ));
             anu()->database->delete('fieldlayout', array(
+                'recordHandle' => $record->handle
+            ));
+
+            anu()->database->delete('entrytypes', array(
                 'recordHandle' => $record->handle
             ));
             //anu()->database->debugError();
@@ -275,60 +289,122 @@ class recordService
 
 
     /**
-     * @param $record           baseRecord
-     * @param $fields           array
-     * @param $tabHandle        string
-     * @param null $entryType   string
+     * @param $record
+     * @param $tabs
+     * @param $entryType
      * @return bool
      */
-    public function bindFieldsToRecord($record, $fields, $tabHandle, $entryType = null){
+    public function bindFieldsToRecord($record, $tabs, $entryType){
         //delete old records
-        $fieldIds = array();
+        if(!is_array($tabs) || !count($tabs)){
+            return false;
+        }
+
         $insert = array();
-        $fieldHandlesPreSave = anu()->database->select('fieldlayout', 'fieldHandle', array(
-            'recordHandle'  => $record->handle,
-            'entryType'     => ($entryType)? $entryType : $record->handle,
-            'tabHandle'     => $tabHandle
-        ));
+        foreach ($tabs as $tab) {
 
-        foreach ($fields as $field){
-            /**@var fieldModel $field */
-            $fieldIds[] = $field->id;
-            $insert[] = array(
-                'fieldHandle'   => $field->slug,
+            $fieldHandlesPreSave = anu()->database->select('fieldlayout', 'fieldHandle', array(
                 'recordHandle'  => $record->handle,
-                'tabHandle'     => $tabHandle,
-                'entryType'     => ($entryType)? $entryType : $record->handle
-            );
+                'entryType'     => $entryType,
+                'tabId'         => $tab['id']
+            ));
 
-            if(($key = array_search($field->slug, $fieldHandlesPreSave)) !== false) {
-                unset($fieldHandlesPreSave[$key]);
-            }else{
+            foreach ($tab['fields'] as $fieldId) {
+                if($field = anu()->field->getFieldById($fieldId)){
+                    /**@var fieldModel $field */
+                    $insert[] = array(
+                        'fieldHandle'   => $field->slug,
+                        'recordHandle'  => $record->handle,
+                        'tabId'         => $tab['id'],
+                        'entryType'     => ($entryType)? $entryType : $record->handle
+                    );
 
-                /** @var fieldService $fieldType */
-                if($fieldType = anu()->field->getField($field->fieldType)){
-                    $fieldType->onInstall($record, $field);
+                    if(($key = array_search($field->slug, $fieldHandlesPreSave)) !== false) {
+                        unset($fieldHandlesPreSave[$key]);
+                    }else{
+
+                        /** @var fieldService $fieldType */
+                        if($fieldType = anu()->field->getField($field->fieldType)){
+                            $fieldType->onInstall($record, $field);
+                        }
+
+                    }
                 }
 
+
+            }
+
+            if(count($fieldHandlesPreSave)){
+                foreach ($fieldHandlesPreSave as $deleteField){
+                    anu()->database->alterTableRemoveColumn($record->tableName, $deleteField);
+                }
             }
 
         }
 
-        if(count($fieldHandlesPreSave)){
-            foreach ($fieldHandlesPreSave as $deleteFields){
-                anu()->database->alterTableRemoveColumn($record->tableName, $deleteFields);
-            }
+        if(is_array($insert) && count($insert)){
+            anu()->database->delete('fieldlayout', array(
+                'recordHandle'  => $record->handle,
+                'entryType'     => $entryType,
+            ));
+
+            anu()->database->insert('fieldlayout', $insert);
         }
-
-        anu()->database->delete('fieldlayout', array(
-            'recordHandle'  => $record->handle,
-            'entryType'     => ($entryType)? $entryType : $record->handle,
-            'tabHandle'     => $tabHandle
-        ));
-
-        anu()->database->insert('fieldlayout', $insert);
 
         return true;
+    }
+
+    /**
+     * Get entryTypes for Record
+     *
+     * @param $record       baseRecord|entryRecord|string
+     * @return array|bool
+     */
+    public function getEntryTypesForRecord($record){
+        if(is_string($record)){
+            $recordHandle = $record;
+        }else{
+            $recordHandle = $record->handle;
+        }
+        return anu()->database->select('entrytypes', '*', array('recordHandle' => $recordHandle));
+    }
+
+    /**
+     * @param $entryTypeId
+     * @return array|bool
+     */
+    public function getEntryTypeById($entryTypeId){
+        return anu()->database->get('entrytypes', '*', array('id' => $entryTypeId));
+    }
+
+    /**
+     * Get First Entrytype for Record
+     *
+     * @param $record
+     * @return array|bool|mixed
+     */
+    public function getFirstEntryTypeForRecord($record){
+        return anu()->database->get('entrytypes', '*', array('recordHandle' => $record->handle));
+    }
+
+    /**
+     * @param $record
+     * @return baseRecord|null
+     * @throws \Exception
+     */
+    private function getRecord($record){
+        if(is_string($record)){
+            $className = Anu::getNameSpace() . $record . "Record";
+            if(class_exists($className)){
+                $record = new $className();
+            }else{
+                $record = anu()->record->getRecordByName($record, true);
+            }
+        }
+        if(!$record){
+            throw new \Exception('Could not find Record');
+        }
+        return $record;
     }
 
 }

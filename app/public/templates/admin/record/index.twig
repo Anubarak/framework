@@ -10,6 +10,7 @@
                 {[{ ::record.name }]}
             </span>
             <div class="pull-right">
+                <a ng-show="record.editable" href="{{ baseUrl }}action/record/editEntryType/{[{::record.id}]}">Eintragstypen</a>
                 <button type="button"
                         ng-model="record"
                         class="btn btn-lg btn-toggle"

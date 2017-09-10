@@ -21,6 +21,7 @@ class baseRecord
     public $id = 0;
     public $handle = '';
     public $date = '';
+    public $template = '';
 
     /**
      * Define aliases for javascript and such
@@ -48,6 +49,7 @@ class baseRecord
         }
 
         $this->handle = isset($record['handle'])? $record['handle'] : $this->getModel();
+        $this->template = isset($record['template'])? $record['template'] : $this->getTemplatePath();
     }
 
     /**
@@ -74,7 +76,7 @@ class baseRecord
             );
         }
 
-        $this->baseAttributes = array_merge($baseAttributes, anu()->field->getAllFieldsForEntry($this->handle));
+        $this->baseAttributes = array_merge($baseAttributes, anu()->field->getAllFieldsForEntry($this->handle,  false, 'bonus'));
         return $this->baseAttributes;
 
     }
@@ -98,6 +100,10 @@ class baseRecord
     }
 
     public function getModel(){
+        return "";
+    }
+
+    public function getTemplatePath(){
         return "";
     }
 
@@ -151,7 +157,8 @@ class baseRecord
                     'label' => 'Matrix'
                 )
             )),
-            'primary_key'   => array(AttributeType::Mixed, 'required' => true)
+            'primary_key'   => array(AttributeType::Mixed, 'required' => true),
+            'template'      => array(AttributeType::Mixed, 'required' => true),
         );
     }
 

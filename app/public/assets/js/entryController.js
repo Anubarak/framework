@@ -60,7 +60,9 @@ $.each(container, function(index, item){
 var test = [];
 var container = $('.entryController').first();
 id = container.data('id');
+var b = null;
 myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 'configService', 'RelationService', function ($scope, $http, $timeout, $compile, configService, RelationService) {
+    b = $scope;
     $scope.data = {
         id: anu.entry.id
     };
@@ -436,11 +438,42 @@ myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 
     $scope.isRequired = function(attributes){
         return ('required' in attributes && attributes['required'] == true);
     };
-    $scope.testValue ="rere";
+
     $scope.$watch(
-        "data.fieldType",
-        function handleFooChange( newValue, oldValue ) {
-            console.log(newValue);
+        "data.entryType",
+        function handleFieldTypeChange( newValue, oldValue ) {
+
+            if(newValue != oldValue){
+
+
+                var form = new FormData();
+                form.append("handle", $scope.entryClass);
+                form.append("entryType", newValue);
+                form.append('action', "entry/getFieldLayoutForEntryType");
+                $http({
+                    method: 'POST',
+                    url: '',
+                    data: form,
+                    headers: { 'Content-Type': undefined},
+                    transformRequest: angular.identity
+                }).then(function successCallback(response) {
+                    // this callback will be called asynchronously
+                    // when the response is available
+
+
+
+                    /*console.log(response.data);
+                    var metaData = angular.copy($scope.fieldLayout[$scope.fieldLayout.length -1]);
+                    var newLayout = response.data;
+                    newLayout.push(metaData);
+                    $scope.fieldLayout = newLayout;
+                    console.log('laylout', $scope.fieldLayout);*/
+                    //$scope.$apply();
+                }, function errorCallback(response) {
+                    // called asynchronously if an error occurs
+                    // or server returns response with an error status.
+                });
+            }
         }
     );
 }]);

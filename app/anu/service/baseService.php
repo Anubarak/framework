@@ -381,6 +381,7 @@ class baseService implements \JsonSerializable
      */
     public function find($attributes = null, $onlyIds = false, $debug = false){
         $record = Anu::getRecordByName($this->model);
+
         $criteria = new elementCriteriaModel($record);
         return $criteria->find($attributes, $onlyIds, $debug);
     }
@@ -474,12 +475,13 @@ class baseService implements \JsonSerializable
                 $entry->$k = null;
             }
             if($v[0] == AttributeType::Matrix){
-                $matrixAttributes = anu()->matrix->getMatrixByName($v[1])->defineAttributes();
+                $matrixAttributes = $v['attributes'];
+
                 $attributes[$k]['attributes'] = $matrixAttributes;
                 $matrixArray = array();
                 $index = 0;
                 foreach ($entry->$k as $matrix){
-                    $matrixArray[$index] = json_decode($matrix->content, true);
+                    $matrixArray[$index] = $matrix->content;
                     $matrixArray[$index]['type'] = $matrix->type;
                     $matrixArray[$index]['title'] = $matrix->type;
                     $matrixArray[$index]['attributes'] = $matrixAttributes[$matrix->type];

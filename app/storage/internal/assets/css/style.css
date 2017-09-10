@@ -173,7 +173,6 @@ body.rtl #container .topbar .show-nav { margin-right: -24px; }
     overflow-y: initial !important
 }
 .modal-body{
-    height: 500px;
     overflow-y: auto;
 }
 

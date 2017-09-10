@@ -54,6 +54,21 @@ class templateService
         $this->twig->addGlobal('internalAssetPathCSS', BASE_URL . $path['internalAssets'] . '/css/');
         $this->twig->addGlobal('baseUrl', BASE_URL);
         $this->twig->addGlobal('isCpRequest', true);
+        $getFilePath = new \Twig_Function('getFilePath', function ($file, $assetType = "js") {
+            $path = anu()->config->get('paths');
+            $assetPath = $path['assetPath'];
+            $internalAssets = $path['internalAssets'];
+            if(file_exists($assetPath . "/" . $assetType . "/" . $file)){
+                return BASE_URL . $assetPath . "/" . $assetType . "/" . $file;
+            }
+
+            if(file_exists($internalAssets . "/" . $assetType . "/" . $file)){
+                return BASE_URL . $internalAssets . "/" . $assetType . "/" . $file;
+            }
+
+            return $file;
+        });
+        $this->twig->addFunction($getFilePath);
     }
 
     /**
@@ -356,6 +371,7 @@ class ClassTwigExtension extends \Twig_Extension
         return (Anu::getClassName($object));
     }
 }
+
 
 class AttributeTwigExtension extends \Twig_Extension
 {

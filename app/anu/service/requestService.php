@@ -148,7 +148,10 @@ class requestService
     /**
      * @return bool
      */
-    public function isAngularRequest(){
-        return $this->angularRequest? true : false;
+    public function isAjaxRequest(){
+        if( (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')) {
+            return true;
+        }
+        return false;
     }
 }

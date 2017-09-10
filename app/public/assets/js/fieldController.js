@@ -21,7 +21,6 @@ myApp.controller('fieldController', ['$scope', '$http', '$timeout', '$compile', 
     $scope.fieldOptions = {};
     $scope.rootScope = $scope;
     $scope.records = anu.records;
-    $scope.fieldOptions.relatedTo = anu.records[0].id;
     /**
      * Contentmatrix build
      * @type {{matrix: [*]}}
@@ -203,6 +202,9 @@ myApp.controller('fieldController', ['$scope', '$http', '$timeout', '$compile', 
         "data.fieldType",
         function handleFieldTypeChange( newValue, oldValue ) {
             if(newValue){
+                if(newValue === 'relation'){
+                    $scope.fieldOptions.relatedTo = anu.records[0].id;
+                }
                 $templateRequest(configService.angularTemplatePath + 'admin/forms/fieldOptions/' + newValue + ".twig").then(function (html) {
                     var template = angular.element(html);
                     $('#fieldOptionContainer').html(template);

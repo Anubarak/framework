@@ -112,7 +112,7 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
                 die();
                 throw new \Exception("Error: Class $className not found. Please create $className Service");
             }
-            $select[] = $record->primary_key . '(id)';
+            $select[] = $record->tableName . "." .$record->primary_key . '(id)';
             if($relations){
 
                 $id = null;

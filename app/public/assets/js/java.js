@@ -39,7 +39,7 @@ myApp.directive('unique', function($http) {
         restrict: 'A',
         require: 'ngModel',
         link: function(scope, element, attr, ngModel) {
-            if('unique' in scope.attributes){
+            if('attributes' in scope && 'unique' in scope.attributes){
                 ngModel.$asyncValidators.slug = function(value) {
                     c = ngModel;
                     var entryId = scope.rootScope.data.id? scope.rootScope.data.id : 0;

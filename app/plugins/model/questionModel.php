@@ -21,7 +21,32 @@ class questionModel extends entryModel
             'pointsPlus'    => array(AttributeType::Number),
             'pointsMinus'   => array(AttributeType::Number),
             'position'      => array(AttributeType::Position),
-            'matrix'        => array(AttributeType::Matrix, 'testMatrix')
+            'matrix'        => array(AttributeType::Matrix, 'testMatrix', 'attributes' => array(
+                'text' => array(
+                    'headline'  => array(AttributeType::Mixed),
+                    'text'  => array(AttributeType::Text)
+                ),
+                'module'    => array(
+                    'headline'  => array(AttributeType::Mixed),
+                    'test_id'   => array(AttributeType::Relation, 'title' => Anu::t('Fragen'), 'relatedTo' => array(
+                        'table' => 'answer',
+                        'field' => 'answer_id',
+                        'model' => 'answer'
+                    )),
+                ),
+                'boolean'   => array(
+                    'headline'  => array(AttributeType::Mixed),
+                    'checkbox'  => array(AttributeType::Bool),
+                ),
+                'comic'    => array(
+                    'headline'  => array(AttributeType::Mixed),
+                    'comic'   => array(AttributeType::Relation, 'title' => Anu::t('comic'), 'relatedTo' => array(
+                        'table' => 'comic',
+                        'field' => 'comic_id',
+                        'model' => 'comic'
+                    )),
+                ),
+            ))
         ));
     }
 }

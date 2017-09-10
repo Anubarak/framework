@@ -16,7 +16,7 @@ namespace Anu;
  * @property requestService                         $request
  * @property configService                          $config
  * @property recordService                          $record
- * @property pageService                            $page
+ * @property tabService                             $tab
  * @property sessionService                         $session
  * @property database                               $database
  * @property matrixService                          $matrix
@@ -98,6 +98,9 @@ class app{
                 $baseRecord = new baseRecord($record);
 
                 $className = Anu::getNameSpace() .$record['handle'] . "Service";
+                if(!$record['handle']){
+                    throw new \Exception("Record has no Handle, please check Table records for id " . $record['id']);
+                }
                 $recordName = $record['handle'];
                 if(class_exists($className)){
                     $this->$recordName = new $className();

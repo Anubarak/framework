@@ -28,7 +28,7 @@ class entryModel extends baseModel
             $baseAttributes = $this->baseAttributes();
             $className = $this->class;
 
-            $merged = array_merge($baseAttributes, anu()->$className->getFieldsForEntry());
+            $merged = array_merge($baseAttributes, anu()->$className->getFieldsForEntry($this));
 
             $this->attributes = array_merge(parent::defineAttributes(), $merged);
         }
@@ -47,6 +47,15 @@ class entryModel extends baseModel
     }
 
     public function baseAttributes(){
+        $entryTypes = anu()->record->getEntryTypesForRecord($this->class);
+        $options = array();
+        foreach ($entryTypes as $entryType){
+            $options[] = array(
+                'id' => $entryType['handle'],
+                'label' => $entryType['label']
+            );
+        }
+
         return array(
             'title'         => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Titel')),
             'slug'          => array(AttributeType::Mixed, 'required' => true, 'title' => Anu::t('Slug'), DBIndex::Unique => true),
@@ -55,12 +64,7 @@ class entryModel extends baseModel
             'enabled'       => array(AttributeType::Bool, 'default' => '1', 'title' => Anu::t('Aktiv')),
             'author_id'     => array(AttributeType::Hidden, 'default' => Defaults::currentUserId, 'title' => Anu::t('Author')),
             'entryType'     => array(AttributeType::DropDown, 'title' => Anu::t('Eintragstyp'),
-                'options' => array(
-                    array(
-                        'label' => $this->class,
-                        'id'    => $this->class
-                    )
-                )
+                'options' => $options
             ),
         );
     }

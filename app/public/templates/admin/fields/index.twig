@@ -5,11 +5,6 @@
 {% block content %}
     <div ng-controller="fieldController">
         <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="fieldForm">
-
-            <pre>
-            {[{ fieldOptions | json }]}
-            </pre>
-
             <div ng-repeat="(index, item) in attributes">
                 <div thin-directive="{[{item[0]}]}" root-scope="rootScope" datasource="data[index]" index="index"  prefix="" attributes="item"> </div>
             </div>

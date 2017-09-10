@@ -9,13 +9,13 @@
 namespace Anu;
 
 
-class fieldLayoutRecord extends baseRecord
+class fieldLayoutTabRecord extends baseRecord
 {
     /**
      * @return string
      */
     public function getTableName(){
-        return "fieldlayout";
+        return "fieldlayouttabs";
     }
 
     /**
@@ -25,9 +25,9 @@ class fieldLayoutRecord extends baseRecord
     public function defineAttributes($baseAttributes = null){
         return array(
             'id'                => array(AttributeType::Number),
-            'fieldHandle'       => array(AttributeType::Mixed),
-            'recordHandle'      => array(AttributeType::Mixed),
-            'tabId'             => array(AttributeType::Number)
+            'handle'            => array(AttributeType::Mixed),
+            'label'             => array(AttributeType::Mixed),
+            'position'          => array(AttributeType::Number)
         );
 
     }

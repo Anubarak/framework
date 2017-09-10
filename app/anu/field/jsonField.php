@@ -41,14 +41,14 @@ class jsonField extends fieldService
     public function onUpdate($entry, $key, $attributes, &$values, $oldEntry = null)
     {
         if(property_exists($entry, $key)){
-            $values[$key] = $entry->$key;
+            $values[$key] = json_encode($entry->$key);
         }
     }
 
     public function onInsert($entry, $key, $attributes, &$relationsToSave, &$values)
     {
         if (property_exists($entry, $key)) {
-            $values[$key] = $entry->$key;
+            $values[$key] = json_encode($entry->$key);
         }
     }
 

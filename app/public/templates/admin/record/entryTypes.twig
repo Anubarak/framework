@@ -1,0 +1,28 @@
+{% extends 'admin/layout/site.twig' %}
+
+{% set pageHeadline = "Eintragstypen" %}
+{% block content %}
+
+    <div ng-controller="entryTypeController" class="form-group" ng-cloak>
+
+        <ul class="list-group">
+            <li class="list-group-item" ng-repeat="entryType in entryTypes">
+                <a href="{{ baseUrl }}action/field/bindFields/{[{::entryType.id}]}">
+                    {[{ ::entryType.label }]}
+                </a>
+
+                <div class="pull-right">
+                    <a href=""  ng-click="removeEntryType(entryType)">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </li>
+        </ul>
+
+        <a href="{{ baseUrl }}action/field/bindFields/{{ record.id }}/add" class="pull-right btn btn-danger">Eintragstyp hinzufügen</a>
+
+    </div>
+
+{% endblock %}
+
+{% includeJsFile 'entryTypeController.js'%}

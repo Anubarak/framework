@@ -358,7 +358,8 @@ class entryService extends baseService
      * @return array
      */
     public function getChildrenFromEntry($relatedField, $relationId = 'nothing', $excludeId = null){
-        $criteria = new elementCriteriaModel($this);
+        $record = Anu::getRecordByName($this->model);
+        $criteria = new elementCriteriaModel($record);
         $criteria->relatedTo = array(
             'field' => $relatedField,
             'id'    => $relationId,
@@ -426,6 +427,7 @@ class entryService extends baseService
             foreach ($relationIds as $rel){
                 if($rel){
                     anu()->database->insert('relation', $this->getRelationData($relationInformation, $field, $rel, $entry->id));
+
                     anu()->database->insert('relation', $this->getRelationData($relationInformation, $field, $rel, $entry->id, true));
                 }
             }
@@ -435,29 +437,51 @@ class entryService extends baseService
     /**
      * @return array|null
      */
-    public function getFieldsForEntry(){
+    public function getFieldsForEntry($entry = null){
         if(!$this->fields){
-            $this->fields = anu()->field->getAllFieldsForEntry($this->model);
+            $entryType = ($entry)? $entry->entryType : null;
+            $this->fields = anu()->field->getAllFieldsForEntry($this->model, false, $entryType);
 
         }
         return $this->fields;
     }
 
-    public function getFieldLayout($entry){
+    /**
+     * @param $entry
+     * @param bool $excludeMetaData
+     * @return array|bool
+     */
+    public function getFieldLayout($entry, $excludeMetaData = false){
         $record = anu()->record->getRecordByName($entry->class, true);
         $fieldLayout = array();
         if($record){
-            $tabs = anu()->field->getAllTabsForEntry($record);
-            foreach ($tabs as $tab){
-                $fieldLayout[$tab] = anu()->field->getAllFieldsForEntry($record, false, $entry->entryType, $tab);
-            }
+            $tabs = anu()->field->getAllTabsForEntry($record, $entry->entryType);
 
-            $fieldLayout['Basisattribute'] = $entry->baseAttributes();
-            if(count($fieldLayout) === 1){
-                $fieldLayout['Basisattribute'] = $entry->defineAttributes();
+            foreach ($tabs as $k => $tab){
+                $tabs[$k]['fields'] = anu()->field->getAllFieldsForEntry($record, false, $entry->entryType, $tab['id']);
             }
+            if(!$excludeMetaData){
+                $tabs[] = array(
+                    'fields'    => $entry->baseAttributes(),
+                    'label'     => 'Metadaten',
+                    'id'        => 'base',
+                    'position'  => 99,
+                );
+                if(count($tabs) === 1){
+                    $tabs[]['fields'] = $entry->defineAttributes();
+                }
+            }
+            $fieldLayout = $tabs;
         }
 
         return $fieldLayout;
+    }
+
+    public function getEntryTypes(){
+        $record = Anu::getRecordByName($this->model);
+        echo("<pre>");
+        var_dump($record);
+        echo("</pre>");
+        die();
     }
 }

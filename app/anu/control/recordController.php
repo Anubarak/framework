@@ -117,4 +117,25 @@ class recordController extends baseController
             'id'      => $record->id
         ));
     }
+
+
+    /**
+     * @param null $parameter
+     */
+    public function editEntryType($parameter = null){
+        $this->requireLogin();
+        if($parameter){
+            /**@var \Anu\baseRecord $newRecord */
+            $record = anu()->record->getRecordById($parameter[count($parameter)-1]);
+            $entryTypes = anu()->record->getEntryTypesForRecord($record);
+
+            anu()->template->addAnuJsObject($record, 'record');
+            anu()->template->addAnuJsObject($entryTypes, 'entryTypes');
+            anu()->template->render('admin/record/entryTypes.twig', array(
+                'record' => $record,
+            ));
+            exit;
+        }
+
+    }
 }

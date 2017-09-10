@@ -53,7 +53,7 @@
         <script src="{{ assetPathJS }}vendor/quill.js"></script>
         <script src="{{ assetPathJS }}vendor/image-resize.min.js"></script>
         <script src="{{ assetPathJS }}vendor/image-drop.min.js"></script>
-
+        <script src="{{ internalAssetPathJS }}vendor/bootbox.min.js"></script>
 
         <script src="{{ assetPathJS }}angular.min.js"></script>
         <script src="{{ assetPathJS }}vendor/tg.dynamic.directive.js"></script>
@@ -67,6 +67,7 @@
         <script src="{{ assetPathJS }}java.js"></script>
         <script src="{{ assetPathJS }}editor.js"></script>
 
+
         {% set cssFiles = anu.template.getCssFile() %}
         {% for file in cssFiles %}
             <link  href="{{ file }}" rel="stylesheet">
@@ -74,7 +75,8 @@
 
         {% set jsFiles = anu.template.getJsFile() %}
         {% for file in jsFiles %}
-            <script src="{{ assetPathJS }}{{ file }}" type="text/javascript"></script>
+            {% set path = getFilePath(file) %}
+            <script src="{{ path }}" type="text/javascript"></script>
         {% endfor %}
 
         {% set jsCode = anu.template.getJsCode() %}

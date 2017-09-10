@@ -7,15 +7,15 @@
     <form method="post" accept-charset="UTF-8" enctype="multipart/form-data" name="{{ class }}Form">
 
         <ul class="nav nav-tabs">
-            <li ng-repeat="(index, item) in fieldLayout" ng-class="::{'active':$first}">
-                <a data-toggle="tab" href="#{[{::index}]}">{[{::index}]}</a>
+            <li ng-repeat="tab in fieldLayout" ng-class="::{'active':$first}">
+                <a data-toggle="tab" href="#Tab{[{::tab.id}]}">{[{::tab.label}]}</a>
             </li>
         </ul>
 
         <div class="tab-content">
-            <div id="{[{::tabHandle}]}" class="tab-pane fade in"  ng-class="::{'active':$first}" ng-repeat="(tabHandle, attributes) in fieldLayout">
-                <h3>{[{::tabHandle}]}</h3>
-                <div ng-repeat="(index, item) in attributes">
+            <div id="Tab{[{::tab.id}]}" class="tab-pane fade in"  ng-class="::{'active':$first}" ng-repeat="tab in fieldLayout">
+                <h3>{[{::tab.label}]}</h3>
+                <div ng-repeat="(index, item) in tab.fields">
                     <div thin-directive="{[{item[0]}]}" root-scope="rootScope" datasource="data[index]" index="index"  prefix="" attributes="item"> </div>
                 </div>
             </div>

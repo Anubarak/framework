@@ -64,7 +64,6 @@ class baseController
         }else{
             anu()->template->setNotice("could not install Record", 'error');
         }*/
-        //anu()->record->installRecord('fieldLayout', false);
         anu()->template->render('pages/home.twig', array(
             'title'       => "test Title",
             'headline'    => "headline",

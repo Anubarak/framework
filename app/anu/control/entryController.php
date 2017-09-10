@@ -181,7 +181,7 @@ class entryController extends baseController
 
     public function getForm(){
         $class = anu()->request->getValue('class');
-        $entry = Anu::getClassByName($class, "Model", true);
+        $entry = Anu::getModelByName($class);
         //just to add relationModels
         anu()->$class->populateModel(null, $entry);
 
@@ -218,7 +218,7 @@ class entryController extends baseController
         }
 
         $entry->attributes = $attributes;
-
+        $entry->fieldLayout = anu()->entry->getFieldLayout($entry);
 
         $template = anu()->template->render('admin/forms/index.twig', array(
             'entry' => $entry,
@@ -230,5 +230,16 @@ class entryController extends baseController
             'template'  => $template,
             'entry'     => $entry
         ));
+    }
+
+    public function getFieldLayoutForEntryType(){
+        $handle = anu()->request->getValue('handle');
+        $entryType = anu()->request->getValue('entryType');
+        $entry = Anu::getModelByName($handle);
+        $entry->entryType = $entryType;
+        $entry->class = $handle;
+
+
+        $this->returnJson(anu()->entry->getFieldLayout($entry, true));
     }
 }

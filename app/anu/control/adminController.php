@@ -15,7 +15,8 @@ class adminController extends baseController
      *
      */
     public function getContent(){
-        //anu()->record->installRecord('fieldLayout', false);
+        //anu()->record->installRecord('fieldLayout', true);
+        anu()->record->installRecord('fieldLayoutTab', true);
         anu()->template->render('admin/pages/home.twig', array(
             'title'       => "test Title",
             'headline'    => "headline",

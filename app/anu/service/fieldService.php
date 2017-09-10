@@ -59,6 +59,7 @@ class fieldService extends entryService
         $record = Anu::getRecordByName($class);
 
         $criteriaModel = new elementCriteriaModel($record);
+
         $id = isset($entry->id) ? $entry->id : null;
         //new empty entry at all.... with no id an nothing
         if($data === null){
@@ -116,10 +117,12 @@ class fieldService extends entryService
      * Get all Fields for Entry
      *
      * @param $record
-     * @return array
-     * @throws \Exception
+     * @param null $returnIds
+     * @param null $entryType
+     * @param null $tabId
+     * @return array|bool
      */
-    public function getAllFieldsForEntry($record, $returnIds = null, $entryType = null, $tab = null){
+    public function getAllFieldsForEntry($record, $returnIds = null, $entryType = null, $tabId = null){
         if(is_string($record)){
             if(!$record = anu()->record->getRecordByName($record, true)){
                 return array();
@@ -141,9 +144,13 @@ class fieldService extends entryService
         );
         if($entryType){
             $where['entryType'] = $entryType;
+        }else{
+            $entryType = anu()->record->getFirstEntryTypeForRecord($record);
+            $where['entryType'] = $entryType['handle'];
         }
-        if($tab){
-            $where['tabHandle'] = $tab;
+
+        if($tabId){
+            $where['tabId'] = $tabId;
         }
         $fields = anu()->database->select('fieldlayout', $join, $select, $where);
 
@@ -163,19 +170,27 @@ class fieldService extends entryService
      * @param $record
      * @return array|bool
      */
-    public function getAllTabsForEntry($record){
+    public function getAllTabsForEntry($record, $entryType = null){
         if(is_string($record)){
             if(!$record = anu()->record->getRecordByName($record, true)){
                 return array();
             }
         }
 
-        $tabs = anu()->database->select('fieldlayout', 'tabHandle', array(
-            'recordHandle' => $record->handle,
-            'GROUP'        => 'tabHandle'
+        $join = array(
+            '[>]fieldlayout' => array('id' => 'tabId')
+        );
+        $type = ($entryType)? $entryType : $record->handle;
+        $select = array(
+            'handle', 'label', 'fieldlayouttabs.id as id', 'position'
+        );
+        $tabs = anu()->database->select('fieldlayouttabs', $join, $select, array(
+            'fieldlayout.recordHandle'      => $record->handle,
+            'fieldlayout.entryType'         => $type,
+            'ORDER'                         => 'fieldlayouttabs.position'
         ));
 
-        if(count($tabs) && $tabs[0]){
+        if(count($tabs)){
             return $tabs;
         }
         return array();

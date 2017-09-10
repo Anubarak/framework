@@ -38,6 +38,7 @@ class relationField extends fieldService
             $relation = $attributes['relatedTo'];
             $relation['class'] = $entry->class;
             $relations = anu()->entry->getRelationsFromEntryByKey($entry, $key);
+
             if($relations){
                 anu()->entry->updateRelations($entry, $key, $relation, $relations);
             }
@@ -61,7 +62,7 @@ class relationField extends fieldService
     }
 
     public function onInstall($record, $field){
-        anu()->database->alterTableAddColumn($record->tableName, $field->slug, "TINYINT(1) NULL default ''");
+        anu()->database->alterTableAddColumn($record->tableName, $field->slug, "TINYINT(1) NULL default '0'");
     }
 
 }
