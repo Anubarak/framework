@@ -21,7 +21,7 @@
                             </h4>
                         </a>
                     </li>
-                    <li class="active">
+                    <li class="{% if activePage is defined and activePage == 'entries' %}active{% endif %}">
                         <a href="{{ baseUrl }}admin" {#data-target="#toggleDemo"#}>
                             <span class="glyphicon glyphicon-cloud"></span> Einträge <span class="caret pull-right"></span>
                         </a>
@@ -33,20 +33,13 @@
                             </ul>
                         </div>-->
                     </li>
-                    <li>
-                        <a href="{{ baseUrl }}action/field/bindFields" {#data-toggle="collapse" data-target="#toggleDemo2" data-parent="#sidenav01" class="collapsed"#}>
-                            <span class="glyphicon glyphicon-inbox"></span> FieldBinding <span class="caret pull-right"></span>
-                        </a>
-                        <div class="collapse" id="toggleDemo2" style="height: 0px;">
-                            <ul class="nav nav-list">
-                                <li><a href="#">Submenu2.1</a></li>
-                                <li><a href="#">Submenu2.2</a></li>
-                                <li><a href="#">Submenu2.3</a></li>
-                            </ul>
-                        </div>
+                    <li class="{% if activePage is defined and activePage == 'fields' %}active{% endif %}">
+                        <a href="{{ baseUrl }}action/field/overview/"><span class="glyphicon glyphicon-lock"></span> Felder</a>
                     </li>
-                    <li><a href="{{ baseUrl }}action/field/overview/"><span class="glyphicon glyphicon-lock"></span> Felder</a></li>
-                    <li><a href="{{ baseUrl }}record"><span class="glyphicon glyphicon-calendar"></span> Records <span class="badge pull-right">42</span></a></li>
+                    <li class="{% if activePage is defined and activePage == 'records' %}active{% endif %}">
+                        <a href="{{ baseUrl }}record"><span class="glyphicon glyphicon-calendar"></span> Records <span class="badge pull-right">42</span>
+                        </a>
+                    </li>
                     <li><a href=""><span class="glyphicon glyphicon-cog"></span> Einstellungen</a></li>
                 </ul>
             </div><!--/.nav-collapse -->

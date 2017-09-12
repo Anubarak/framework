@@ -1,15 +1,15 @@
 <div class="form-group">
-    <label for="{[{htmlPrefix}]}{[{ index }]}">{[{ rootScope.getFieldTitle(attributes, index) }]}</label><br>
+    <label for="{[{::htmlPrefix}]}{[{ ::index }]}">{[{ rootScope.getFieldTitle(attributes, index) }]}</label><br>
     <input type="text"
            class="datepicker"
-           id="{[{htmlPrefix}]}{[{ index }]}Date"
+           id="{[{ ::htmlPrefix }]}{[{ ::index }]}Date"
            data-id="{[{index}]}"
            datepicker
     >
 
     <input type="text"
            class="datepicker"
-           id="{[{htmlPrefix}]}{[{ index }]}Time"
+           id="{[{::htmlPrefix}]}{[{ ::index }]}Time"
            data-id="{[{index}]}"
            timepicker
     >

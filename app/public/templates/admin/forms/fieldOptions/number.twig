@@ -1,38 +1,38 @@
 <!-- start min-lenght -->
-<div class="form-group" ng-class="{error: fieldForm.minLength.$invalid}">
-    <label for="minLenght">Mindestgröße</label><br>
+<div class="form-group" ng-class="{error: fieldForm.min_numeric.$invalid}">
+    <label for="min_numeric">Mindestgröße</label><br>
     <small class="form-text text-muted">
         Kleinste Zahl
     </small>
     <input type="number"
-           id="minLength"
-           ng-model="fieldOptions.minLength"
-           name="minLength"
+           id="min_numeric"
+           ng-model="data.settings.min_numeric"
+           name="min_numeric"
            ng-minlength="0"
            class="form-control"
     >
     <ul class="errors" ng-cloak>
-        <li ng-show="fieldForm.maxLenght.$error.number">
+        <li ng-show="fieldForm.min_numeric.$error.number">
             Nur Zahlen sind erlaubt
         </li>
     </ul>
 </div>
 <!-- end min lenght -->
 
-<div class="form-group" ng-class="{error: fieldForm.maxLength.$invalid}">
-    <label for="maxLenght">Maximalgröße</label><br>
+<div class="form-group" ng-class="{error: fieldForm.max_numeric.$invalid}">
+    <label for="max_numeric">Maximalgröße</label><br>
     <small class="form-text text-muted">
         Größte mögliche Zahl
     </small>
     <input type="number"
-           id="maxLength"
-           ng-model="fieldOptions.maxLength"
-           name="maxLength"
+           id="max_numeric"
+           ng-model="data.settings.max_numeric"
+           name="max_numeric"
            ng-minlength="0"
            class="form-control"
     >
     <ul class="errors" ng-cloak>
-        <li ng-show="fieldForm.maxlength.$error.number">
+        <li ng-show="fieldForm.min_numeric.$error.number">
             Nur Zahlen sind erlaubt
         </li>
     </ul>
@@ -45,7 +45,7 @@
     </small>
     <input type="number"
            id="depth"
-           ng-model="fieldOptions.depth"
+           ng-model="data.settings.depth"
            name="depth"
            class="form-control"
            ng-minlength="0"

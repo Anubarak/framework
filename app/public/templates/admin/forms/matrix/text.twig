@@ -1,15 +1,23 @@
-<div class="form-group" ng-class="{error: rootScope[rootScope.form][htmlPrefix + index].$invalid}">
+<div class="form-group" ng-class="{error: rootScope[rootScope.form][htmlPrefix + index].$invalid && rootScope[rootScope.form][htmlPrefix + index].$dirty}">
     <label for="{[{ index }]}">{[{ index }]}</label>
     <ng-quill-editor
             theme="snow"
-            id="{[{ index }]}"
+            id="{[{ ::index }]}"
             ng-model="datasource"
-            name={[{index}]}"
+            name="{[{::index}]}"
             ng-blur=""
-            on-content-changed="myCallback(editor)"
-            on-editor-created="rootScope.editorCreated(editor, '{[{index}]}')"
+            on-content-changed="rootScope.editorOnContentChange(editor, attributes, htmlPrefix + index)"
+            on-editor-created="rootScope.editorCreated(editor, '{[{::index}]}')"
     >
 
     </ng-quill-editor>
 
+    <ul class="errors" ng-show="rootScope[rootScope.form][htmlPrefix + index].$dirty" ng-cloak>
+        <li ng-show="rootScope[rootScope.form][htmlPrefix + index].$error.max_len">
+            Zu viele Zeichen
+        </li>
+        <li ng-show="rootScope[rootScope.form][htmlPrefix + index].$error.min_len">
+            Nicht genug zeichen
+        </li>
+    </ul>
 </div>

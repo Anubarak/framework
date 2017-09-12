@@ -222,7 +222,7 @@ class baseService implements \JsonSerializable
      * @param $attributes
      * @return array
      */
-    public function iterateDBSelect($attributes){
+    public function iterateDBSelect(){
         $select = array();
         $primaryKey = $this->primary_key;
 
@@ -232,9 +232,7 @@ class baseService implements \JsonSerializable
         $recordAttributes = $record->defineAttributes();
 
         foreach ($recordAttributes as $k => $v){
-            if(array_key_exists($k, $attributes)){
-                $select[] = $this->tableName . "." . $k;
-            }
+            $select[] = $this->tableName . "." . $k;
         }
 
         return $select;
@@ -462,6 +460,7 @@ class baseService implements \JsonSerializable
 
         //store titles for modules...
         $attributes = $entry->defineAttributes();
+
         foreach ($entry->defineAttributes() as $k => $v){
             if($v[0] == AttributeType::Relation && $entry->$k){
                 $entry->$k = $entry->$k->find(null, true);
@@ -495,6 +494,7 @@ class baseService implements \JsonSerializable
 
         $entry->attributes = $attributes;
         $entry->fieldLayout = anu()->entry->getFieldLayout($entry);
+
         anu()->template->addAnuJsObject($entry, 'entry');
 
         anu()->template->addJsCode('

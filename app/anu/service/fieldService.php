@@ -144,9 +144,6 @@ class fieldService extends entryService
         );
         if($entryType){
             $where['entryType'] = $entryType;
-        }else{
-            $entryType = anu()->record->getFirstEntryTypeForRecord($record);
-            $where['entryType'] = $entryType['handle'];
         }
 
         if($tabId){
@@ -187,8 +184,10 @@ class fieldService extends entryService
         $tabs = anu()->database->select('fieldlayouttabs', $join, $select, array(
             'fieldlayout.recordHandle'      => $record->handle,
             'fieldlayout.entryType'         => $type,
-            'ORDER'                         => 'fieldlayouttabs.position'
+            'ORDER'                         => 'fieldlayouttabs.position',
+            'GROUP'                         => 'fieldlayouttabs.id'
         ));
+
 
         if(count($tabs)){
             return $tabs;

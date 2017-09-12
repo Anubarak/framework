@@ -72,6 +72,7 @@ class entryService extends baseService
                     $values["#".$key] = $data[$key];
                 }
             }
+
             anu()->database->insert($this->tableName, $values);
             $id = anu()->database->id();
             $entry->id = $id;
@@ -145,10 +146,9 @@ class entryService extends baseService
         }
         $this->id = $entryId;
         if($model = Anu::getModelByName($this->model)){
-            $attributes = $model->defineAttributes();
 
             $where = array();
-            $select = $this->iterateDBSelect($attributes);
+            $select = $this->iterateDBSelect();
 
             $where[$this->tableName . "." . $this->primary_key] = $entryId;
 
@@ -439,7 +439,7 @@ class entryService extends baseService
      */
     public function getFieldsForEntry($entry = null){
         if(!$this->fields){
-            $entryType = ($entry)? $entry->entryType : null;
+            $entryType = ($entry && property_exists($entry, 'entryType') && $entry->entryType)? $entry->entryType : null;
             $this->fields = anu()->field->getAllFieldsForEntry($this->model, false, $entryType);
 
         }
@@ -474,14 +474,11 @@ class entryService extends baseService
             $fieldLayout = $tabs;
         }
 
+
         return $fieldLayout;
     }
 
     public function getEntryTypes(){
         $record = Anu::getRecordByName($this->model);
-        echo("<pre>");
-        var_dump($record);
-        echo("</pre>");
-        die();
     }
 }

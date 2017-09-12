@@ -45,7 +45,8 @@ class elementCriteriaModel implements \IteratorAggregate, \JsonSerializable
         if($record && property_exists($record, 'handle')){
             $model = Anu::getModelByName($record->handle);
             if($model->class){
-                $attributes = $model->defineAttributes();
+                $attributes = $record->defineAttributes();
+                
                 foreach ($attributes as $k => $v){
                     //TODO better condition
                     if($v[0] == AttributeType::Position || $k === 'position'){

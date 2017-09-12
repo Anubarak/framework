@@ -137,6 +137,7 @@ myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 
             $scope.data[index] = item;
         }
     });
+    console.log('scopeData' , $scope.data);
 
     /**
      * Slug handling
@@ -375,6 +376,26 @@ myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 
         });
     };
 
+    $scope.editorOnContentChange = function(editor, attributes, index){
+        var length = editor.getLength();
+        //TODO validate
+        if(attributes && 'min_len' in attributes && attributes.min_len){
+            if(length >= attributes.min_len){
+                $scope[$scope.form][index].$setValidity('min_len', true);
+            }else{
+                $scope[$scope.form][index].$setValidity('min_len', false);
+            }
+        }
+
+        if(attributes && 'max_len' in attributes && attributes.max_len){
+            if(length <= attributes.max_len){
+                $scope[$scope.form][index].$setValidity('max_len', true);
+            }else{
+                $scope[$scope.form][index].$setValidity('max_len', false);
+            }
+        }
+    };
+
     $scope.getFieldTitle = function(attributes, index){
         return ('title' in attributes)? attributes['title'] : index;
 
@@ -390,10 +411,6 @@ myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 
             //$scope[$scope.form][index].$error = {};
             $scope[$scope.form].$setValidity(index, true);
         });
-    };
-
-    $scope.alert = function(test){
-        alert(test);
     };
 
     $scope.inArray =  function(array, index){
@@ -439,40 +456,55 @@ myApp.controller('entryController', ['$scope', '$http', '$timeout', '$compile', 
         return ('required' in attributes && attributes['required'] == true);
     };
 
+    $timeout(function(){
+        //$scope.x = angular.element('#entryType');
+        //console.log($scope.x);
+        //$scope.x.on('change', function(){
+            //$scope.changeEntryType();
+        //});
+    });
+
+    $scope.changeEntryType = function(){
+        var form = new FormData();
+        form.append("handle", $scope.entryClass);
+        form.append("entryType", $scope.data.entryType);
+        form.append('action', "entry/getFieldLayoutForEntryType");
+        $http({
+            method: 'POST',
+            url: '',
+            data: form,
+            headers: { 'Content-Type': undefined},
+            transformRequest: angular.identity
+        }).then(function successCallback(response) {
+            // this callback will be called asynchronously
+            // when the response is available
+
+            console.log("responsedata", response.data);
+            //TODO check why the hell the model is lost for entryType
+             $scope.fieldLayout.splice(0,$scope.fieldLayout.length-1);
+            response.data.revEach(function(item){
+                $scope.fieldLayout.unshift(item);
+                angular.forEach(item.fields, function (field, fieldKey) {
+                    console.log("field", field);
+                    if(field[0] === 'relation'){
+                        $scope.data[fieldKey] = [];
+                    }else{
+                        $scope.data[fieldKey] = "";
+                    }
+                 });
+             });
+        }, function errorCallback(response) {
+            console.log(response);
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+        });
+    };
+
     $scope.$watch(
         "data.entryType",
         function handleFieldTypeChange( newValue, oldValue ) {
-
-            if(newValue != oldValue){
-
-
-                var form = new FormData();
-                form.append("handle", $scope.entryClass);
-                form.append("entryType", newValue);
-                form.append('action', "entry/getFieldLayoutForEntryType");
-                $http({
-                    method: 'POST',
-                    url: '',
-                    data: form,
-                    headers: { 'Content-Type': undefined},
-                    transformRequest: angular.identity
-                }).then(function successCallback(response) {
-                    // this callback will be called asynchronously
-                    // when the response is available
-
-
-
-                    /*console.log(response.data);
-                    var metaData = angular.copy($scope.fieldLayout[$scope.fieldLayout.length -1]);
-                    var newLayout = response.data;
-                    newLayout.push(metaData);
-                    $scope.fieldLayout = newLayout;
-                    console.log('laylout', $scope.fieldLayout);*/
-                    //$scope.$apply();
-                }, function errorCallback(response) {
-                    // called asynchronously if an error occurs
-                    // or server returns response with an error status.
-                });
+            if(newValue != oldValue && oldValue != null){
+                $scope.changeEntryType();
             }
         }
     );

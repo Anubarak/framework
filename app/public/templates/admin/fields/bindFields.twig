@@ -1,7 +1,7 @@
 {% extends 'admin/layout/site.twig' %}
 {% set headline = (entryType.label)? entryType.label : record.name %}
 {% set pageHeadline = 'Feld Layout ' ~ headline %}
-
+{% set activePage = 'records' %}
 {% block content %}
     <script type="text/ng-template" id="/tpl.html">
        <li class="list-group-item">{[{ ::e.title }]}</li>
@@ -45,12 +45,6 @@
                 </ul>
             </div>
         </form>
-
-
-
-        <pre>
-            {[{ tabs | json }]}
-        </pre>
 
         <label>Feld Layout {[{ entryType.label }]}</label>
         <button class="btn btn-default pull-right" ng-click="addTab();">Tab hinzufügen</button>

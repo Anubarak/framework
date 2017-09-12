@@ -1,8 +1,6 @@
-
-
 {% extends 'admin/layout/site.twig' %}
 
-
+{% set activePage = 'fields' %}
 {% set pageHeadline = "Felder" %}
 {% block content %}
     {% set form = anu.field.renderList('field') %}

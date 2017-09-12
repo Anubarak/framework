@@ -76,7 +76,7 @@ class baseRecord
             );
         }
 
-        $this->baseAttributes = array_merge($baseAttributes, anu()->field->getAllFieldsForEntry($this->handle,  false, 'bonus'));
+        $this->baseAttributes = array_merge($baseAttributes, anu()->field->getAllFieldsForEntry($this->handle));
         return $this->baseAttributes;
 
     }

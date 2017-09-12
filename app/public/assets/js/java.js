@@ -14,6 +14,36 @@ Array.prototype.removeElementByValue = function(value){
     }
 };
 
+// Production steps of ECMA-262, Edition 5, 15.4.4.18
+// Reference: http://es5.github.io/#x15.4.4.18
+// Modified by Blindman67 to revEach
+if (!Array.prototype.revEach) {   // name changed
+    Array.prototype.revEach = function(callback, thisArg) { // name changed
+        var T;  // k defined where len was
+        if (this == null) {
+            throw new TypeError(' this is null or not defined');
+        }
+        var O = Object(this);
+        var k = (O.length >>> 0)-1;  // set k (counter) ToUint32
+                                     // len var removed
+        if (typeof callback !== "function") {
+            throw new TypeError(callback + ' is not a function');
+        }
+        if (arguments.length > 1) {
+            T = thisArg;
+        }
+        while (k >= 0) {  // reverse condition
+            var kValue;
+            if (k in O) {
+                kValue = O[k];
+                callback.call(T, kValue, k, O);
+            }
+            k--;  // dec counter
+        }
+    };
+}
+
+
 String.prototype.replaceAll = function(search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);
@@ -121,7 +151,6 @@ myApp.directive('datepicker', function () {
                 $scope.datasource.set('year', value.substr(6,4));
                 $scope.$apply();
             });
-            console.log('scope', $scope);
             element.datepicker('update', $scope.datasource.format('DD.MM.YYYY'));
         }
     };
@@ -198,7 +227,7 @@ myApp.directive('thinDirective', function($compile,$templateRequest, configServi
                 scope.htmlPrefix = attrs['prefix'];
                 $templateRequest(configService.angularTemplatePath + 'admin/forms/matrix/' + attrs.thinDirective + ".twig").then(function (html) {
                     //element.append($compile(html)(scope));
-                    if("options" in scope.attributes && scope.attributes.options.length){
+                    if("options" in scope.attributes && scope.attributes.options.length && !scope.datasource){
                         scope.datasource = scope.attributes.options[0].id;
                     }
                     var template = angular.element(html);
@@ -294,4 +323,13 @@ var datepickerOptions = {
         dayNamesMin: ["S","M","D","M","D","F","S"],
         monthNames: ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
         monthNamesShort: ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"]
+};
+
+var countDecimalPlaces = function(num) {
+    var match = (''+num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+    if (!match) { return 0; }
+    return Math.max(
+        0,
+        (match[1] ? match[1].length : 0)
+        - (match[2] ? +match[2] : 0));
 };

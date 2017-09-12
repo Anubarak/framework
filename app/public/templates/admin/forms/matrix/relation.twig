@@ -8,8 +8,7 @@
     <a href="#{[{ htmlPrefix }]}{[{index}]}" class="btn btn-default" data-toggle="modal" ng-click="rootScope.getRelation(attributes['relatedTo']['model']);rootScope.cacheRelations(datasource);" >Add Relation</a>
 </div>
 
-
-<div class="modal fade" id="{[{ htmlPrefix }]}{[{index}]}">
+<div class="modal fade" id="{[{ ::htmlPrefix }]}{[{ ::index }]}">
     <div class="modal-dialog">
         <div class="modal-content">
 
@@ -18,7 +17,7 @@
                     <span aria-hidden="true">&times;</span>
                     <span class="sr-only">Close</span>
                 </a>
-                <h4 class="modal-title">Relations for {[{ attributes['relatedTo']['model'] }]}</h4>
+                <h4 class="modal-title">Relations for {[{ ::attributes['relatedTo']['model'] }]}</h4>
             </div>
 
             <div class="modal-body">
@@ -34,15 +33,15 @@
                                 </thead>
                                 <tbody ng-repeat="relation in rootScope.allRelations[attributes['relatedTo']['model']]">
                                 <tr ng-class="{selected: rootScope.inArray(datasource, relation.id)}"
-                                    data-title="{[{ relation.title }]}"
-                                    data-id="{[{ relation.id }]}"
+                                    data-title="{[{ ::relation.title }]}"
+                                    data-id="{[{ ::relation.id }]}"
                                     ng-click="rootScope.relationTableToggleSelected(datasource, relation.id)"
                                 >
                                     <td>
-                                        <a href="" >{[{ relation.title }]}</a>
+                                        <a href="" >{[{ ::relation.title }]}</a>
                                     </td>
                                     <td>
-                                        {[{ relation.createDate }]}
+                                        {[{ ::relation.createDate }]}
                                     </td>
                                 </tr>
                                 </tbody>
@@ -62,7 +61,7 @@
     </div>
 </div>
 
-<div class="modal fade modalForm" id="{[{ htmlPrefix }]}{[{index}]}ModalForm">
+<div class="modal fade modalForm" id="{[{ ::htmlPrefix }]}{[{::index}]}ModalForm">
     <div class="modal-dialog">
         <div class="modal-content">
 

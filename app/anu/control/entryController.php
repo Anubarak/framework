@@ -114,6 +114,7 @@ class entryController extends baseController
                 $response['success'] = true;
                 $response['id']     = $id;
             }
+            $response['dbDebug'] = anu()->database->error();
 
             anu()->database->debugError();
             $this->returnJson($response);
@@ -238,7 +239,6 @@ class entryController extends baseController
         $entry = Anu::getModelByName($handle);
         $entry->entryType = $entryType;
         $entry->class = $handle;
-
 
         $this->returnJson(anu()->entry->getFieldLayout($entry, true));
     }

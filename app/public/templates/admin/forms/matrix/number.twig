@@ -1,19 +1,32 @@
 <div class="form-group" ng-class="{error: rootScope[rootScope.form][htmlPrefix + index].$invalid}">
-    <label for="{[{htmlPrefix}]}{[{ index }]}">{[{ rootScope.getFieldTitle(attributes, index) }]}</label>
+    <label for="{[{::htmlPrefix}]}{[{ ::index }]}">{[{ ::rootScope.getFieldTitle(attributes, index) }]}</label>
 
     <input type="number"
-           id="{[{htmlPrefix}]}{[{ index }]}"
+           id="{[{::htmlPrefix}]}{[{ ::index }]}"
            ng-model="datasource"
-           name="{[{htmlPrefix}]}{[{ index }]}"
+           name="{[{ ::htmlPrefix }]}{[{ ::index }]}"
            class="form-control"
            string-to-number
            ng-blur="rootScope.resetError(index)"
            ng-required="rootScope.isRequired(attributes)"
            required
+           max_numeric="attributes"
+           min_numeric="attributes"
+           depth="attributes"
     >
-    <ul class="errors" ng-cloak>
+
+    <ul class="errors" ng-cloak ng-show="rootScope[rootScope.form][htmlPrefix + index].$invalid">
         <li ng-show="rootScope[rootScope.form][htmlPrefix + index].$error.number">
             Nur Zahlen sind erlaubt
+        </li>
+        <li ng-show="rootScope[rootScope.form][htmlPrefix + index].$error.max_numeric">
+            Die von Ihnen gewählte Zahl ist zu groß
+        </li>
+        <li ng-show="rootScope[rootScope.form][htmlPrefix + index].$error.min_numeric">
+            Die von Ihnen gewählte Zahl ist zu klein
+        </li>
+        <li ng-show="rootScope[rootScope.form][htmlPrefix + index].$error.depth">
+            Zu viele kommastellen
         </li>
     </ul>
 </div>

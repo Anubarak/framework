@@ -19,7 +19,7 @@ class tabService extends baseService
      * @param $record       baseRecord|entryRecord
      * @param $entryType
      */
-    public function updateTabsForEntryType($tabs, $record, $entryType){
+    public function updateTabsForEntryType(&$tabs, $record, $entryType){
         // save tabs
         $oldTabs = anu()->field->getAllTabsForEntry($record, $entryType);
         $position = 1;

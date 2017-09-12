@@ -44,6 +44,7 @@ class fieldController extends baseController
         if(!$field){
             $field = new fieldModel('field');
             anu()->field->populateModel(null, $field);
+            $field->settings = [];
         }
         $allRecords = anu()->record->getAllRecords();
         anu()->template->addAnuJsObject($allRecords, 'records');
@@ -59,8 +60,9 @@ class fieldController extends baseController
         $data = anu()->request->postVar('entry');
 
         $entry = new fieldModel('field');
-        $fieldOptions = anu()->request->postVar('fieldOptions', null);
+        $fieldOptions = $data['settings'];
         $fieldOptions[0] = $data['fieldType'];
+
         if($data['fieldType'] === "relation"){
             $record = anu()->record->getRecordById($fieldOptions['relatedTo']);
             $fieldOptions['relatedTo'] = array(
@@ -95,6 +97,7 @@ class fieldController extends baseController
      */
     public function bindFields($param){
         if(is_array($param) && count($param)){
+            $newEntryType = false;
             if($param[count($param)-1] === 'add'){
                 $record = anu()->record->getRecordById($param[count($param)-2]);
                 $entryType = array(
@@ -103,6 +106,7 @@ class fieldController extends baseController
                     'handle'        => '',
                     'recordHandle'  => $record->handle
                 );
+                $newEntryType = true;
             }else{
                 if(!$entryType = anu()->record->getEntryTypeById($param[count($param)-1])){
                     throw new \Exception("Could not find Entrytype with id " . $param[count($param)-1]);
@@ -111,17 +115,18 @@ class fieldController extends baseController
             }
 
 
-
+            if(!$newEntryType){
+                $tabs = anu()->field->getAllTabsForEntry($record, $entryType['handle']);
+                if($entryType['id']){
+                    foreach ($tabs as $k => $tab){
+                        $tabs[$k]['fields'] = anu()->field->getAllFieldsForEntry($record, true, $entryType['handle'], $tab['id']);
+                    }
+                }
+            }else{
+                $tabs = array();
+            }
             $allFields = anu()->field->getAllFields();
             anu()->template->addAnuJsObject($allFields, 'fields');
-
-            $tabs = anu()->field->getAllTabsForEntry($record, $entryType['handle']);
-
-            if($entryType['id']){
-                foreach ($tabs as $k => $tab){
-                    $tabs[$k]['fields'] = anu()->field->getAllFieldsForEntry($record, true, $entryType['handle'], $tab['id']);
-                }
-            }
 
             anu()->template->addAnuJsObject($tabs, 'tabs');
             anu()->template->addAnuJsObject($entryType, 'entryType');
@@ -154,6 +159,11 @@ class fieldController extends baseController
         $record = anu()->record->getRecordById($data['id'], true);
         $tabs = anu()->request->getValue('tabs');
         $tabIds = anu()->tab->updateTabsForEntryType($tabs, $record, $entryType['handle']);
+
+        //Update ids
+        foreach ($tabs as $k => $v){
+            $tabs[$k]['id'] = $tabIds[$k];
+        }
 
         if($entryType['id']){
             //save

@@ -1,5 +1,6 @@
 {% extends 'admin/layout/site.twig' %}
 {% set pageHeadline = "Record Liste" %}
+{% set activePage = 'records' %}
 {% block content %}
     <ul class="list-group" ng-controller="recordController" ng-cloak>
         <li class="list-group-item" ng-repeat="record in data.records">

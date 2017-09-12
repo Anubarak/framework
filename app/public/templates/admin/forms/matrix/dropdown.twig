@@ -1,10 +1,5 @@
 <div class="form-group" ng-class="{error: rootScope[rootScope.form][htmlPrefix + index].$invalid}">
-    <label for="{[{htmlPrefix}]}{[{ index }]}">{[{ rootScope.getFieldTitle(attributes, index) }]}</label>
-
-    <div ng-repeat="item in attributes.options">
-        {[{ ::item.id }]}<br>
-        {[{ ::item.label }]}
-    </div>
+    <label for="{[{::htmlPrefix}]}{[{ ::index }]}">{[{ rootScope.getFieldTitle(attributes, index) }]}</label>
 
     <select class="form-control"
             name="{[{::htmlPrefix}]}{[{ ::index }]}"

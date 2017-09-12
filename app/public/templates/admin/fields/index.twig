@@ -1,6 +1,6 @@
 {% extends 'admin/layout/site.twig' %}
 
-
+{% set activePage = 'fields' %}
 {% set pageHeadline = (entry.id)? "Feld bearbeiten" : "Neues Feld" %}
 {% block content %}
     <div ng-controller="fieldController">
@@ -8,7 +8,9 @@
             <div ng-repeat="(index, item) in attributes">
                 <div thin-directive="{[{item[0]}]}" root-scope="rootScope" datasource="data[index]" index="index"  prefix="" attributes="item"> </div>
             </div>
-
+            <pre>
+                {[{ data | json }]}
+            </pre>
             <input type="hidden" name="action" value="action/entry/save">
             <input type="hidden" name="class" ng-model="entryClass">
             <div id="fieldOptionContainer">

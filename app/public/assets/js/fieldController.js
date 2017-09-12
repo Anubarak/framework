@@ -101,7 +101,7 @@ myApp.controller('fieldController', ['$scope', '$http', '$timeout', '$compile', 
         var data = angular.copy($scope.data);
         var fieldOptions = angular.copy($scope.fieldOptions);
         form.append("entry", JSON.stringify(data));
-        form.append("fieldOptions", JSON.stringify(fieldOptions));
+        console.log("entry", data);
         form.append('action', "field/save");
         $http({
             method: 'POST',
@@ -201,10 +201,13 @@ myApp.controller('fieldController', ['$scope', '$http', '$timeout', '$compile', 
     $scope.$watch(
         "data.fieldType",
         function handleFieldTypeChange( newValue, oldValue ) {
-            if(newValue){
+            if(newValue != oldValue){
+                $scope.data.settings = {};
                 if(newValue === 'relation'){
-                    $scope.fieldOptions.relatedTo = anu.records[0].id;
+                    $scope.data.settings.relatedTo = anu.records[0].id;
                 }
+            }
+            if(newValue){
                 $templateRequest(configService.angularTemplatePath + 'admin/forms/fieldOptions/' + newValue + ".twig").then(function (html) {
                     var template = angular.element(html);
                     $('#fieldOptionContainer').html(template);

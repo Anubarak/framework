@@ -336,7 +336,7 @@ class recordService
 
             if(count($fieldHandlesPreSave)){
                 foreach ($fieldHandlesPreSave as $deleteField){
-                    anu()->database->alterTableRemoveColumn($record->tableName, $deleteField);
+                    //anu()->database->alterTableRemoveColumn($record->tableName, $deleteField);
                 }
             }
 
