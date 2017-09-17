@@ -1,0 +1,6 @@
+<div ng-controller="loginController">
+    <a href="#loginPanel" class="btn btn-default" ng-show="!user" data-toggle="modal" ng-cloak>Login</a>
+    <button class="btn btn-default" ng-click="logout();" ng-show="user" ng-cloak>Logout</button>
+    {% include 'user/login/modal.twig' %}
+</div>
+{% includeJsFile 'loginController.js'%}

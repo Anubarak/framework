@@ -36,8 +36,11 @@
                     <li class="{% if activePage is defined and activePage == 'fields' %}active{% endif %}">
                         <a href="{{ baseUrl }}action/field/overview/"><span class="glyphicon glyphicon-lock"></span> Felder</a>
                     </li>
+                    <li class="{% if activePage is defined and activePage == 'users' %}active{% endif %}">
+                        <a href="{{ baseUrl }}action/user/overview/"><span class="glyphicon glyphicon-user"></span></span> Benutzer</a>
+                    </li>
                     <li class="{% if activePage is defined and activePage == 'records' %}active{% endif %}">
-                        <a href="{{ baseUrl }}record"><span class="glyphicon glyphicon-calendar"></span> Records <span class="badge pull-right">42</span>
+                        <a href="{{ baseUrl }}record"><span class="glyphicon glyphicon-hdd"></span> Records <span class="badge pull-right">42</span>
                         </a>
                     </li>
                     <li><a href=""><span class="glyphicon glyphicon-cog"></span> Einstellungen</a></li>

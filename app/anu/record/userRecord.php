@@ -46,4 +46,9 @@ class userRecord extends baseRecord
             'title'     => array(DBIndex::Unique),
         ), parent::defineIndex());
     }
+
+    public function getModel()
+    {
+        return "user";
+    }
 }

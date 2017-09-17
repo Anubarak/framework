@@ -12,6 +12,18 @@ namespace Anu;
 class userController extends baseController
 {
 
+    public function overview(){
+        $record = new userRecord();
+        $criteria = new elementCriteriaModel($record);
+
+        $users = $criteria->find();
+        anu()->template->addAnuJsObject($users, 'users');
+        anu()->template->render('admin/user/overview.twig',array(
+            'users' => $users
+        ));
+        exit;
+    }
+
     public function login(){
         $data = (array)anu()->request->getValue('user');
         $user = anu()->user->login($data['username'], $data['username'], $data['password']);
@@ -64,6 +76,10 @@ class userController extends baseController
         }else{
             return $response;
         }
+    }
+
+    public function saveUser(){
+        $user = anu()->request->getVar('user');
     }
 
 }

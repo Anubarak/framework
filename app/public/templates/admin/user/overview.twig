@@ -1,0 +1,43 @@
+{% extends 'admin/layout/site.twig' %}
+{% set activePage = 'users' %}
+{% set pageHeadline = "Benutzerübersicht" %}
+{% block content %}
+    <div ng-controller="userController" ng-cloak>
+        <table class="col-md-12 table-bordered table-striped table-condensed cf">
+            <thead class="cf">
+            <tr>
+                <th>Benutzername</th>
+                <th>Email</th>
+                <th class="">Vorname</th>
+                <th class="">Nachname</th>
+                <th class="">Registriert am</th>
+                <th class="">Zuletzt eingeloggt</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="user in users">
+                    <td data-title="Benutzername">
+                        {[{ user.title }]}
+                    </td>
+                    <td data-title="Email">
+                        {[{ user.email }]}
+                    </td>
+                    <td data-title="Vorname">
+                        {[{ user.first_name }]}
+                    </td>
+                    <td data-title="Nachname">
+                        {[{ user.last_name }]}
+                    </td>
+                    <td data-title="Registriert am">
+                        {[{ user.createDate }]}
+                    </td>
+                    <td data-title="Zuletzt eingeloggt">
+                        {[{ user.updateDate }]}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% includeJsFile 'userController.js'%}
