@@ -33,45 +33,52 @@ class positionField extends fieldService
     public function onUpdate($entry, $key, $attributes, &$values, $oldEntry = null)
     {
         if(property_exists($entry, $key)){
-            $relatedField = array_key_exists('relatedField', $attributes)? $attributes['relatedField'] : null;
-            //no position change -> increase value by one if there is a relation change
-            if($entry->$key === null){
-                //save from edit field -> no direct position change by user
-                if($relatedField){
-                    if($oldEntry->$relatedField->getStoredIds() != $entry->$relatedField){
-                        //just a relation change -> set position = last
-                        if((is_array($entry->$relatedField) && count($entry->$relatedField)) || ($entry->$relatedField instanceof elementCriteriaModel && $ids = $entry->$relatedField->ids())){
-                            if($ids){
-                                $relationId = $ids[0];
-                            }else{
-                                $relationId = $entry->$relatedField[0];
-                            }
-                            $relField = $attributes[$relatedField]['relatedTo']['field'];
-                        }else{
-                            $relationId = 'nothing';
-                            $relField = $relatedField;
-                        }
-
-                        $position = anu()->entry->setNewPosition($key, $relField, $relationId, $entry->id);
-                        $entry->$key = $position;
-                        //save old Values to fill the empty one
-                        //old Parent
-                        $entry->oldIds = $oldEntry->$relatedField->getStoredIds();
-
-                        $entry->oldPosition = $oldEntry->$key;
-                        anu()->entry->changePositions($entry, $key, $relatedField);
-                    }else{
-                        $entry->$key = $oldEntry->$key;
-                    }
-                }else{
-                    $entry->$key = $oldEntry->$key;
-                }
-            }else{
-                //save from list -> position changes every time
-                anu()->entry->changePositions($entry, $key, $relatedField);
+            if($entry->position === $oldEntry->position){
+                //return true;
             }
+            echo "<pre>";
+            var_dump($entry->$key);
+            echo "</pre>";
+            die();
+            $oldPosition = $oldEntry->position;
+            $position = $entry->$key;
+            $values[$key] = $position;
+            $record = Anu::getRecordByName($entry->class);
+            $criteria = new elementCriteriaModel($record);
+            $childrenIds = $criteria->find([
+                'relatedTo' => array(
+                    'field' => "child",
+                    'model' => $entry->class,
+                    'id' => $entry->id
+                )
+            ], true);
+            $movedIds = $childrenIds;
+            $movedIds[] = $entry->id;
+            $childPosition = $position++;
+            if(is_array($childrenIds) && count($childrenIds)){
+                foreach($childrenIds as $childId){
+                    anu()->database->update($record->tableName, array($key => $childPosition), array($record->primary_key => $childId));
+                    echo anu()->database->last() . "<br>";
+                    $childPosition++;
+                }
+            }
+            $movedPositions = count($movedIds);
+            $where = array(
+                $record->primary_key . "[!]" => $movedIds
+            );
+            if($oldPosition > $position){
+                $where[$key . "[<=]"] = $oldPosition;
+                $where[$key . "[>=]"] = $position;
+                anu()->database->update($record->tableName, array("#" . $key => "$key+$movedPositions"), $where);
+            }else{
+                $where[$key . "[<=]"] = $position;
+                $where[$key . "[>=]"] = $oldPosition;
+                anu()->database->update($record->tableName, array("#" . $key => "$key-$movedPositions"), $where);
+            }
+            echo anu()->database->last() . "<br>";
+
+            return true;
         }
-        $values[$key] = $entry->$key;
     }
 
     public function onInsert($entry, $key, $attributes, &$relationsToSave, &$values)

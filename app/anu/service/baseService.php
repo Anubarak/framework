@@ -176,9 +176,15 @@ class baseService implements \JsonSerializable
      */
     public function populateModel($data, $model, $attributes = null){
         //$data['attributes'] = "";
+
         if($model->setData($data)){
             if($attributes === null){
                 $attributes = $model->defineAttributes();
+            }
+            if($model instanceof pageModel){
+                echo "<pre>tttt";
+                var_dump($model);
+                echo "</pre>";
             }
 
             foreach ($attributes as $k => $v){
@@ -186,7 +192,6 @@ class baseService implements \JsonSerializable
                 if($field = anu()->field->getField($v[0])){
                     $field->onPopulate($model, $v, $value, $k);
                 }else{
-
                     $model->$k = $value;
                 }
 
@@ -254,7 +259,6 @@ class baseService implements \JsonSerializable
         if($model = Anu::getModelByName($this->model)){
             $attributes = $model->defineAttributes();
             $select = $this->iterateDBSelect($attributes);
-
             $join = array(
                 "[>]relation" => array($this->tableName . "." . $this->primary_key => 'id_1')
             );
@@ -530,7 +534,7 @@ class baseService implements \JsonSerializable
             if($record->structure === StructureType::Matrix){
                 $entry->children = $criteria->find([
                     'relatedTo' => array(
-                        'field' => $record->primary_key,
+                        'field' => "child",
                         'model' => $entry->class,
                         'id'    => $entry->id
                     )

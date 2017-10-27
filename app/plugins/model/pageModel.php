@@ -15,5 +15,10 @@ class pageModel extends entryModel
         ));
     }
 
+    public function defineStructure()
+    {
+        return StructureType::Matrix;
+    }
+
 }
     

@@ -1,26 +1,27 @@
 <div ng-controller="listController{{ list }}" class="form-group listController" data-list="{{ list }}">
-    <div class="floatleft">
-        <tg-dynamic-directive tg-dynamic-directive-children="{[{hasChildren}]}" ng-model="rootItem" tg-dynamic-directive-view="getView">
-        </tg-dynamic-directive>
-        <div style="clear: both;"></div>
-    </div>
-
-    <script type="text/ng-template" id="nestable_item{{ list }}.html">
+    <script type="text/ng-template" id="nodes_renderer.html">
         <div>
-            <div style="float: left">
-                <i ng-hide="ngModelItem.first" class="fa fa-arrows move" aria-hidden="true"></i>
-                <span ng-hide="ngModelItem.first" class="status" ng-class="{true: 'active', false: 'disabled'}[ngModelItem.enabled == 1]"></span>
-                <a ng-href="{{ baseUrl }}action/{{ list }}/edit/{[{ ngModelItem.id }]}" >{[{ngModelItem.title}]}</a>
+            <div  class="ui-tree-row pull-left">
+                <div ui-tree-handle class="pull-left">
+                    <i class="fa fa-arrows move" aria-hidden="true"></i>
+                </div>
+                <div class="pull-left" style="padding-left: 10px;">
+                    <a ng-href="{{ baseUrl }}action/{{ list }}/edit/{[{ node.id }]}" >{[{node.title}]} {[{ node.id }]}</a>
+                </div>
             </div>
-            <div style="clear: both"></div>
-            <ul class="apps-container" ng-show="hasChildren" data-id="{[{ngModelItem.id}]}" ui-sortable="sortableOptions" ng-model="ngModelItem.children">
-                <li class="test" ng-repeat="innerItem in ngModelItem.children">
-                    <tg-dynamic-directive tg-dynamic-directive-children="{[{hasChildren}]}" ng-model="innerItem" tg-dynamic-directive-view="getView">
-                    </tg-dynamic-directive>
-                </li>
-            </ul>
         </div>
+        <div class="clearfix"></div>
+        <ol ui-tree-nodes="" ng-model="node.children">
+            <li ng-repeat="node in node.children" ui-tree-node ng-include="'nodes_renderer.html'">
+            </li>
+        </ol>
     </script>
+
+    <div ui-tree="treeOptions">
+        <ol ui-tree-nodes="" ng-model="entries" id="tree-root">
+            <li ng-repeat="node in entries" ui-tree-node ng-include="'nodes_renderer.html'"></li>
+        </ol>
+    </div>
 
     <a href="{{ baseUrl }}action/{{ list }}/edit/" type="button" class="btn btn-danger pull-right">{{ list }} hinzufügen</a>
 </div>

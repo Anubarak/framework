@@ -32,32 +32,31 @@ class entryController extends baseController
      *
      */
     public function saveTree(){
-        $entryData = anu()->request->getValue('entry');
-        $data = (array)anu()->request->getValue('data');
-        $class = $entryData['class'];
-        $entry = Anu::getClassByName($class, 'Model', true);
-        anu()->$class->populateModel($entryData, $entry);
-        $parentId = $data['parentId'];
-        $position = $data['position'];
-        $oldPosition = $data['oldPosition'];
-        $oldIds = isset($data['sourceIds'])? $data['sourceIds'] : null;
-        $attributes = $entry->defineAttributes();
-        foreach ($attributes as $k => $v){
-            if($v[0] == AttributeType::Position){
-                $entry->$k = $position;
-                $entry->oldPosition = $oldPosition;
-                $entry->oldSiblings = $oldIds;
-                if(array_key_exists("relatedField", $v)){
-                    $key = $v['relatedField'];
-                    $entry->$key = array($parentId);
-                }
+        if($data = anu()->request->getValue('entry')){
+            $className = $data['class'];
+            $entry = Anu::getModelByName($className);
+            anu()->$className->populateModel($data, $entry);
+
+            $position = 0;
+
+            if($prevId = anu()->request->getValue('prevId')){
+                $prevEntry = anu()->$className->getEntryById($prevId);
+                $position = $prevEntry->position + 1;
+            }
+            echo "<pre>";
+            //var_dump($prevEntry);
+            echo "</pre>";
+            die();
+            echo "prevId = " . $prevId . "<br>";
+            echo "position = " . $position . "<br>";
+            $entry->position = $position;
+
+            //TODO update parent relation
+            if(!anu()->$className->saveEntry($entry)){
+                $this->returnJson($entry->getErrors());
             }
         }
 
-        $className = $entry->class;
-        if(!anu()->$className->saveEntry($entry)){
-            $this->returnJson($entry->getErrors());
-        }
         $this->returnJson(true);
     }
 
@@ -69,7 +68,7 @@ class entryController extends baseController
             $className = $data['class'];
             $entry = Anu::getModelByName($className);
             anu()->$className->populateModel($data, $entry);
-
+            //TODO save parent relation
             $matrix = anu()->request->postVar('matrix', null);
             $matrixArray = array();
             if($matrix && is_array($matrix) && count($matrix)){

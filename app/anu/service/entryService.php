@@ -153,7 +153,6 @@ class entryService extends baseService
             $where[$this->tableName . "." . $this->primary_key] = $entryId;
 
             $row = anu()->database->get($this->tableName, $select, $where);
-
             anu()->database->debugError();
             if($row){
                 return $this->populateModel($row, $model);
@@ -408,6 +407,11 @@ class entryService extends baseService
      */
     public function updateRelations($entry, $field, $relationInformation, $relationIds){
         //delete previous relations if there are any
+        if($field === "parent"){
+            $tmpField = "child";
+        }else{
+            $tmpField = $field;
+        }
         anu()->database->delete('relation', array(
             "OR #or" => array(
                 'AND #first' => array(
@@ -427,8 +431,7 @@ class entryService extends baseService
             foreach ($relationIds as $rel){
                 if($rel){
                     anu()->database->insert('relation', $this->getRelationData($relationInformation, $field, $rel, $entry->id));
-
-                    anu()->database->insert('relation', $this->getRelationData($relationInformation, $field, $rel, $entry->id, true));
+                    anu()->database->insert('relation', $this->getRelationData($relationInformation, $tmpField, $rel, $entry->id, true));
                 }
             }
         }

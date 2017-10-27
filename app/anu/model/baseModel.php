@@ -112,22 +112,24 @@ class baseModel implements \JsonSerializable
     {
 
         $type = $this->defineStructure();
+
         $attributes = array();
         /** @var baseRecord $record */
         $record = Anu::getRecordByName($this->class);
-        switch ($type){
+        switch ($record->structure){
             case StructureType::Channel:
 
                 break;
             case StructureType::Matrix:
+                $attributes['position'] = array(AttributeType::Position);
                 $attributes['parent'] = array(AttributeType::Relation, 'title' => Anu::t('Elternseite'), 'relatedTo' => array(
                     'table' => $record->getTableName(),
                     'field' => $record->getPrimaryKey(),
                     'model' => Anu::getClassName($this)
                 ), 'parentChild' => true);
-                //$attributes['position'] = array(AttributeType::Position);
                 break;
         }
+
         return $attributes;
     }
 

@@ -3,7 +3,10 @@
 {% set pageHeadline = 'Home :D' %}
 {% block content %}
 
+    {% set form = anu.field.renderList('page') %}
+    {{ form|raw }}
     <br><br><br>
+    {#
     {% set form = anu.entry.renderList('comic') %}
     {{ form|raw }}
 
@@ -18,7 +21,7 @@
 
 
     {% set form = anu.entry.renderList('ingredient') %}
-    {{ form|raw }}
+    {{ form|raw }}#}
 
 
 

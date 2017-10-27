@@ -74,6 +74,10 @@ class baseRecord
                 'createDate'    => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP'),
                 'updateDate'    => array(AttributeType::DateTime, 'default' => 'CURRENT_TIMESTAMP')
             );
+
+            if($this->structure === StructureType::Matrix){
+                $baseAttributes['position']         = array(AttributeType::Number);
+            }
         }
 
         $this->baseAttributes = array_merge($baseAttributes, anu()->field->getAllFieldsForEntry($this->handle));

@@ -6,7 +6,7 @@
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
     $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
     $server = $protocol . $host . '/';
-    DEFINE("BASE_URL", $server . "anu/");
+    DEFINE("BASE_URL", $server . "framework/");
 
     $dirs = array(
         'app\anu\service', 'app\anu\field', 'app\anu\model', 'app\anu\control', 'app\anu\core', 'app\anu\record', 'app\anu\twig',

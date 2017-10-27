@@ -64,7 +64,6 @@ $.each(container, function(index, item){
                         parentKey = 'parent';
                         $scope.hasChildren = true;
                     }
-                    console.log("attributes", attribute);
                     if(attribute && attribute.length && attribute[0] === 'position' && 'relatedField' in attribute){
                         console.log(attribute);
                         parentKey = attribute['relatedField'];
@@ -77,14 +76,12 @@ $.each(container, function(index, item){
                         item.parent = (item[parentKey].ids.length)? item[parentKey].ids[0] : null;
                         myEntries.push(item);
                     });*/
-                    console.log('buidTree', entries[list]);
                     _.each(entries[list], function (o) {
                         o.children.forEach(function (childId) {
                             _.findWhere(entries[list], {id: childId}).parents = o.id;
                         });
                     });
 
-                    console.log('after under', entries[list]);
                     var tree = treeify(entries[list], null, 'parents');
                     console.log('tree', tree);
                     $scope.entries = tree;
@@ -97,23 +94,20 @@ $.each(container, function(index, item){
             }
         };
 
-        $scope.send = function(data, model){
+        /**
+         *
+         * @param model
+         * @param prevId
+         * @returns {boolean}
+         */
+        $scope.send = function(model, prevId){
             var form = new FormData();
 
-            var model = angular.copy(model);
-            if($scope.parentFieldId){
-                model[$scope.parentFieldId] = [data.parentId];
-            }else{
-                model[$scope.parentFieldId] = [];
-            }
-            delete model.children;
-            form.append("entry", JSON.stringify(model));
-            form.append("data", JSON.stringify(data));
+            var tmpModel = angular.copy(model);
+            form.append("entry", JSON.stringify(tmpModel));
             form.append('action', "entry/saveTree");
+            form.append('prevId', prevId);
 
-            console.log(data);
-            console.log(model);
-            return true;
             $http({
                 method: 'POST',
                 url: '',
@@ -139,6 +133,8 @@ $.each(container, function(index, item){
         var tmpList = [];
 
         $scope.init();
+        console.log($scope.entries);
+
         $scope.rootItem = {
             title: list,
             children: $scope.entries,
@@ -190,7 +186,30 @@ $.each(container, function(index, item){
             return null;
         };
 
+        $scope.treeOptions = {
+            dropped: function(event) {
+                console.log("event", event);
+                console.log("parent", event.dest.nodesScope.$parent.$modelValue);
+                var parentNode = event.dest.nodesScope.$parent.$modelValue;
+                var prevId = 0;
+                if(event.prev === null){
+                    if(parentNode){
+                        prevId = parentNode.id;
+                    }
+                }else{
+                    prevId = event.prev.$modelValue.id
+                }
+
+                //console.log("countChildren", event.source.nodeScope.childNodesCount());
+
+                var node = event.source.nodeScope.$modelValue;
+                node.parent = (typeof parentNode !== 'undefined')? [parentNode.id] : [];
+                $scope.send(node, prevId);
+            }
+        };
+
 
         scopes[list] = $scope;
     }]);
 });
+var event

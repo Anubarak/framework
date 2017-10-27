@@ -1,7 +1,7 @@
 /**
  * Created by SECONDRED on 29.08.2017.
  */
-const myApp = angular.module('myApp',['tg.dynamicDirective', 'ui.sortable', 'ngQuill']).config(function($interpolateProvider, $httpProvider){
+const myApp = angular.module('myApp',['tg.dynamicDirective', 'ui.sortable', 'ngQuill', 'ui.tree']).config(function($interpolateProvider, $httpProvider){
 
     $interpolateProvider.startSymbol('{[{').endSymbol('}]}');
     // Use x-www-form-urlencoded Content-Type

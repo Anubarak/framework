@@ -24,9 +24,10 @@ class requestService
         if(is_array($_POST) && count($_POST)){
             foreach ($_POST as $key => $post){
                 $string = json_decode($post ,true);
-                $this->postVar[$key] = (json_last_error() == JSON_ERROR_NONE)? (array)$string : $post;
+                $this->postVar[$key] = (json_last_error() == JSON_ERROR_NONE && !is_numeric($post))? (array)$string : $post;
             }
         }
+
         $this->getVar = $_GET;
         $this->request = array_merge($this->getVar, $this->postVar);
     }
